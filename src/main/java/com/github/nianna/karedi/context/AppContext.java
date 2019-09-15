@@ -129,6 +129,11 @@ public class AppContext {
 
 	private final ObservableList<Note> observableSelection = FXCollections
 			.observableArrayList(note -> new Observable[] { note });
+
+	public IntBounded getSelectionBounds() {
+		return selectionBounds;
+	}
+
 	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
 	private File directory;
 
@@ -407,7 +412,7 @@ public class AppContext {
 		return activeSong.getReadOnlyProperty();
 	}
 
-	private Song getSong() {
+	public Song getSong() {
 		return activeSongProperty().get();
 	}
 
@@ -535,7 +540,6 @@ public class AppContext {
 			addFileActions();
 			addEditActions();
 			addPlayActions();
-			addTagsActions();
 			addViewActions();
 		}
 
@@ -543,6 +547,7 @@ public class AppContext {
 			add(KarediActions.NEW, new NewSongAction());
 			add(KarediActions.LOAD, new LoadSongAction());
 			add(KarediActions.RELOAD, new ReloadSongAction());
+			add(KarediActions.RENAME, new RenameAction());
 			add(KarediActions.SAVE, new SaveSongAction());
 			add(KarediActions.SAVE_AS, new SaveSongAsAction());
 			add(KarediActions.IMPORT_AUDIO, new ImportAudioAction());
@@ -656,23 +661,6 @@ public class AppContext {
 			add(KarediActions.SWITCH_MODE, new SwitchModeAction());
 		}
 
-		private void addTagsActions() {
-			add(KarediActions.MULTIPLY_BPM_BY_TWO, new EditBpmAction(2));
-			add(KarediActions.DIVIDE_BPM_BY_TWO, new EditBpmAction(0.5));
-			add(KarediActions.EDIT_BPM, new EditBpmAction());
-
-			add(KarediActions.MEDLEY_FROM_SELECTION, new SetMedleyFromSelectionAction(true, true));
-			add(KarediActions.MEDLEY_SET_START, new SetMedleyFromSelectionAction(true, false));
-			add(KarediActions.MEDLEY_SET_END, new SetMedleyFromSelectionAction(false, true));
-			add(KarediActions.EDIT_MEDLEY, new EditMedleyAction());
-
-			add(KarediActions.SET_START_TAG, new SetTagValueFromMarkerPositionAction(TagKey.START));
-			add(KarediActions.SET_END_TAG, new SetTagValueFromMarkerPositionAction(TagKey.END));
-			add(KarediActions.SET_GAP_TAG, new SetTagValueFromMarkerPositionAction(TagKey.GAP));
-
-			add(KarediActions.RENAME, new RenameAction());
-			add(KarediActions.ADD_TAG, new AddTagAction());
-		}
 	}
 
 	private class ExitAction extends KarediAction {
@@ -1576,90 +1564,6 @@ public class AppContext {
 
 	}
 
-	private class EditBpmAction extends KarediAction {
-		private double scale;
-		private boolean promptUser;
-
-		private EditBpmAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
-			promptUser = true;
-		}
-
-		private EditBpmAction(double scale) {
-			this();
-			this.scale = scale;
-			promptUser = false;
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (promptUser) {
-				double oldBpm = getSong().getBpm();
-
-				ModifyBpmDialog dialog = new EditBpmDialog();
-				getSong().getTagValue(TagKey.BPM).ifPresent(dialog::setBpmFieldText);
-				Optional<BpmEditResult> optionalResult = dialog.showAndWait();
-				optionalResult.ifPresent(result -> {
-					double newBpm = result.getBpm();
-					if (result.shouldRescale()) {
-						execute(new RescaleSongToBpmCommand(getSong(), newBpm / oldBpm));
-					} else {
-						execute(new ChangeBpmCommand(getSong(), newBpm));
-					}
-				});
-			} else {
-				execute(new RescaleSongToBpmCommand(getSong(), scale));
-			}
-		}
-
-	}
-
-	private class SetMedleyFromSelectionAction extends KarediAction {
-		private boolean setStartBeat;
-		private boolean setEndBeat;
-
-		private SetMedleyFromSelectionAction(boolean setStartBeat, boolean setEndBeat) {
-			setDisabledCondition(selection.isEmptyProperty());
-			this.setEndBeat = setEndBeat;
-			this.setStartBeat = setStartBeat;
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Integer startBeat = setStartBeat ? selectionBounds.getLowerXBound() : null;
-			Integer endBeat = setEndBeat ? selectionBounds.getUpperXBound() : null;
-			execute(new ChangeMedleyCommand(getSong(), startBeat, endBeat));
-		}
-
-	}
-
-	private class EditMedleyAction extends KarediAction {
-
-		private EditMedleyAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			EditMedleyDialog dialog = new EditMedleyDialog();
-
-			getSong().getTagValue(TagKey.MEDLEYSTARTBEAT)
-					.ifPresent(value -> dialog.setStartBeat(value));
-			getSong().getTagValue(TagKey.MEDLEYENDBEAT)
-					.ifPresent(value -> dialog.setEndBeat(value));
-			dialog.initModality(Modality.NONE);
-			dialog.show();
-
-			dialog.resultProperty().addListener(obs -> {
-				Medley medley = dialog.getResult();
-				if (medley != null) {
-					execute(new ChangeMedleyCommand(getSong(), medley.getStartBeat(),
-							medley.getEndBeat()));
-				}
-			});
-		}
-	}
-
 	private class RenameAction extends KarediAction {
 
 		private RenameAction() {
@@ -1772,40 +1676,6 @@ public class AppContext {
 			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
-	}
-
-	private class AddTagAction extends TagAction {
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			EditTagDialog dialog = new EditTagDialog(I18N.get("dialog.new_tag.title"));
-			Optional<Tag> result = dialog.showAndWait();
-			result.ifPresent(tag -> execute(
-					new ChangeTagValueCommand(getSong(), tag.getKey(), tag.getValue())));
-		}
-	}
-
-	private class SetTagValueFromMarkerPositionAction extends TagAction {
-		private TagKey key;
-
-		private SetTagValueFromMarkerPositionAction(TagKey key) {
-			this.key = key;
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			String value = null;
-			if (TagKey.expectsADouble(key)) {
-				value = Converter.toString(MathUtils.msToSeconds(getMarkerTime()));
-			} else {
-				if (TagKey.expectsAnInteger(key)) {
-					value = Converter.toString(getMarkerTime());
-				}
-			}
-			if (value != null) {
-				execute(new ChangeTagValueCommand(getSong(), key, value));
-			}
-		}
 	}
 
 	private class SwitchModeAction extends KarediAction {

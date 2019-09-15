@@ -33,6 +33,9 @@
 							meta="UP" shift="UP" shortcut="UP" />
 					</accelerator>
 				</MenuItem>
+				<MenuItem fx:id="renameMenuItem" disable="true"
+						  mnemonicParsing="false" text="%ui.menu.tags.rename_files">
+				</MenuItem>
 				<MenuItem fx:id="saveMenuItem" mnemonicParsing="false"
 					text="%ui.menu.save">
 					<accelerator>
@@ -599,10 +602,6 @@
 						</MenuItem>
 					</items>
 				</Menu>
-				<SeparatorMenuItem mnemonicParsing="false" />
-				<MenuItem fx:id="renameMenuItem" disable="true"
-					mnemonicParsing="false" text="%ui.menu.tags.rename_files">
-				</MenuItem>
 				<SeparatorMenuItem mnemonicParsing="false" />
 				<MenuItem fx:id="addTagMenuItem" disable="true"
 					mnemonicParsing="false" text="%ui.menu.tags.add">

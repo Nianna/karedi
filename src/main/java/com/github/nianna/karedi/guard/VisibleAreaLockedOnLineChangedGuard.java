@@ -44,6 +44,7 @@ public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 			}
 		}
 	}
+
 	private void onBoundsInvalidated() {
 		SongLine activeLine = songState.getActiveLine();
 		if (activeLine != null && activeLine.isValid()) {

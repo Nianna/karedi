@@ -175,7 +175,6 @@ public class AppContext {
 	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
 	private File directory;
 
-	private final InvalidationListener markerPositionChangeListener = this::onMarkerPositionWhilePlayingChanged;
 	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
 
 	// Convenience bindings for actions
@@ -208,7 +207,6 @@ public class AppContext {
 		actionHelper.addActions();
 
 		Bindings.bindContent(observableSelection, getSelected());
-		player.statusProperty().addListener(this::onPlayerStatusChanged);
 		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
 
 		guards.forEach(Guard::enable);
@@ -516,13 +514,6 @@ public class AppContext {
 	}
 
 	// Listeners that are necessary to assure consistency
-	private void onPlayerStatusChanged(Observable obs, Status oldStatus, Status newStatus) {
-		if (newStatus == Status.PLAYING) {
-			markerTimeProperty().addListener(markerPositionChangeListener);
-		} else {
-			markerTimeProperty().removeListener(markerPositionChangeListener);
-		}
-	}
 
 	private void onBeatMillisConverterInvalidated() {
 		player.stop();
@@ -545,13 +536,6 @@ public class AppContext {
 		}
 	}
 
-	private void onMarkerPositionWhilePlayingChanged(Observable obs) {
-		int markerBeat = getMarkerBeat();
-		if (!visibleArea.inBoundsX(markerBeat)) {
-			int xRange = visibleArea.getUpperXBound() - visibleArea.getLowerXBound();
-			setVisibleAreaXBounds(markerBeat - 1, markerBeat - 1 + xRange);
-		}
-	}
 
 	// Other
 	public boolean needsSaving() {

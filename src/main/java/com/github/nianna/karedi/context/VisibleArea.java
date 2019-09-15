@@ -95,7 +95,7 @@ public class VisibleArea implements IntBounded {
 		}
 	}
 
-	boolean setXBounds(int lowerXBound, int upperXBound) {
+	public boolean setXBounds(int lowerXBound, int upperXBound) {
 		IntBounded maxVisibleArea = getMaxVisibleArea();
 		lowerXBound = Math.max(lowerXBound, maxVisibleArea.getLowerXBound());
 		upperXBound = Math.max(upperXBound, lowerXBound + MIN_WIDTH);

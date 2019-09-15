@@ -21,15 +21,15 @@ public class NoteSelection implements Selection<Note> {
 
 	private ObservableList<Note> selection = FXCollections.observableArrayList();
 	private SortedList<Note> sortedSelection = selection.sorted();
-	private ReadOnlyIntegerWrapper size = new ReadOnlyIntegerWrapper();
+	private ReadOnlyIntegerWrapper sizeProperty = new ReadOnlyIntegerWrapper();
 
 	private boolean isConsecutive = true;
 
-	private BooleanBinding isEmptyPropery = size.isEqualTo(0);
+	private BooleanBinding isEmptyProperty = sizeProperty.isEqualTo(0);
 
 	public NoteSelection() {
 		sortedSelection.addListener((InvalidationListener) (inv) -> {
-			size.set(selection.size());
+			sizeProperty.set(selection.size());
 		});
 	}
 
@@ -106,7 +106,7 @@ public class NoteSelection implements Selection<Note> {
 
 	@Override
 	public ReadOnlyIntegerProperty sizeProperty() {
-		return size.getReadOnlyProperty();
+		return sizeProperty.getReadOnlyProperty();
 	}
 
 	public void selectConsecutiveTo(Note note) {
@@ -167,6 +167,6 @@ public class NoteSelection implements Selection<Note> {
 	}
 
 	public BooleanBinding isEmptyProperty() {
-		return isEmptyPropery;
+		return isEmptyProperty;
 	}
 }

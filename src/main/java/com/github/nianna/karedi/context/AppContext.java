@@ -43,6 +43,7 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
 import main.java.com.github.nianna.karedi.Settings;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.ActionMap;
 import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
@@ -151,6 +152,9 @@ public class AppContext {
 	@Autowired
 	private List<Guard> guards;
 
+	@Autowired
+    private ActionManager actionManager;
+
 	private final ObservableList<Note> observableSelection = FXCollections
 			.observableArrayList(note -> new Observable[] { note });
 	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
@@ -202,7 +206,7 @@ public class AppContext {
 	}
 
 	public KarediAction getAction(KarediActions key) {
-		return actionHelper.get(key);
+		return Optional.ofNullable(actionHelper.get(key)).orElse(actionManager.get(key));
 	}
 
 	public void execute(KarediActions action) {
@@ -616,7 +620,7 @@ public class AppContext {
 			add(KarediActions.DELETE_TRACK, new DeleteTrackAction());
 			add(KarediActions.TOGGLE_LINEBREAK, new ToggleLineBreakAction());
 			add(KarediActions.SPLIT_SELECTION, new SplitSelectionAction());
-			add(KarediActions.JOIN_SELECTION, new JoinSelectionAction());
+//			add(KarediActions.JOIN_SELECTION, new JoinSelectionAction());
 			add(KarediActions.MARK_AS_FREESTYLE, new ChangeSelectionTypeAction(Type.FREESTYLE));
 			add(KarediActions.MARK_AS_GOLDEN, new ChangeSelectionTypeAction(Type.GOLDEN));
 			add(KarediActions.MARK_AS_RAP, new ChangeSelectionTypeAction(Type.RAP));
@@ -671,7 +675,7 @@ public class AppContext {
 			add(KarediActions.SELECT_NEXT, new SelectNextAction());
 			add(KarediActions.DECREASE_SELECTION, new SelectLessAction());
 			add(KarediActions.INCREASE_SELECTION, new SelectMoreAction());
-			add(KarediActions.CLEAR_SELECTION, new SelectNoneAction());
+//			add(KarediActions.CLEAR_SELECTION, new SelectNoneAction());
 			add(KarediActions.SELECT_VISIBLE, new SelectVisibleAction());
 			add(KarediActions.SELECT_ALL, new SelectAllAction());
 		}
@@ -941,18 +945,18 @@ public class AppContext {
 		}
 
 	}
-
-	private class SelectNoneAction extends KarediAction {
-
-		private SelectNoneAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			selection.clear();
-		}
-	}
+//
+//	private class SelectNoneAction extends KarediAction {
+//
+//		private SelectNoneAction() {
+//			setDisabledCondition(selection.isEmptyProperty());
+//		}
+//
+//		@Override
+//		protected void onAction(ActionEvent event) {
+//			selection.clear();
+//		}
+//	}
 
 	private class SelectMoreAction extends KarediAction {
 
@@ -1247,23 +1251,23 @@ public class AppContext {
 		}
 	}
 
-	private class JoinSelectionAction extends KarediAction {
-
-		private JoinSelectionAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Note outcome = selection.getFirst().get();
-			if (selection.size() == 1) {
-				selection.getLast().flatMap(Note::getNext).ifPresent(selection::select);
-			}
-			execute(new JoinNotesCommand(getSelected()));
-			selection.selectOnly(outcome);
-		}
-
-	}
+//	private class JoinSelectionAction extends KarediAction {
+//
+//		private JoinSelectionAction() {
+//			setDisabledCondition(selection.isEmptyProperty());
+//		}
+//
+//		@Override
+//		protected void onAction(ActionEvent event) {
+//			Note outcome = selection.getFirst().get();
+//			if (selection.size() == 1) {
+//				selection.getLast().flatMap(Note::getNext).ifPresent(selection::select);
+//			}
+//			execute(new JoinNotesCommand(getSelected()));
+//			selection.selectOnly(outcome);
+//		}
+//
+//	}
 
 	private class DeleteSelectionAction extends KarediAction {
 		private boolean keepLyrics;

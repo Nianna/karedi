@@ -20,7 +20,7 @@ public class ActionMap {
 	}
 
 	public KarediAction get(String key) {
-		return actionMap.getOrDefault(key, dummyAction);
+		return actionMap.get(key);
 	}
 
 	public void put(String key, KarediAction value) {

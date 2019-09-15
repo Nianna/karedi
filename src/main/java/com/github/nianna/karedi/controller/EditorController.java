@@ -48,6 +48,7 @@ import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
 import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.display.MainChart;
 import main.java.com.github.nianna.karedi.display.NoteNode;
@@ -110,6 +111,9 @@ public class EditorController implements Controller {
 	@Autowired
 	private NoteSelection selection;
 
+	@Autowired
+	public SongPlayer songPlayer;
+
 	@FXML
 	public void initialize() {
 		notesMap.addListener((MapChangeListener<? super Note, ? super NoteNode>) c -> {
@@ -133,7 +137,7 @@ public class EditorController implements Controller {
 		selection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
 		appContext.activeTrackProperty().addListener(this::onTrackChanged);
-		appContext.playerStatusProperty().addListener(this::onPlayerStatusChanged);
+		songPlayer.statusProperty().addListener(this::onPlayerStatusChanged);
 
 		noteListChangeListener = ListenersUtils.createListContentChangeListener(this::addNote,
 				this::removeNote);
@@ -169,9 +173,10 @@ public class EditorController implements Controller {
 			return appContext.beatToMillis((int) chart.getXAxis().getUpperBound()) / 1000.0;
 		}, chart.getXAxis().upperBoundProperty(), appContext.getBeatMillisConverter()));
 
-		markerLine.translateXProperty().bind(Bindings.createDoubleBinding(() -> {
-			return tUnitLengthProperty().get() * MathUtils.msToSeconds(appContext.getMarkerTime());
-		}, appContext.markerTimeProperty(), tUnitLengthProperty()));
+		markerLine.translateXProperty().bind(Bindings.createDoubleBinding(
+				() -> tUnitLengthProperty().get() * MathUtils.msToSeconds(songPlayer.getMarkerTime()),
+				songPlayer.markerTimeProperty(), tUnitLengthProperty())
+		);
 	}
 
 	private void addTrack(SongTrack track) {
@@ -197,9 +202,10 @@ public class EditorController implements Controller {
 
 	private Tooltip markerLineTooltip() {
 		Tooltip markerLineTooltip = new Tooltip();
-		markerLineTooltip.textProperty().bind(Bindings.createStringBinding(() -> {
-			return I18N.get("editor.marker.time", MathUtils.msToSeconds(appContext.getMarkerTime()));
-		}, appContext.markerTimeProperty()));
+		markerLineTooltip.textProperty().bind(Bindings.createStringBinding(
+				() -> I18N.get("editor.marker.time", MathUtils.msToSeconds(songPlayer.getMarkerTime())),
+				songPlayer.markerTimeProperty())
+		);
 		return markerLineTooltip;
 	}
 
@@ -444,7 +450,7 @@ public class EditorController implements Controller {
 		if (event.isStillSincePress()) {
 			if (chart.isFocused()) {
 				selection.clear();
-				appContext.setMarkerTime(sceneXtoTime(event.getSceneX()));
+				songPlayer.setMarkerTime(sceneXtoTime(event.getSceneX()));
 			} else {
 				chart.requestFocus();
 			}
@@ -488,9 +494,9 @@ public class EditorController implements Controller {
 
 		private TapNotesAction() {
 			setDisabledCondition(appContext.activeTrackProperty().isNull()
-					.or(appContext.activeAudioFileProperty().isNull()));
+					.or(songPlayer.activeAudioFileProperty().isNull()));
 			playerStatusListener = (obs -> {
-				if (appContext.getPlayerStatus() != Status.PLAYING) {
+				if (songPlayer.getStatus() != Status.PLAYING) {
 					tapping = false;
 					lastNote = null;
 					hBox.setOnKeyPressed(onKeyPressed);
@@ -516,7 +522,7 @@ public class EditorController implements Controller {
 			tapping = true;
 			appContext.activeTrackProperty().addListener(activeTrackListener);
 			appContext.execute(KarediActions.PLAY_VISIBLE_AUDIO);
-			appContext.playerStatusProperty().addListener(playerStatusListener);
+			songPlayer.statusProperty().addListener(playerStatusListener);
 			hBox.setOnKeyPressed(this::onKeyPressedWhileTapping);
 			hBox.setOnKeyReleased(this::onKeyReleasedWhileTapping);
 		}
@@ -547,10 +553,10 @@ public class EditorController implements Controller {
 					return;
 				}
 
-				lastNote = new Note(appContext.getMarkerBeat() - 1, 1, tone);
+				lastNote = new Note(songPlayer.getMarkerBeat() - 1, 1, tone);
 
 				// add new note to existing SongLine if possible
-				appContext.getActiveTrack().lineAt(appContext.getMarkerBeat())
+				appContext.getActiveTrack().lineAt(songPlayer.getMarkerBeat())
 						.ifPresent(markerLine -> line = markerLine);
 
 				if (line == null || !appContext.getActiveTrack().contains(line)) {
@@ -589,7 +595,7 @@ public class EditorController implements Controller {
 						Platform.runLater(() -> {
 							if (lastNote != null) {
 								lastNote.setLength(
-										Math.max(appContext.getMarkerBeat() - lastNote.getStart(),
+										Math.max(songPlayer.getMarkerBeat() - lastNote.getStart(),
 												lastNote.getLength()));
 								scheduleChangeNoteLengthTask();
 							}
@@ -680,14 +686,14 @@ public class EditorController implements Controller {
 			selection.sizeProperty().addListener(selectionSizeListener);
 			selection.get().addListener(typedUpdater);
 			chart.focusedProperty().addListener(chartFocusListener);
-			appContext.playerStatusProperty().addListener(finishWriting);
+			songPlayer.statusProperty().addListener(finishWriting);
 		}
 
 		private void removeListeners() {
 			selection.sizeProperty().removeListener(selectionSizeListener);
 			selection.get().removeListener(typedUpdater);
 			chart.focusedProperty().removeListener(chartFocusListener);
-			appContext.playerStatusProperty().removeListener(finishWriting);
+			songPlayer.statusProperty().removeListener(finishWriting);
 		}
 
 		private void disableActions() {
@@ -932,8 +938,8 @@ public class EditorController implements Controller {
 
 		private void onMouseDragged(MouseEvent event) {
 			if (helper.isActive() && notesToDrag.size() > 0) {
-				int curDistance = appContext.getMarkerBeat() - getBeat(event);
-				if (appContext.getMarkerBeat() == notesToDrag.get(0).getStart()) {
+				int curDistance = songPlayer.getMarkerBeat() - getBeat(event);
+				if (songPlayer.getMarkerBeat() == notesToDrag.get(0).getStart()) {
 					int moveBy = initialDistance - curDistance;
 					if (moveBy != 0) {
 						Direction direction = moveBy < 0 ? Direction.LEFT : Direction.RIGHT;
@@ -953,11 +959,11 @@ public class EditorController implements Controller {
 
 		private void onDragActiveInvalidated(Observable obs) {
 			if (helper.isActive()) {
-				int beat = appContext.getMarkerBeat();
+				int beat = songPlayer.getMarkerBeat();
 				notesToDrag = appContext.getActiveTrack().getNotes(beat);
 				if (notesToDrag.size() > 0) {
 					selection.selectOnly(notesToDrag.get(0));
-					initialDistance = appContext.getMarkerBeat() - beat;
+					initialDistance = songPlayer.getMarkerBeat() - beat;
 				} else {
 					helper.deactivate();
 				}

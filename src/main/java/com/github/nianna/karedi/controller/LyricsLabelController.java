@@ -21,6 +21,7 @@ import javafx.scene.text.TextFlow;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -56,6 +57,9 @@ public class LyricsLabelController implements Controller {
 	@Autowired
 	private NoteSelection noteSelection;
 	
+	@Autowired
+	private SongPlayer songPlayer;
+	
 	@FXML
 	public void initialize() {
 		clip.heightProperty().bind(pane.heightProperty());
@@ -72,7 +76,7 @@ public class LyricsLabelController implements Controller {
 		appContext.activeLineProperty().addListener(this::onLineChanged);
 		noteSelection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
-		appContext.playerStatusProperty().addListener(this::onPlayerStatusChanged);
+		songPlayer.statusProperty().addListener(this::onPlayerStatusChanged);
 	}
 
 	@Override
@@ -123,7 +127,7 @@ public class LyricsLabelController implements Controller {
 
 	private void onPlayerStatusChanged(Observable obs, Status oldStatus, Status newStatus) {
 		if (oldStatus == Status.PLAYING) {
-			appContext.markerBeatProperty().removeListener(markerBeatChangeListener);
+			songPlayer.markerBeatProperty().removeListener(markerBeatChangeListener);
 			if (lastColoredNote != null) {
 				deselect(lastColoredNote);
 			}
@@ -132,7 +136,7 @@ public class LyricsLabelController implements Controller {
 		if (newStatus == Status.PLAYING) {
 			noteSelection.get().forEach(this::deselect);
 			lastColoredNote = null;
-			appContext.markerBeatProperty().addListener(markerBeatChangeListener);
+			songPlayer.markerBeatProperty().addListener(markerBeatChangeListener);
 		}
 	}
 

@@ -18,11 +18,10 @@ import main.java.com.github.nianna.karedi.audio.Playlist;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-class SongPlayer {
+public class SongPlayer {
 	private static final int TONE_OFFSET = 60;
 
 	private final Player player;

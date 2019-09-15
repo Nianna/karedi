@@ -350,27 +350,7 @@ public class AppContext {
 		}
 	}
 
-	public ReadOnlyObjectProperty<CachedAudioFile> activeAudioFileProperty() {
-		return player.activeAudioFileProperty();
-	}
-
-	public ObservableList<CachedAudioFile> getAudioFiles() {
-		return player.getAudioFiles();
-	}
-
 	// Player
-	public ReadOnlyObjectProperty<Status> playerStatusProperty() {
-		return player.statusProperty();
-	}
-
-	public Status getPlayerStatus() {
-		return player.getStatus();
-	}
-
-	public boolean isTickingEnabled() {
-		return player.isTickingEnabled();
-	}
-
 	private void playRange(int fromBeat, int toBeat, Mode mode) {
 		assertAllNeededTonesVisible(fromBeat, toBeat);
 		player.play(fromBeat, toBeat, mode);
@@ -384,27 +364,27 @@ public class AppContext {
 	}
 
 	// Marker
-	public ReadOnlyIntegerProperty markerBeatProperty() {
+	private ReadOnlyIntegerProperty markerBeatProperty() {
 		return player.markerBeatProperty();
 	}
 
-	public int getMarkerBeat() {
+	private int getMarkerBeat() {
 		return player.getMarkerBeat();
 	}
 
-	public void setMarkerBeat(int beat) {
+	private void setMarkerBeat(int beat) {
 		player.setMarkerBeat(beat);
 	}
 
-	public ReadOnlyLongProperty markerTimeProperty() {
+	private ReadOnlyLongProperty markerTimeProperty() {
 		return player.markerTimeProperty();
 	}
 
-	public Long getMarkerTime() {
+	private Long getMarkerTime() {
 		return player.getMarkerTime();
 	}
 
-	public void setMarkerTime(long time) {
+	private void setMarkerTime(long time) {
 		player.setMarkerTime(time);
 	}
 

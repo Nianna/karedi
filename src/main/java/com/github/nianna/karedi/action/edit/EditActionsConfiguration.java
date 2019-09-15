@@ -3,12 +3,14 @@ package main.java.com.github.nianna.karedi.action.edit;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
+import main.java.com.github.nianna.karedi.command.MergeNotesCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsLeftCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsRightCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
+import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.song.Note;
 import org.springframework.context.annotation.Bean;
@@ -97,5 +99,40 @@ class EditActionsConfiguration {
     @Bean
     public NewKarediAction rollLyricsRightAction(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
         return new RollLyricsAction(ROLL_LYRICS_RIGHT, noteSelection, songState, commandExecutor, RollLyricsRightCommand::new);
+    }
+
+    @Bean
+    public NewKarediAction setTonesAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_TONES, MergeNotesCommand.MergeMode.TONES, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction setSynchroAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_SYNCHRO, MergeNotesCommand.MergeMode.SYNCHRO, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction setLyricsAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_LYRICS, MergeNotesCommand.MergeMode.LYRICS, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction setTonesAndSynchroAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_TONES_AND_SYNCHRO, MergeNotesCommand.MergeMode.TONES_SYNCHRO, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction setTonesAndLyricsAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_TONES_AND_LYRICS, MergeNotesCommand.MergeMode.TONES_LYRICS, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction seSynchroAndLyricsAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_SYNCHRO_AND_LYRICS, MergeNotesCommand.MergeMode.SYNCHRO_LYRICS, parser, noteSelection, commandExecutor);
+    }
+
+    @Bean
+    public NewKarediAction setTonesAndSynchroAndLyricsAction(Parser parser, NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new MergeAction(SET_TONES_SYNCHRO_AND_LYRICS, MergeNotesCommand.MergeMode.TONES_SYNCHRO_LYRICS, parser, noteSelection, commandExecutor);
     }
 }

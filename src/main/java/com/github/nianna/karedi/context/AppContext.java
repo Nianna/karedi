@@ -5,7 +5,6 @@ import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,13 +13,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
-import main.java.com.github.nianna.karedi.Settings;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.ActionMap;
 import main.java.com.github.nianna.karedi.action.KarediAction;
@@ -29,35 +25,32 @@ import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
-import main.java.com.github.nianna.karedi.command.*;
-import main.java.com.github.nianna.karedi.command.MergeNotesCommand.MergeMode;
-import main.java.com.github.nianna.karedi.command.tag.ChangeBpmCommand;
-import main.java.com.github.nianna.karedi.command.tag.ChangeMedleyCommand;
+import main.java.com.github.nianna.karedi.command.Command;
+import main.java.com.github.nianna.karedi.command.CommandComposite;
+import main.java.com.github.nianna.karedi.command.CommandExecutor;
+import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
-import main.java.com.github.nianna.karedi.command.tag.RescaleSongToBpmCommand;
-import main.java.com.github.nianna.karedi.command.track.AddTrackCommand;
-import main.java.com.github.nianna.karedi.command.track.DeleteTrackCommand;
-import main.java.com.github.nianna.karedi.dialog.*;
+import main.java.com.github.nianna.karedi.dialog.ChooseTracksDialog;
+import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog;
 import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog.FilenamesEditResult;
-import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog.BpmEditResult;
+import main.java.com.github.nianna.karedi.dialog.ExportWithErrorsAlert;
+import main.java.com.github.nianna.karedi.dialog.OverwriteAlert;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.parser.Unparser;
 import main.java.com.github.nianna.karedi.parser.element.InvalidSongElementException;
-import main.java.com.github.nianna.karedi.parser.element.LineBreakElement;
-import main.java.com.github.nianna.karedi.parser.element.VisitableSongElement;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
-import main.java.com.github.nianna.karedi.song.Note.Type;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.Song.Medley;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
-import main.java.com.github.nianna.karedi.song.tag.Tag;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
-import main.java.com.github.nianna.karedi.util.*;
+import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
+import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
+import main.java.com.github.nianna.karedi.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -65,15 +58,15 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class AppContext {
 	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
-	private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
 
 	@Autowired
 	private SongState songState;
@@ -547,7 +540,6 @@ public class AppContext {
 
 		private void addActions() {
 			addFileActions();
-			addEditActions();
 			addPlayActions();
 			addViewActions();
 		}
@@ -563,26 +555,6 @@ public class AppContext {
 			add(KarediActions.EXPORT_AS_SINGLEPLAYER, new ExportTracksAction(1));
 			add(KarediActions.EXPORT_AS_DUET, new ExportTracksAction(2));
 			add(KarediActions.EXIT, new ExitAction());
-		}
-
-		private void addEditActions() {
-
-			add(KarediActions.PASTE, new PasteAction());
-			add(KarediActions.SET_TONES, new MergeAction(MergeMode.TONES));
-			add(KarediActions.SET_SYNCHRO, new MergeAction(MergeMode.SYNCHRO));
-			add(KarediActions.SET_LYRICS, new MergeAction(MergeMode.LYRICS));
-			add(KarediActions.SET_TONES_AND_SYNCHRO, new MergeAction(MergeMode.TONES_SYNCHRO));
-			add(KarediActions.SET_TONES_AND_LYRICS, new MergeAction(MergeMode.TONES_LYRICS));
-			add(KarediActions.SET_SYNCHRO_AND_LYRICS, new MergeAction(MergeMode.SYNCHRO_LYRICS));
-			add(KarediActions.SET_TONES_SYNCHRO_AND_LYRICS,
-					new MergeAction(MergeMode.TONES_SYNCHRO_LYRICS));
-
-			add(KarediActions.ADD_NOTE, new AddNoteAction());
-
-			add(KarediActions.DELETE_LYRICS, new DeleteSelectionLyricsAction());
-			add(KarediActions.SPLIT_SELECTION, new SplitSelectionAction());
-
-			add(KarediActions.SHOW_PREFERENCES, new ShowPreferencesAction());
 		}
 
 		private void addPlayActions() {
@@ -912,137 +884,6 @@ public class AppContext {
 	}
 
 
-	private class SplitSelectionAction extends KarediAction {
-		private ObjectBinding<Note> splitNote = BindingsUtils.valueAt(getSelection().get(), 0);
-		private BooleanProperty disabled = new SimpleBooleanProperty();
-
-		private SplitSelectionAction() {
-			InvalidationListener lengthListener = ((inv) -> {
-				refreshDisabled();
-			});
-
-			splitNote.addListener((obsVal, oldVal, newVal) -> {
-				if (oldVal != null) {
-					oldVal.lengthProperty().removeListener(lengthListener);
-				}
-				if (newVal != null) {
-					newVal.lengthProperty().addListener(lengthListener);
-				}
-				refreshDisabled();
-			});
-
-			refreshDisabled();
-			setDisabledCondition(disabled);
-		}
-
-		private void refreshDisabled() {
-			Note note = splitNote.get();
-			disabled.set(!SplitNoteCommand.canExecute(note, splitPoint(note)));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Note note = splitNote.get();
-			Command cmd = new SplitNoteCommand(note, splitPoint(note));
-			execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
-				selection.selectOnly(note);
-			}));
-		}
-
-		private int splitPoint(Note note) {
-			if (note == null) {
-				return 0;
-			}
-			return (int) Math.ceil(note.getLength() / 2.0);
-		}
-	}
-
-	private class DeleteSelectionLyricsAction extends KarediAction {
-
-		private DeleteSelectionLyricsAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Note first = selection.getFirst().get();
-			execute(new DeleteTextCommand(first, selection.getLast().get()));
-		}
-
-	}
-
-	private class AddNoteAction extends KarediAction {
-		private AddNoteAction() {
-			setDisabledCondition(Bindings.createBooleanBinding(() -> {
-				if (getActiveTrack() == null) {
-					return true;
-				} else {
-					int newNotePosition = computePosition();
-					return getActiveTrack().noteAt(newNotePosition).isPresent();
-				}
-			}, selectionBounds, markerTimeProperty(), activeTrackProperty()));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			int startBeat = computePosition();
-			int length = computeLength(startBeat);
-			Optional<SongLine> optLine = computeLine();
-
-			int tone = optLine.flatMap(line -> computeTone(line, startBeat)).orElse(0);
-			Note note = new Note(startBeat, length, tone);
-
-			Command cmd;
-			if (optLine.isPresent()) {
-				cmd = new AddNoteCommand(note, optLine.get());
-			} else {
-				cmd = new AddNoteCommand(note, getActiveTrack());
-			}
-			execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
-				selection.selectOnly(note);
-			}));
-		}
-
-		private int computePosition() {
-			if (selection.size() > 0 && selectionBounds.isValid()) {
-				return selectionBounds.getUpperXBound();
-			} else {
-				return getMarkerBeat();
-			}
-		}
-
-		private Optional<Integer> computeTone(SongLine line, int beat) {
-			return line.noteAtOrEarlier(beat).map(Note::getTone);
-		}
-
-		private int computeLength(int startBeat) {
-			Optional<Integer> nextNoteStartBeat = getActiveTrack().noteAtOrLater(startBeat)
-					.map(Note::getStart);
-			if (nextNoteStartBeat.isPresent()) {
-				return Math.min(NEW_NOTE_DEFAULT_LENGTH,
-						Math.max(nextNoteStartBeat.get() - startBeat - 1, 1));
-			} else {
-				return NEW_NOTE_DEFAULT_LENGTH;
-			}
-		}
-
-		private Optional<SongLine> computeLine() {
-			if (getActiveLine() != null) {
-				return Optional.of(getActiveLine());
-			}
-			Optional<SongLine> line = selection.getLast().map(Note::getLine);
-			if (!line.isPresent()) {
-				line = getLastVisibleLineBeforeMarker();
-			}
-			return line;
-		}
-
-		private Optional<SongLine> getLastVisibleLineBeforeMarker() {
-			return getActiveTrack().lineAtOrEarlier(getMarkerBeat())
-					.filter(prevLine -> prevLine.getUpperXBound() > visibleArea.getLowerXBound());
-		}
-	}
-
 	private class NextTrackAction extends KarediAction {
 
 		private NextTrackAction() {
@@ -1261,48 +1102,6 @@ public class AppContext {
 		}
 	}
 
-	private class PasteAction extends ClipboardAction {
-		private PasteAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Song pastedSong = buildSong(getLinesFromClipboard());
-			List<Note> notesToSelect = new ArrayList<>();
-			if (pastedSong.size() > 0) {
-				notesToSelect.addAll(pastedSong.get(0).getNotes());
-			}
-			Command cmd = new CommandComposite(I18N.get("common.paste")) {
-				@Override
-				protected void buildSubCommands() {
-					addSubCommand(new DeleteNotesCommand(getSelected(), false));
-					addSubCommand(new PasteCommand(getActiveTrack(), pastedSong, getMarkerBeat()));
-				}
-			};
-			execute(new ChangePostStateCommandDecorator(cmd, c -> {
-				selection.set(notesToSelect);
-			}));
-		}
-
-	}
-
-	private class MergeAction extends ClipboardAction {
-		private MergeMode mode;
-
-		private MergeAction(MergeMode mode) {
-			setDisabledCondition(selection.isEmptyProperty());
-			this.mode = mode;
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Song pastedSong = buildSong(getLinesFromClipboard());
-			if (pastedSong != null && pastedSong.size() > 0) {
-				execute(new MergeNotesCommand(getSelected(), pastedSong.get(0).getNotes(), mode));
-			}
-		}
-	}
 
 
 	private class RenameAction extends KarediAction {
@@ -1517,18 +1316,5 @@ public class AppContext {
 		}
 	}
 
-	private class ShowPreferencesAction extends KarediAction {
-
-		private ShowPreferencesAction() {
-			setDisabledCondition(false);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			PreferencesDialog dialog = new PreferencesDialog();
-			dialog.showAndWait().filter(locale -> locale != I18N.getCurrentLocale())
-					.ifPresent(Settings::setLocale);
-		}
-	}
 
 }

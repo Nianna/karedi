@@ -1,30 +1,19 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongState;
-import org.controlsfx.glyphfont.Glyph;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.IntegerBinding;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.command.Command;
+import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import main.java.com.github.nianna.karedi.problem.Problem;
@@ -33,8 +22,13 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.controlsfx.glyphfont.Glyph;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 public class ProblemsController implements Controller {
@@ -58,11 +52,17 @@ public class ProblemsController implements Controller {
 	private IntegerBinding errorsCount;
 	private IntegerBinding warningsCount;
 	
-	@Autowired
-	private NoteSelection noteSelection;
+	private final NoteSelection noteSelection;
 
-	@Autowired
-	private SongState songState;
+	private final SongState songState;
+
+	private final CommandExecutor commandExecutor;
+
+	public ProblemsController(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
+		this.noteSelection = noteSelection;
+		this.songState = songState;
+		this.commandExecutor = commandExecutor;
+	}
 
 	@FXML
 	public void initialize() {
@@ -125,7 +125,7 @@ public class ProblemsController implements Controller {
 					SongLine line = affectedNotes.get(0).getLine();
 					if (line != null
 							&& line == affectedNotes.get(affectedNotes.size() - 1).getLine()) {
-						appContext.setActiveLine(line);
+						songState.setActiveLine(line);
 					}
 				}
 				noteSelection.set(affectedNotes);
@@ -272,7 +272,7 @@ public class ProblemsController implements Controller {
 				executeSolution(problem);
 			});
 			correctInvasiveMenuItem.setOnAction(event -> {
-				problem.getInvasiveSolution().ifPresent(appContext::execute);
+				problem.getInvasiveSolution().ifPresent(commandExecutor::execute);
 			});
 			setContextMenu(contextMenu);
 		}
@@ -321,7 +321,7 @@ public class ProblemsController implements Controller {
 		private void solveProblemWithCommand(Problem problem, Command command) {
 			tree.getSelectionModel().clearSelection();
 			selectAffectedBounds(problem);
-			appContext.execute(command);
+			commandExecutor.execute(command);
 			assertChildIsSelected();
 		}
 

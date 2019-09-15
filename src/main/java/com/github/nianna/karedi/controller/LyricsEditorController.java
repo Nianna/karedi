@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.SongState;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
@@ -40,13 +41,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.command.AddNewSyllableCommand;
-import main.java.com.github.nianna.karedi.command.AddNewWordCommand;
-import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.CommandComposite;
-import main.java.com.github.nianna.karedi.command.DeleteTextCommand;
-import main.java.com.github.nianna.karedi.command.InsertTextCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -87,10 +81,13 @@ public class LyricsEditorController implements Controller {
 
 	private final SongState songState;
 
-	public LyricsEditorController(NoteSelection noteSelection, SongState songState) {
+    private final CommandExecutor commandExecutor;
+
+    public LyricsEditorController(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
 		this.noteSelection = noteSelection;
 		this.songState = songState;
-	}
+        this.commandExecutor = commandExecutor;
+    }
 
 	@FXML
 	public void initialize() {
@@ -329,7 +326,7 @@ public class LyricsEditorController implements Controller {
 			if (title != null) {
 				finalCmd.setTitle(title);
 			}
-			appContext.execute(new ChangePostStateCommandDecorator(finalCmd, c -> {
+			commandExecutor.execute(new ChangePostStateCommandDecorator(finalCmd, c -> {
 				noteSelection.selectOnly(first);
 			}));
 		}

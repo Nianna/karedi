@@ -40,12 +40,7 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
-import main.java.com.github.nianna.karedi.command.AddNoteCommand;
-import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.ChangeToneCommand;
-import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
-import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
+import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.*;
 import main.java.com.github.nianna.karedi.display.MainChart;
 import main.java.com.github.nianna.karedi.display.NoteNode;
@@ -105,16 +100,21 @@ public class EditorController implements Controller {
 	private NoteLengthChangeScheduler noteLengthChangeScheduler = new NoteLengthChangeScheduler();
 	private NoteDrawer drawer = new NoteDrawer();
 
-	@Autowired
-	private NoteSelection selection;
+	private final NoteSelection selection;
+	private final SongPlayer songPlayer;
+	private final SongState songState;
+    private final CommandHistory history;
+    private final CommandExecutor commandExecutor;
 
-	@Autowired
-	private SongPlayer songPlayer;
+    public EditorController(NoteSelection selection, SongPlayer songPlayer, SongState songState, CommandHistory history, CommandExecutor commandExecutor) {
+        this.selection = selection;
+        this.songPlayer = songPlayer;
+        this.songState = songState;
+        this.history = history;
+        this.commandExecutor = commandExecutor;
+    }
 
-	@Autowired
-	private SongState songState;
-
-	@FXML
+    @FXML
 	public void initialize() {
 		notesMap.addListener((MapChangeListener<? super Note, ? super NoteNode>) c -> {
 			if (c.wasAdded()) {
@@ -560,10 +560,10 @@ public class EditorController implements Controller {
 						.ifPresent(markerLine -> line = markerLine);
 
 				if (line == null || !songState.getActiveTrack().contains(line)) {
-					appContext.execute(new AddNoteCommand(lastNote, songState.getActiveTrack()));
+                    commandExecutor.execute(new AddNoteCommand(lastNote, songState.getActiveTrack()));
 					line = lastNote.getLine();
 				} else {
-					appContext.execute(new AddNoteCommand(lastNote, line));
+                    commandExecutor.execute(new AddNoteCommand(lastNote, line));
 				}
 				scheduleChangeNoteLengthTask();
 			}
@@ -671,7 +671,7 @@ public class EditorController implements Controller {
 		}
 
 		private void backupState() {
-			initialCommand = appContext.getActiveCommand();
+			initialCommand = history.getActiveCommand();
 			onKeyPressed = hBox.getOnKeyPressed();
 			onKeyReleased = hBox.getOnKeyReleased();
 		}
@@ -776,7 +776,7 @@ public class EditorController implements Controller {
 
 		private void updateTone(Note note, int newTone) {
 			Command cmd = new ChangeToneCommand(note, newTone);
-			appContext.execute(new ChangePostStateCommandDecorator(cmd, c -> {
+            commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {
 				selection.deselect(note);
 			}));
 			piano.play(Arrays.asList(note.getTone()));
@@ -785,7 +785,7 @@ public class EditorController implements Controller {
 
 		private void undo() {
 			if (!appContext.canExecute(KarediActions.UNDO)
-					|| appContext.getActiveCommand() == initialCommand) {
+					|| history.getActiveCommand() == initialCommand) {
 				finish();
 			} else {
 				execute(KarediActions.UNDO);
@@ -872,7 +872,7 @@ public class EditorController implements Controller {
 					} else {
 						cmd = new AddNoteCommand(note, songState.getActiveTrack());
 					}
-					appContext.execute(new ChangePostStateCommandDecorator(cmd, c -> {
+                    commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {
 						selection.selectOnly(note);
 					}));
 					setActive(true);
@@ -945,7 +945,7 @@ public class EditorController implements Controller {
 						Direction direction = moveBy < 0 ? Direction.LEFT : Direction.RIGHT;
 						Command cmd = new MoveCollectionCommand<Integer, Note>(notesToDrag,
 								direction, Math.abs(moveBy));
-						appContext.execute(cmd);
+                        commandExecutor.execute(cmd);
 						// User moved notes that were not selected - it's
 						// necessary to invalidate visibleArea to let others
 						// know that some notes may no longer be visible
@@ -1016,7 +1016,7 @@ public class EditorController implements Controller {
 				if (length > 0 && note != null) {
 					List<Note> currentSelection = new ArrayList<>(selection.get());
 					selection.selectOnly(note);
-					appContext.execute(new ResizeNotesCommand(Arrays.asList(note), Direction.RIGHT,
+                    commandExecutor.execute(new ResizeNotesCommand(Arrays.asList(note), Direction.RIGHT,
 							length - note.getLength()));
 					selection.set(currentSelection);
 				}

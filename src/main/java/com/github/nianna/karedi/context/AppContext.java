@@ -32,7 +32,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonType;
@@ -52,25 +51,8 @@ import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.audio.MidiPlayer;
 import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
-import main.java.com.github.nianna.karedi.command.AddNoteCommand;
-import main.java.com.github.nianna.karedi.command.BackupStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.ChangePreStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.CommandComposite;
-import main.java.com.github.nianna.karedi.command.DeleteNotesCommand;
-import main.java.com.github.nianna.karedi.command.DeleteTextCommand;
-import main.java.com.github.nianna.karedi.command.JoinNotesCommand;
-import main.java.com.github.nianna.karedi.command.MarkAsTypeCommand;
-import main.java.com.github.nianna.karedi.command.MergeNotesCommand;
+import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.command.MergeNotesCommand.MergeMode;
-import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
-import main.java.com.github.nianna.karedi.command.PasteCommand;
-import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
-import main.java.com.github.nianna.karedi.command.RollLyricsLeftCommand;
-import main.java.com.github.nianna.karedi.command.RollLyricsRightCommand;
-import main.java.com.github.nianna.karedi.command.SplitNoteCommand;
-import main.java.com.github.nianna.karedi.command.ToggleLineBreakCommand;
 import main.java.com.github.nianna.karedi.command.tag.ChangeBpmCommand;
 import main.java.com.github.nianna.karedi.command.tag.ChangeMedleyCommand;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
@@ -109,7 +91,6 @@ import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import main.java.com.github.nianna.karedi.util.Converter;
 import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
-import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -150,7 +131,7 @@ public class AppContext {
 	private final ActionHelper actionHelper = new ActionHelper();
 
 	@Autowired
-	private History history;
+	private CommandHistory history;
 
 	@Autowired
 	private NoteSelection selection;
@@ -183,7 +164,10 @@ public class AppContext {
 	private IntegerProperty activeSongTrackCount;
 	private BooleanBinding activeSongHasOneOrZeroTracks;
 
-	public AppContext() {
+	@Autowired
+    private CommandExecutor commandExecutor;
+
+    public AppContext() {
 		LOGGER.setUseParentHandlers(false);
 //		actionHelper.addActions(); //TODO
 
@@ -300,11 +284,7 @@ public class AppContext {
 
 	// History
 	public boolean execute(Command command) {
-		return history.push(new BackupStateCommandDecorator(command, this));
-	}
-
-	public Command getActiveCommand() {
-		return history.getActiveCommand();
+		return commandExecutor.execute(command);
 	}
 
 	// Selection

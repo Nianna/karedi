@@ -1,4 +1,4 @@
-package main.java.com.github.nianna.karedi.context;
+package main.java.com.github.nianna.karedi.command;
 
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
@@ -6,12 +6,11 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import main.java.com.github.nianna.karedi.command.Command;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class History {
+public class CommandHistory {
 	private int maxSize;
 
 	private final ObservableList<Command> history = FXCollections.observableArrayList();
@@ -21,7 +20,7 @@ public class History {
 	private ReadOnlyIntegerWrapper activeIndex = new ReadOnlyIntegerWrapper(-1);
 	private ReadOnlyIntegerWrapper size = new ReadOnlyIntegerWrapper();
 
-	public History(@Value("${history.size.max}") int maxSize) {
+	public CommandHistory(@Value("${history.size.max}") int maxSize) {
 		assert maxSize > 0;
 		this.maxSize = maxSize;
 	}
@@ -54,7 +53,7 @@ public class History {
 		return size.get();
 	}
 
-	public boolean push(Command command) {
+	boolean push(Command command) {
 		if (command.execute()) {
 			history.remove(activeIndex.get() + 1, history.size());
 			history.add(command);

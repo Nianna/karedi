@@ -1,24 +1,10 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiConsumer;
-
-import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorCommand;
-import main.java.com.github.nianna.karedi.context.SongState;
-import org.controlsfx.control.action.Action;
-
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,10 +14,13 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackColorCommand;
+import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorCommand;
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackNameCommand;
 import main.java.com.github.nianna.karedi.command.track.ReorderTracksCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.control.CheckBoxTableCell;
 import main.java.com.github.nianna.karedi.control.ColorPickerTableCell;
 import main.java.com.github.nianna.karedi.control.TitledKeyValueGrid;
@@ -39,7 +28,12 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
 import main.java.com.github.nianna.karedi.util.TableViewUtils;
+import org.controlsfx.control.action.Action;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 @Component
 public class TracksController implements Controller {
@@ -64,9 +58,11 @@ public class TracksController implements Controller {
 	private Song song;
 
 	private final SongState songState;
+	private final CommandExecutor commandExecutor;
 
-	public TracksController(SongState songState) {
+	public TracksController(SongState songState, CommandExecutor commandExecutor) {
 		this.songState = songState;
+		this.commandExecutor = commandExecutor;
 	}
 
 	@FXML
@@ -167,13 +163,13 @@ public class TracksController implements Controller {
 
 	@FXML
 	private void onColorColumnEditCommit(CellEditEvent<SongTrack, Color> event) {
-		appContext.execute(new ChangeTrackColorCommand(event.getRowValue(), event.getNewValue()));
+		commandExecutor.execute(new ChangeTrackColorCommand(event.getRowValue(), event.getNewValue()));
 		table.requestFocus();
 	}
 
 	@FXML
 	private void onFontColorColumnEditCommit(CellEditEvent<SongTrack, Color> event) {
-		appContext.execute(new ChangeTrackFontColorCommand(event.getRowValue(), event.getNewValue()));
+		commandExecutor.execute(new ChangeTrackFontColorCommand(event.getRowValue(), event.getNewValue()));
 		table.requestFocus();
 	}
 
@@ -195,7 +191,7 @@ public class TracksController implements Controller {
 	@FXML
 	private void onNameColumnEditCommit(CellEditEvent<SongTrack, String> event) {
 		table.setOnKeyPressed(this::onKeyPressed);
-		appContext.execute(new ChangeTrackNameCommand(event.getRowValue(), event.getNewValue()));
+		commandExecutor.execute(new ChangeTrackNameCommand(event.getRowValue(), event.getNewValue()));
 		table.requestFocus();
 	}
 
@@ -243,7 +239,7 @@ public class TracksController implements Controller {
 	private void consumeDrag(List<Integer> draggedIndices, Integer dropIndex) {
 		Collections.reverse(draggedIndices);
 		draggedIndices.forEach(index -> {
-			appContext.execute(new ReorderTracksCommand(song, index,
+			commandExecutor.execute(new ReorderTracksCommand(song, index,
 					dropIndex == -1 ? table.getItems().size() - 1 : dropIndex));
 		});
 		appContext.setActiveTrack(song.get(dropIndex));

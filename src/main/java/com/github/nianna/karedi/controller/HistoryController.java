@@ -11,7 +11,7 @@ import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.History;
+import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class HistoryController implements Controller {
 	private boolean changedByUser = false;
 
 	@Autowired
-	private History history;
+	private CommandHistory history;
 
 	@FXML
 	public void initialize() {

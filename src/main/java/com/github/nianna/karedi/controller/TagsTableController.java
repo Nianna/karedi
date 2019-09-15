@@ -1,15 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-
-import main.java.com.github.nianna.karedi.context.SongState;
-import org.controlsfx.validation.ValidationResult;
-import org.controlsfx.validation.Validator;
-import org.controlsfx.validation.decoration.GraphicValidationDecoration;
-import org.controlsfx.validation.decoration.ValidationDecoration;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,38 +7,35 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
 import main.java.com.github.nianna.karedi.command.tag.DeleteTagCommand;
 import main.java.com.github.nianna.karedi.command.tag.ReorderTagsCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.control.RestrictedTextField;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.Tag;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import main.java.com.github.nianna.karedi.song.tag.TagValidators;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
-import main.java.com.github.nianna.karedi.util.Converter;
-import main.java.com.github.nianna.karedi.util.MathUtils;
-import main.java.com.github.nianna.karedi.util.NumericNodeUtils;
-import main.java.com.github.nianna.karedi.util.TableViewUtils;
-import main.java.com.github.nianna.karedi.util.ValidationUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import main.java.com.github.nianna.karedi.util.*;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.Validator;
+import org.controlsfx.validation.decoration.GraphicValidationDecoration;
+import org.controlsfx.validation.decoration.ValidationDecoration;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class TagsTableController implements Controller {
@@ -66,8 +53,14 @@ public class TagsTableController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
-	@Autowired
-	private SongState songState;
+	private final SongState songState;
+
+	private final CommandExecutor commandExecutor;
+
+	public TagsTableController(SongState songState, CommandExecutor commandExecutor) {
+		this.songState = songState;
+		this.commandExecutor = commandExecutor;
+	}
 
 	@FXML
 	private void initialize() {
@@ -205,17 +198,17 @@ public class TagsTableController implements Controller {
 	}
 
 	private void handleRemove(Tag tag) {
-		appContext.execute(new DeleteTagCommand(song, tag));
+		commandExecutor.execute(new DeleteTagCommand(song, tag));
 	}
 
 	private void changeTagValueIfValid(TagKey key, String value) {
 		if (!TagValidators.hasValidationErrors(key, value)) {
-			appContext.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
+			commandExecutor.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
 		}
 	}
 
 	private void changeTagValue(String key, String value) {
-		appContext.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
+		commandExecutor.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
 	}
 
 	private void display(Song song) {
@@ -229,7 +222,7 @@ public class TagsTableController implements Controller {
 	private void consumeDrag(List<Integer> draggedIndices, Integer dropIndex) {
 		Collections.reverse(draggedIndices);
 		draggedIndices.forEach(index -> {
-			appContext.execute(new ReorderTagsCommand(song, index, absoluteDropIndex(dropIndex)));
+			commandExecutor.execute(new ReorderTagsCommand(song, index, absoluteDropIndex(dropIndex)));
 		});
 		table.getSelectionModel().select(absoluteDropIndex(dropIndex));
 	}

@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(10)
-public class SelectFirstNoteOnLineChangedGuard implements Guard {
+public class FirstNoteSelectedOnLineChangedGuard implements Guard {
 
 	private final NoteSelection noteSelection;
 
 	private final SongState songState;
 
-	public SelectFirstNoteOnLineChangedGuard(NoteSelection noteSelection, SongState songState) {
+	public FirstNoteSelectedOnLineChangedGuard(NoteSelection noteSelection, SongState songState) {
 		this.noteSelection = noteSelection;
 		this.songState = songState;
 	}

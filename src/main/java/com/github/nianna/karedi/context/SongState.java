@@ -71,18 +71,6 @@ public class SongState {
             } else {
                 setActiveLine(null);
             }
-//            setActiveLine(null);
-//
-//            if (newTrack != null) {
-//                newTrack.addLineListListener(lineListChangeListener);
-//                if (oldTrack == null) {
-//                    setActiveLine(newTrack.getDefaultLine());
-//                } else {
-////                    assertAllNeededTonesVisible(); //TODO by a guard
-//                }
-//            } else {
-//                // Song is also supposed to be null
-//            }
         }
     }
 

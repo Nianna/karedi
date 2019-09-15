@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(5)
-public class VisibleAreaIsLockedAfterLineChangedGuard implements Guard {
+public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 
 	private final SongState songState;
 
@@ -18,7 +18,7 @@ public class VisibleAreaIsLockedAfterLineChangedGuard implements Guard {
 
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
-	public VisibleAreaIsLockedAfterLineChangedGuard(SongState songState, VisibleArea visibleArea) {
+	public VisibleAreaLockedOnLineChangedGuard(SongState songState, VisibleArea visibleArea) {
 		this.songState = songState;
 		this.visibleArea = visibleArea;
 	}

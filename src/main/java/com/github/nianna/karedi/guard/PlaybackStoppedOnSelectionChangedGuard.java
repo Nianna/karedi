@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StopPlaybackOnSelectionChangedGuard implements Guard {
+public class PlaybackStoppedOnSelectionChangedGuard implements Guard {
 
 	private final NoteSelection noteSelection;
 
@@ -17,7 +17,7 @@ public class StopPlaybackOnSelectionChangedGuard implements Guard {
 	private final ListChangeListener<? super Note> noteListChangeListener = ListenersUtils
 			.createListContentChangeListener(this::onSelectionChanged, this::onSelectionChanged);
 
-	public StopPlaybackOnSelectionChangedGuard(NoteSelection noteSelection, SongPlayer songPlayer) {
+	public PlaybackStoppedOnSelectionChangedGuard(NoteSelection noteSelection, SongPlayer songPlayer) {
 		this.noteSelection = noteSelection;
 		this.songPlayer = songPlayer;
 	}

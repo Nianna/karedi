@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import org.controlsfx.glyphfont.Glyph;
 
 import javafx.beans.Observable;
@@ -31,6 +32,7 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,6 +56,9 @@ public class ProblemsController implements Controller {
 
 	private IntegerBinding errorsCount;
 	private IntegerBinding warningsCount;
+	
+	@Autowired
+	private NoteSelection noteSelection;
 
 	@FXML
 	public void initialize() {
@@ -119,7 +124,7 @@ public class ProblemsController implements Controller {
 						appContext.setActiveLine(line);
 					}
 				}
-				appContext.getSelection().set(affectedNotes);
+				noteSelection.set(affectedNotes);
 			}
 		});
 	}

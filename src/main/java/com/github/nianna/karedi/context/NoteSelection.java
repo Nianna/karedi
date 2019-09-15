@@ -13,7 +13,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import main.java.com.github.nianna.karedi.song.Note;
+import org.springframework.stereotype.Component;
 
+@Component
 public class NoteSelection implements Selection<Note> {
 
 	private ObservableList<Note> selection = FXCollections.observableArrayList();

@@ -56,6 +56,7 @@ import main.java.com.github.nianna.karedi.util.KeyCodeCombinations;
 import main.java.com.github.nianna.karedi.util.KeyEventUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.LyricsHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -69,7 +70,10 @@ public class LyricsEditorController implements Controller {
 	private NoteTextArea textArea;
 
 	private AppContext appContext;
-	private NoteSelection selection;
+	
+	@Autowired
+	private NoteSelection noteSelection;
+
 	private TextAndNoteSelectionSynchronizer synchronizer;
 
 	private ChangeListener<? super String> lyricsChangeListener = (obs, oldVal,
@@ -128,7 +132,6 @@ public class LyricsEditorController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		this.selection = appContext.getSelection();
 		appContext.activeTrackProperty().addListener(this::onTrackChanged);
 		scrollPane.disableProperty().bind(appContext.activeTrackProperty().isNull());
 
@@ -142,7 +145,7 @@ public class LyricsEditorController implements Controller {
 				e -> scheduleLyricsUpdate(), ListenersUtils::pass, this::onNoteAdded,
 				this::onNoteRemoved);
 
-		synchronizer = new TextAndNoteSelectionSynchronizer(textArea, selection,
+		synchronizer = new TextAndNoteSelectionSynchronizer(textArea, noteSelection,
 				this::preNoteSelectionChangeHandler);
 	}
 
@@ -320,7 +323,7 @@ public class LyricsEditorController implements Controller {
 				finalCmd.setTitle(title);
 			}
 			appContext.execute(new ChangePostStateCommandDecorator(finalCmd, c -> {
-				appContext.getSelection().selectOnly(first);
+				noteSelection.selectOnly(first);
 			}));
 		}
 	}
@@ -782,7 +785,7 @@ public class LyricsEditorController implements Controller {
 		private InsertTextAction(String text) {
 			this.text = text;
 			setDisabledCondition(
-					textArea.focusedProperty().not().or(selection.sizeProperty().isEqualTo(0)));
+					textArea.focusedProperty().not().or(noteSelection.sizeProperty().isEqualTo(0)));
 		}
 
 		@Override

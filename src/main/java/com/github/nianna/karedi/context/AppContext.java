@@ -139,7 +139,9 @@ public class AppContext {
 	private final ActionHelper actionHelper = new ActionHelper();
 
 	private final History history = new History();
-	private final NoteSelection selection = new NoteSelection();
+
+	@Autowired
+	private NoteSelection selection;
 
 	@Autowired
 	private BeatMillisConverter beatMillisConverter;
@@ -167,14 +169,13 @@ public class AppContext {
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
 	// Convenience bindings for actions
-	private final BooleanBinding selectionIsEmpty = selection.sizeProperty().isEqualTo(0);
-	private final BooleanBinding activeSongIsNull = activeSongProperty().isNull();
-	private final BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
-	private final BooleanBinding activeFileIsNull = activeFileProperty().isNull();
-	private final BooleanBinding activeAudioIsNull = activeSongIsNull; //player.activeAudioFileProperty().isNull(); //TODO
-	private final IntegerProperty activeSongTrackCount = new SimpleIntegerProperty();
-	private final BooleanBinding activeSongHasOneOrZeroTracks = activeSongTrackCount
-			.lessThanOrEqualTo(1);
+	private BooleanBinding selectionIsEmpty; // = selection.sizeProperty().isEqualTo(0);
+	private BooleanBinding activeSongIsNull = activeSongProperty().isNull();
+	private BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
+	private BooleanBinding activeFileIsNull = activeFileProperty().isNull();
+	private BooleanBinding activeAudioIsNull = activeSongIsNull; //player.activeAudioFileProperty().isNull(); //TODO
+	private IntegerProperty activeSongTrackCount = new SimpleIntegerProperty();
+	private BooleanBinding activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
 
 	public AppContext() {
 		LOGGER.setUseParentHandlers(false);
@@ -188,6 +189,14 @@ public class AppContext {
 
 	@PostConstruct
 	public void initAppContext() {
+		selectionIsEmpty = selection.sizeProperty().isEqualTo(0);
+		activeSongIsNull = activeSongProperty().isNull();
+		 activeTrackIsNull = activeTrackProperty().isNull();
+		activeFileIsNull = activeFileProperty().isNull();
+		activeAudioIsNull = player.activeAudioFileProperty().isNull();
+		activeSongTrackCount = new SimpleIntegerProperty();
+		activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
+
 		LOGGER.setUseParentHandlers(false);
 		history.setMaxSize(MAX_HISTORY_SIZE);
 		actionHelper.addActions();
@@ -195,6 +204,7 @@ public class AppContext {
 		Bindings.bindContent(observableSelection, getSelected());
 		player.statusProperty().addListener(this::onPlayerStatusChanged);
 		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
+
 	}
 
 	// Actions

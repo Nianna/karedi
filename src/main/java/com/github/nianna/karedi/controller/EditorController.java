@@ -47,6 +47,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
 import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.display.MainChart;
 import main.java.com.github.nianna.karedi.display.NoteNode;
@@ -66,6 +67,7 @@ import main.java.com.github.nianna.karedi.util.MusicalScale;
 import main.java.com.github.nianna.karedi.util.NodeUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragSelectionHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -105,6 +107,9 @@ public class EditorController implements Controller {
 	private NoteLengthChangeScheduler noteLengthChangeScheduler = new NoteLengthChangeScheduler();
 	private NoteDrawer drawer = new NoteDrawer();
 
+	@Autowired
+	private NoteSelection selection;
+
 	@FXML
 	public void initialize() {
 		notesMap.addListener((MapChangeListener<? super Note, ? super NoteNode>) c -> {
@@ -125,7 +130,7 @@ public class EditorController implements Controller {
 		this.appContext = appContext;
 		appContext.activeSongProperty().addListener(this::onSongChanged);
 		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaChanged);
-		appContext.getSelection().get().addListener(
+		selection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
 		appContext.activeTrackProperty().addListener(this::onTrackChanged);
 		appContext.playerStatusProperty().addListener(this::onPlayerStatusChanged);
@@ -261,8 +266,8 @@ public class EditorController implements Controller {
 		if (event.getCode().isDigitKey()) {
 			appContext.execute(KarediActions.STOP_PLAYBACK);
 			KeyEventUtils.getPressedDigit(event).ifPresent(digit -> {
-				appContext.getSelection().leaveOne();
-				Note selected = appContext.getSelection().getFirst().orElse(null);
+				selection.leaveOne();
+				Note selected = selection.getFirst().orElse(null);
 				noteLengthChangeScheduler.schedule(selected, digit);
 			});
 			event.consume();
@@ -297,7 +302,7 @@ public class EditorController implements Controller {
 					.stream()
 					.filter(note -> note.getTone() <= highestTone && note.getTone() >= lowestTone)
 					.collect(Collectors.toList());
-			appContext.getSelection().set(selectedNotes);
+			selection.set(selectedNotes);
 		}
 	}
 
@@ -438,7 +443,7 @@ public class EditorController implements Controller {
 	private void onMouseClicked(MouseEvent event) {
 		if (event.isStillSincePress()) {
 			if (chart.isFocused()) {
-				appContext.getSelection().clear();
+				selection.clear();
 				appContext.setMarkerTime(sceneXtoTime(event.getSceneX()));
 			} else {
 				chart.requestFocus();
@@ -502,7 +507,7 @@ public class EditorController implements Controller {
 		@Override
 		protected void onAction(ActionEvent event) {
 			reset();
-			appContext.getSelection().clear();
+			selection.clear();
 			onKeyPressed = hBox.getOnKeyPressed();
 			onKeyReleased = hBox.getOnKeyReleased();
 			appContext.assertAllNeededTonesVisible();
@@ -621,10 +626,10 @@ public class EditorController implements Controller {
 		private Stack<Note> typed = new Stack<>();
 
 		private WriteTonesAction() {
-			setDisabledCondition(appContext.getSelection().sizeProperty().isEqualTo(0));
+			setDisabledCondition(selection.sizeProperty().isEqualTo(0));
 
 			selectionSizeListener = (obs -> {
-				if (appContext.getSelection().size() == 0) {
+				if (selection.size() == 0) {
 					finish();
 				}
 			});
@@ -672,15 +677,15 @@ public class EditorController implements Controller {
 		}
 
 		private void addListeners() {
-			appContext.getSelection().sizeProperty().addListener(selectionSizeListener);
-			appContext.getSelected().addListener(typedUpdater);
+			selection.sizeProperty().addListener(selectionSizeListener);
+			selection.get().addListener(typedUpdater);
 			chart.focusedProperty().addListener(chartFocusListener);
 			appContext.playerStatusProperty().addListener(finishWriting);
 		}
 
 		private void removeListeners() {
-			appContext.getSelection().sizeProperty().removeListener(selectionSizeListener);
-			appContext.getSelected().removeListener(typedUpdater);
+			selection.sizeProperty().removeListener(selectionSizeListener);
+			selection.get().removeListener(typedUpdater);
 			chart.focusedProperty().removeListener(chartFocusListener);
 			appContext.playerStatusProperty().removeListener(finishWriting);
 		}
@@ -704,9 +709,9 @@ public class EditorController implements Controller {
 		}
 
 		private void execute(KarediActions action) {
-			appContext.getSelection().sizeProperty().removeListener(selectionSizeListener);
+			selection.sizeProperty().removeListener(selectionSizeListener);
 			appContext.execute(action);
-			appContext.getSelection().sizeProperty().addListener(selectionSizeListener);
+			selection.sizeProperty().addListener(selectionSizeListener);
 		}
 
 		private void onKeyPressedWhileWriting(KeyEvent event) {
@@ -726,7 +731,7 @@ public class EditorController implements Controller {
 				return;
 			}
 			if (event.getCode() != lastCode) {
-				appContext.getSelection().getFirst().ifPresent(note -> {
+				selection.getFirst().ifPresent(note -> {
 					handleEventCode(note, event);
 				});
 			}
@@ -738,13 +743,13 @@ public class EditorController implements Controller {
 			case LEFT:
 				if (typed.size() > 0) {
 					Note lastNote = typed.peek();
-					appContext.getSelection().select(lastNote);
+					selection.select(lastNote);
 					piano.play(Arrays.asList(lastNote.getTone()));
 				}
 				return;
 			case RIGHT:
 				piano.play(Arrays.asList(note.getTone()));
-				appContext.getSelection().deselect(note);
+				selection.deselect(note);
 				return;
 			case ESCAPE:
 			case ENTER:
@@ -766,10 +771,10 @@ public class EditorController implements Controller {
 		private void updateTone(Note note, int newTone) {
 			Command cmd = new ChangeToneCommand(note, newTone);
 			appContext.execute(new ChangePostStateCommandDecorator(cmd, c -> {
-				appContext.getSelection().deselect(note);
+				selection.deselect(note);
 			}));
 			piano.play(Arrays.asList(note.getTone()));
-			appContext.getSelection().deselect(note);
+			selection.deselect(note);
 		}
 
 		private void undo() {
@@ -778,7 +783,7 @@ public class EditorController implements Controller {
 				finish();
 			} else {
 				execute(KarediActions.UNDO);
-				appContext.getSelection().getFirst().ifPresent(note -> {
+				selection.getFirst().ifPresent(note -> {
 					piano.play(Arrays.asList(note.getTone()));
 				});
 			}
@@ -786,7 +791,7 @@ public class EditorController implements Controller {
 
 		private void redo() {
 			if (appContext.canExecute(KarediActions.REDO)) {
-				Optional<Note> optNote = appContext.getSelection().getFirst();
+				Optional<Note> optNote = selection.getFirst();
 				execute(KarediActions.REDO);
 				optNote.ifPresent(note -> {
 					piano.play(Arrays.asList(note.getTone()));
@@ -862,7 +867,7 @@ public class EditorController implements Controller {
 						cmd = new AddNoteCommand(note, appContext.getActiveTrack());
 					}
 					appContext.execute(new ChangePostStateCommandDecorator(cmd, c -> {
-						appContext.getSelection().selectOnly(note);
+						selection.selectOnly(note);
 					}));
 					setActive(true);
 				}
@@ -951,7 +956,7 @@ public class EditorController implements Controller {
 				int beat = appContext.getMarkerBeat();
 				notesToDrag = appContext.getActiveTrack().getNotes(beat);
 				if (notesToDrag.size() > 0) {
-					appContext.getSelection().selectOnly(notesToDrag.get(0));
+					selection.selectOnly(notesToDrag.get(0));
 					initialDistance = appContext.getMarkerBeat() - beat;
 				} else {
 					helper.deactivate();
@@ -1003,11 +1008,11 @@ public class EditorController implements Controller {
 		public void run() {
 			Platform.runLater(() -> {
 				if (length > 0 && note != null) {
-					List<Note> selection = new ArrayList<>(appContext.getSelected());
-					appContext.getSelection().selectOnly(note);
+					List<Note> currentSelection = new ArrayList<>(selection.get());
+					selection.selectOnly(note);
 					appContext.execute(new ResizeNotesCommand(Arrays.asList(note), Direction.RIGHT,
 							length - note.getLength()));
-					appContext.getSelection().set(selection);
+					selection.set(currentSelection);
 				}
 				scheduler.reset();
 			});

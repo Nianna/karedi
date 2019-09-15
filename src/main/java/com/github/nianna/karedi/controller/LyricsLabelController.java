@@ -20,11 +20,13 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,6 +53,9 @@ public class LyricsLabelController implements Controller {
 			Note::getLine, TreeMap::new,
 			Collectors.mapping(this::getNoteText, Collectors.toList()));
 
+	@Autowired
+	private NoteSelection noteSelection;
+	
 	@FXML
 	public void initialize() {
 		clip.heightProperty().bind(pane.heightProperty());
@@ -65,7 +70,7 @@ public class LyricsLabelController implements Controller {
 		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaInvalidated);
 		appContext.activeTrackProperty().addListener(this::onTrackChanged);
 		appContext.activeLineProperty().addListener(this::onLineChanged);
-		appContext.getSelected().addListener(
+		noteSelection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
 		appContext.playerStatusProperty().addListener(this::onPlayerStatusChanged);
 	}
@@ -122,10 +127,10 @@ public class LyricsLabelController implements Controller {
 			if (lastColoredNote != null) {
 				deselect(lastColoredNote);
 			}
-			appContext.getSelected().forEach(this::select);
+			noteSelection.get().forEach(this::select);
 		}
 		if (newStatus == Status.PLAYING) {
-			appContext.getSelected().forEach(this::deselect);
+			noteSelection.get().forEach(this::deselect);
 			lastColoredNote = null;
 			appContext.markerBeatProperty().addListener(markerBeatChangeListener);
 		}

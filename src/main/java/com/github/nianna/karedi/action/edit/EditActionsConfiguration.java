@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.command.RollLyricsLeftCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsRightCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.region.Direction;
@@ -62,13 +62,13 @@ class EditActionsConfiguration {
     }
 
     @Bean
-    public DeleteSelectionAction deleteSelectionAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongState songState) {
-        return new DeleteSelectionAction(DELETE_SELECTION, true, noteSelection, commandExecutor, visibleArea, songState);
+    public DeleteSelectionAction deleteSelectionAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongContext songContext) {
+        return new DeleteSelectionAction(DELETE_SELECTION, true, noteSelection, commandExecutor, visibleArea, songContext);
     }
 
     @Bean
-    public DeleteSelectionAction deleteSelectionHardAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongState songState) {
-        return new DeleteSelectionAction(DELETE_SELECTION_HARD, false, noteSelection, commandExecutor, visibleArea, songState);
+    public DeleteSelectionAction deleteSelectionHardAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongContext songContext) {
+        return new DeleteSelectionAction(DELETE_SELECTION_HARD, false, noteSelection, commandExecutor, visibleArea, songContext);
     }
 
     @Bean
@@ -92,13 +92,13 @@ class EditActionsConfiguration {
     }
 
     @Bean
-    public NewKarediAction rollLyricsLeftAction(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
-        return new RollLyricsAction(ROLL_LYRICS_LEFT, noteSelection, songState, commandExecutor, RollLyricsLeftCommand::new);
+    public NewKarediAction rollLyricsLeftAction(NoteSelection noteSelection, SongContext songContext, CommandExecutor commandExecutor) {
+        return new RollLyricsAction(ROLL_LYRICS_LEFT, noteSelection, songContext, commandExecutor, RollLyricsLeftCommand::new);
     }
 
     @Bean
-    public NewKarediAction rollLyricsRightAction(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
-        return new RollLyricsAction(ROLL_LYRICS_RIGHT, noteSelection, songState, commandExecutor, RollLyricsRightCommand::new);
+    public NewKarediAction rollLyricsRightAction(NoteSelection noteSelection, SongContext songContext, CommandExecutor commandExecutor) {
+        return new RollLyricsAction(ROLL_LYRICS_RIGHT, noteSelection, songContext, commandExecutor, RollLyricsRightCommand::new);
     }
 
     @Bean

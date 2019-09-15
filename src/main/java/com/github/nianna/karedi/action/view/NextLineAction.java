@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.stereotype.Component;
@@ -18,32 +18,32 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.VIEW_NEXT_
 @Component
 class NextLineAction extends NewKarediAction {
 
-    private final SongState songState;
+    private final SongContext songContext;
     private final NoteSelection selection;
     private final SongPlayer songPlayer; //TODO remove
 
-    NextLineAction(SongState songState, NoteSelection selection, SongPlayer songPlayer) {
-        this.songState = songState;
+    NextLineAction(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
+        this.songContext = songContext;
         this.selection = selection;
         this.songPlayer = songPlayer;
         setDisabledCondition(Bindings.createBooleanBinding(
-                () -> this.songState.getActiveTrack() == null || !computeNextLine().isPresent(),
-                songState.activeTrackProperty(), songState.activeLineProperty(), songPlayer.markerBeatProperty())
+                () -> this.songContext.getActiveTrack() == null || !computeNextLine().isPresent(),
+                songContext.activeTrackProperty(), songContext.activeLineProperty(), songPlayer.markerBeatProperty())
         );
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        computeNextLine().ifPresent(songState::setActiveLine);
+        computeNextLine().ifPresent(songContext::setActiveLine);
     }
 
     private Optional<SongLine> computeNextLine() {
-        if (songState.getActiveLine() != null) {
-            return songState.getActiveLine().getNext();
+        if (songContext.getActiveLine() != null) {
+            return songContext.getActiveLine().getNext();
         } else {
             SongLine nextLine = selection.getLast()
                     .map(Note::getLine)
-                    .orElse(songState.getActiveTrack()
+                    .orElse(songContext.getActiveTrack()
                             .lineAtOrLater(songPlayer.getMarkerBeat())
                             .orElse(null)
                     );

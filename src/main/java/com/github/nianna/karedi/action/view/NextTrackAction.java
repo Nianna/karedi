@@ -3,8 +3,7 @@ package main.java.com.github.nianna.karedi.action.view;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.song.Song;
 import org.springframework.stereotype.Component;
 
@@ -13,20 +12,18 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.VIEW_NEXT_
 @Component
 class NextTrackAction extends NewKarediAction {
 
-    private final SongState songState;
-    private final AppContext appContext; //TODO remove
+    private final SongContext songContext;
 
-    NextTrackAction(SongState songState, AppContext appContext) {
-        this.songState = songState;
-        this.appContext = appContext;
-        setDisabledCondition(appContext.activeSongHasOneOrZeroTracksProperty());
+    NextTrackAction(SongContext songContext) {
+        this.songContext = songContext;
+        setDisabledCondition(songContext.activeSongHasOneOrZeroTracksProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        Song song = appContext.getSong();
-        int nextIndex = (song.indexOf(songState.getActiveTrack()) + 1) % song.size();
-        songState.setActiveTrack(song.get(nextIndex));
+        Song song = songContext.getActiveSong();
+        int nextIndex = (song.indexOf(songContext.getActiveTrack()) + 1) % song.size();
+        songContext.setActiveTrack(song.get(nextIndex));
     }
 
     @Override

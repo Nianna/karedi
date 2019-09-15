@@ -16,7 +16,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
-import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.ActionMap;
 import main.java.com.github.nianna.karedi.action.KarediAction;
@@ -69,8 +68,8 @@ public class AppContext {
 	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
 
 	@Autowired
-	private SongState songState;
-	private ReadOnlyObjectWrapper<Song> activeSong;
+	private SongContext songContext;
+//	private ReadOnlyObjectWrapper<Song> activeSong;
 	private ReadOnlyObjectProperty<SongTrack> activeTrack;
 	private ReadOnlyObjectProperty<SongLine> activeLine;
 
@@ -137,36 +136,22 @@ public class AppContext {
 	// Convenience bindings for actions
 	private BooleanBinding activeFileIsNull;
 	private BooleanBinding activeAudioIsNull;
-	private IntegerProperty activeSongTrackCount;
-
-	public BooleanBinding activeSongHasOneOrZeroTracksProperty() {
-		return activeSongHasOneOrZeroTracks;
-	}
-
-	private BooleanBinding activeSongHasOneOrZeroTracks;
+//	private IntegerProperty activeSongTrackCount;
 
 	@Autowired
     private CommandExecutor commandExecutor;
 
     public AppContext() {
 		LOGGER.setUseParentHandlers(false);
-//		actionHelper.addActions(); //TODO
-
-//		Bindings.bindContent(observableSelection, getSelected());
-//		player.statusProperty().addListener(this::onPlayerStatusChanged);
-//		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
 	}
 
 	@PostConstruct
 	public void initAppContext() {
-		activeSong = songState.activeSongProperty();
-		activeTrack = songState.activeTrackProperty();
-		activeLine = songState.activeLineProperty();
+		activeTrack = songContext.activeTrackProperty();
+		activeLine = songContext.activeLineProperty();
 
 		activeFileIsNull = activeFileProperty().isNull();
 		activeAudioIsNull = player.activeAudioFileProperty().isNull();
-		activeSongTrackCount = new SimpleIntegerProperty();
-		activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
 
 		LOGGER.setUseParentHandlers(false);
 		actionHelper.addActions();
@@ -407,13 +392,8 @@ public class AppContext {
 		return false;
 	}
 
-	// Getters and setters for properties
-	private ReadOnlyObjectProperty<Song> activeSongProperty() {
-		return activeSong.getReadOnlyProperty();
-	}
-
 	public Song getSong() {
-		return activeSongProperty().get();
+		return songContext.activeSongProperty().get();
 	}
 
 	public final void setSong(Song song) {
@@ -421,21 +401,21 @@ public class AppContext {
 		new SongNormalizer(song).normalize();
 		// The song has at least one track now
 		if (song != oldSong) {
-			activeSong.set(song);
+			songContext.setActiveSong(song);
 			player.setSong(song);
 			onBeatMillisConverterInvalidated();
 			if (oldSong != null) {
 				oldSong.getBeatMillisConverter()
 						.removeListener(beatMillisConverterInvalidationListener);
-				activeSongTrackCount.unbind();
+//				activeSongTrackCount.unbind();
 			}
 			if (song == null) {
-				setActiveTrack(null);
-				activeSongTrackCount.set(0);
+//				setActiveTrack(null);
+//				activeSongTrackCount.set(0);
 			} else {
 				song.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
-				activeSongTrackCount.bind(song.trackCount());
-				setActiveTrack(song.getDefaultTrack().orElse(null));
+//				activeSongTrackCount.bind(song.trackCount());
+//				setActiveTrack(song.getDefaultTrack().orElse(null));
 			}
 			beatRange.setBounds(song);
 		}
@@ -450,7 +430,7 @@ public class AppContext {
 	}
 
 	public final void setActiveTrack(SongTrack track) {
-		songState.setActiveTrack(track);
+		songContext.setActiveTrack(track);
 	}
 
 	public final SongLine getActiveLine() {
@@ -458,7 +438,7 @@ public class AppContext {
 	}
 
 	public final void setActiveLine(SongLine line) {
-        songState.setActiveLine(line);
+        songContext.setActiveLine(line);
 	}
 
 	// Listeners that are necessary to assure consistency
@@ -632,7 +612,7 @@ public class AppContext {
 			this.from = from;
 			this.to = to;
 
-			BooleanBinding condition = songState.activeSongIsNullProperty();
+			BooleanBinding condition = songContext.activeSongIsNullProperty();
 			if (mode != Mode.MIDI_ONLY) {
 				condition = condition.or(activeAudioIsNull);
 			}
@@ -654,12 +634,12 @@ public class AppContext {
 		private PlayMedleyAction(Mode mode) {
 			this.mode = mode;
 
-			basicCondition = songState.activeSongIsNullProperty();
+			basicCondition = songContext.activeSongIsNullProperty();
 			if (mode != Mode.MIDI_ONLY) {
 				basicCondition = basicCondition.or(activeAudioIsNull);
 			}
 			setDisabledCondition(basicCondition);
-			activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
+			songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
 				if (newVal == null) {
 					setDisabledCondition(basicCondition);
 				} else {
@@ -697,7 +677,7 @@ public class AppContext {
 		private List<Color> colors;
 
 		private ReloadSongAction() {
-			setDisabledCondition(activeFileIsNull.or(songState.activeSongIsNullProperty()));
+			setDisabledCondition(activeFileIsNull.or(songContext.activeSongIsNullProperty()));
 		}
 
 		@Override
@@ -749,7 +729,7 @@ public class AppContext {
 	private class SaveSongAction extends KarediAction {
 
 		private SaveSongAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty()
+			setDisabledCondition(songContext.activeSongIsNullProperty()
 					.or(lastSavedCommand.isEqualTo(history.activeCommandProperty())));
 		}
 
@@ -766,7 +746,7 @@ public class AppContext {
 	private class SaveSongAsAction extends KarediAction {
 
 		private SaveSongAsAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
+			setDisabledCondition(songContext.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -781,7 +761,7 @@ public class AppContext {
 	private class ImportAudioAction extends KarediAction {
 
 		private ImportAudioAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
+			setDisabledCondition(songContext.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -910,7 +890,7 @@ public class AppContext {
 	private class RenameAction extends KarediAction {
 
 		private RenameAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
+			setDisabledCondition(songContext.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -970,7 +950,7 @@ public class AppContext {
 
 		private ExportTracksAction(int trackCount) {
 			this.trackCount = trackCount;
-			activeSong.addListener((obsVal, oldVal, newVal) -> {
+			songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
 				if (newVal != null) {
 					setDisabledCondition(newVal.trackCount().lessThan(trackCount));
 				} else {
@@ -1016,7 +996,7 @@ public class AppContext {
 	private abstract class TagAction extends KarediAction {
 
 		private TagAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
+			setDisabledCondition(songContext.activeSongIsNullProperty());
 		}
 
 	}

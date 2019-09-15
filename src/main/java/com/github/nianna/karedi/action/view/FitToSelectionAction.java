@@ -11,13 +11,13 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.FIT_TO_SEL
 @Component
 class FitToSelectionAction extends NewKarediAction {
 
-    private final SongState songState;
+    private final SongContext songContext;
     private final VisibleArea visibleArea;
     private final SongPlayer songPlayer;
     private final AppContext appContext; //TODO remove
 
-    FitToSelectionAction(NoteSelection noteSelection, SongState songState, VisibleArea visibleArea, SongPlayer songPlayer, AppContext appContext) {
-        this.songState = songState;
+    FitToSelectionAction(NoteSelection noteSelection, SongContext songContext, VisibleArea visibleArea, SongPlayer songPlayer, AppContext appContext) {
+        this.songContext = songContext;
         this.visibleArea = visibleArea;
         this.songPlayer = songPlayer;
         this.appContext = appContext;
@@ -27,7 +27,7 @@ class FitToSelectionAction extends NewKarediAction {
     @Override
     protected void onAction(ActionEvent event) {
         songPlayer.stop(); //TODO can it be done differently?
-        songState.setActiveLine(null);
+        songContext.setActiveLine(null);
         visibleArea.setBounds(visibleArea.addMargins(appContext.getSelectionBounds()));
     }
 

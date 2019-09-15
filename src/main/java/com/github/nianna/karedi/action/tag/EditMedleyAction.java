@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeMedleyCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.dialog.EditMedleyDialog;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
@@ -17,13 +17,10 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.EDIT_MEDLE
 @Component
 class EditMedleyAction extends TagAction {
 
-    private final AppContext appContext;
-
     private final CommandExecutor commandExecutor;
 
-    EditMedleyAction(SongState songState, AppContext appContext, CommandExecutor commandExecutor) {
-        super(songState);
-        this.appContext = appContext;
+    EditMedleyAction(SongContext songContext, CommandExecutor commandExecutor) {
+        super(songContext);
         this.commandExecutor = commandExecutor;
     }
 
@@ -45,7 +42,7 @@ class EditMedleyAction extends TagAction {
     }
 
     private Song getSong() {
-        return appContext.getSong();
+        return songContext.getActiveSong();
     }
 
     @Override

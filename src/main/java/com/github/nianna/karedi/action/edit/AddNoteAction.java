@@ -20,28 +20,28 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
 @Component
  class AddNoteAction extends NewKarediAction { //TODO refactor this class
     private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
-    private final SongState songState;
+    private final SongContext songContext;
     private final SongPlayer songPlayer; //TODO
     private final VisibleArea visibleArea;
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
     private final AppContext appContext; //TODO remove
 
-    AddNoteAction(SongState songState, SongPlayer songPlayer, VisibleArea visibleArea, NoteSelection selection, CommandExecutor commandExecutor, AppContext appContext) {
-        this.songState = songState;
+    AddNoteAction(SongContext songContext, SongPlayer songPlayer, VisibleArea visibleArea, NoteSelection selection, CommandExecutor commandExecutor, AppContext appContext) {
+        this.songContext = songContext;
         this.songPlayer = songPlayer;
         this.visibleArea = visibleArea;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
         this.appContext = appContext;
         setDisabledCondition(Bindings.createBooleanBinding(() -> {
-            if (this.songState.getActiveTrack() == null) {
+            if (this.songContext.getActiveTrack() == null) {
                 return true;
             } else {
                 int newNotePosition = computePosition();
-                return songState.getActiveTrack().noteAt(newNotePosition).isPresent();
+                return songContext.getActiveTrack().noteAt(newNotePosition).isPresent();
             }
-        }, this.appContext.getSelectionBounds(), this.songPlayer.markerTimeProperty(), songState.activeTrackProperty()));
+        }, this.appContext.getSelectionBounds(), this.songPlayer.markerTimeProperty(), songContext.activeTrackProperty()));
     }
 
     @Override
@@ -56,7 +56,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
         Command cmd;
         cmd = optLine
                 .map(songLine -> new AddNoteCommand(note, songLine))
-                .orElseGet(() -> new AddNoteCommand(note, songState.getActiveTrack()));
+                .orElseGet(() -> new AddNoteCommand(note, songContext.getActiveTrack()));
         commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
             selection.selectOnly(note);
         }));
@@ -75,7 +75,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private int computeLength(int startBeat) {
-        Optional<Integer> nextNoteStartBeat = songState.getActiveTrack().noteAtOrLater(startBeat)
+        Optional<Integer> nextNoteStartBeat = songContext.getActiveTrack().noteAtOrLater(startBeat)
                 .map(Note::getStart);
         return nextNoteStartBeat.
                 map(integer -> Math.min(NEW_NOTE_DEFAULT_LENGTH, Math.max(integer - startBeat - 1, 1)))
@@ -83,8 +83,8 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private Optional<SongLine> computeLine() {
-        if (songState.getActiveLine() != null) {
-            return Optional.of(songState.getActiveLine());
+        if (songContext.getActiveLine() != null) {
+            return Optional.of(songContext.getActiveLine());
         }
         Optional<SongLine> line = selection.getLast().map(Note::getLine);
         if (!line.isPresent()) {
@@ -94,7 +94,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private Optional<SongLine> getLastVisibleLineBeforeMarker() {
-        return songState.getActiveTrack().lineAtOrEarlier(songPlayer.getMarkerBeat())
+        return songContext.getActiveTrack().lineAtOrEarlier(songPlayer.getMarkerBeat())
                 .filter(prevLine -> prevLine.getUpperXBound() > visibleArea.getLowerXBound());
     }
 

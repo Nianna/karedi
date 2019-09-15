@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeBpmCommand;
 import main.java.com.github.nianna.karedi.command.tag.RescaleSongToBpmCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.dialog.EditBpmDialog;
 import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -18,21 +18,21 @@ import java.util.Optional;
 
 class EditBpmAction extends NewKarediAction {
     private final KarediActions handledAction;
-    private final AppContext appContext; //TODO
     private final CommandExecutor commandExecutor;
     private double scale;
     private boolean promptUser;
+    private final SongContext songContext;
 
-    EditBpmAction(KarediActions handledAction, SongState songState, AppContext appContext, CommandExecutor commandExecutor) {
+    EditBpmAction(KarediActions handledAction, SongContext songContext, CommandExecutor commandExecutor) {
         this.handledAction = handledAction;
-        this.appContext = appContext;
+        this.songContext = songContext;
         this.commandExecutor = commandExecutor;
-        setDisabledCondition(songState.activeSongIsNullProperty());
+        setDisabledCondition(songContext.activeSongIsNullProperty());
         promptUser = true;
     }
 
-    EditBpmAction(KarediActions handledAction, double scale, SongState songState, AppContext appContext, CommandExecutor commandExecutor) {
-        this(handledAction, songState, appContext, commandExecutor);
+    EditBpmAction(KarediActions handledAction, double scale, SongContext songContext, CommandExecutor commandExecutor) {
+        this(handledAction, songContext, commandExecutor);
         this.scale = scale;
         promptUser = false;
     }
@@ -63,7 +63,7 @@ class EditBpmAction extends NewKarediAction {
     }
 
     private Song getSong() {
-        return appContext.getSong();
+        return songContext.getActiveSong();
     }
 
     @Override

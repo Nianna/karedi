@@ -20,7 +20,7 @@ import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorComm
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackNameCommand;
 import main.java.com.github.nianna.karedi.command.track.ReorderTracksCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.control.CheckBoxTableCell;
 import main.java.com.github.nianna.karedi.control.ColorPickerTableCell;
 import main.java.com.github.nianna.karedi.control.TitledKeyValueGrid;
@@ -57,11 +57,11 @@ public class TracksController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
-	private final SongState songState;
+	private final SongContext songContext;
 	private final CommandExecutor commandExecutor;
 
-	public TracksController(SongState songState, CommandExecutor commandExecutor) {
-		this.songState = songState;
+	public TracksController(SongContext songContext, CommandExecutor commandExecutor) {
+		this.songContext = songContext;
 		this.commandExecutor = commandExecutor;
 	}
 
@@ -81,11 +81,11 @@ public class TracksController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		song = songState.getActiveSong();
+		song = songContext.getActiveSong();
 
-		songState.activeSongProperty().addListener(obs -> display(songState.getActiveSong()));
-		songState.activeTrackProperty().addListener(obs -> {
-			table.getSelectionModel().select(songState.getActiveTrack());
+		songContext.activeSongProperty().addListener(obs -> display(songContext.getActiveSong()));
+		songContext.activeTrackProperty().addListener(obs -> {
+			table.getSelectionModel().select(songContext.getActiveTrack());
 		});
 
 		table.setRowFactory(getRowFactory());
@@ -216,7 +216,7 @@ public class TracksController implements Controller {
 	}
 
 	private void onSelectedItemChanged(Observable obs, SongTrack oldTrack, SongTrack newTrack) {
-		SongTrack activeTrack = songState.getActiveTrack();
+		SongTrack activeTrack = songContext.getActiveTrack();
 		if (newTrack != null && newTrack != activeTrack) {
 			appContext.setActiveTrack(newTrack);
 		} else {
@@ -279,7 +279,7 @@ public class TracksController implements Controller {
 			super.updateItem(item, empty);
 			SongTrack track = getTrack();
 			if (track != null) {
-				disableProperty().bind(songState.activeTrackProperty().isEqualTo(track));
+				disableProperty().bind(songContext.activeTrackProperty().isEqualTo(track));
 			}
 		}
 

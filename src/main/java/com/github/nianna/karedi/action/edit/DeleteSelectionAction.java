@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.DeleteNotesCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.IntBounded;
@@ -19,15 +19,15 @@ class DeleteSelectionAction extends NewKarediAction {
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
     private final VisibleArea visibleArea;
-    private final SongState songState;
+    private final SongContext songContext;
 
-    DeleteSelectionAction(KarediActions handledAction, boolean keepLyrics, NoteSelection selection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongState songState) {
+    DeleteSelectionAction(KarediActions handledAction, boolean keepLyrics, NoteSelection selection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongContext songContext) {
         this.handledAction = handledAction;
         this.keepLyrics = keepLyrics;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
         this.visibleArea = visibleArea;
-        this.songState = songState;
+        this.songContext = songContext;
         setDisabledCondition(this.selection.isEmptyProperty());
     }
 
@@ -41,8 +41,8 @@ class DeleteSelectionAction extends NewKarediAction {
         IntBounded bounds = BoundingBox.boundsFrom(visibleArea);
         return new ChangePostStateCommandDecorator(cmd, (command) -> {
             selection.clear();
-            if (songState.getActiveLine() != null && !songState.getActiveLine().isValid()) {
-                songState.setActiveLine(null);
+            if (songContext.getActiveLine() != null && !songContext.getActiveLine().isValid()) {
+                songContext.setActiveLine(null);
                 visibleArea.setBounds(bounds);//TODO
             }
         });

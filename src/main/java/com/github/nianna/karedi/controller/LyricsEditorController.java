@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import main.java.com.github.nianna.karedi.command.*;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -51,7 +51,6 @@ import main.java.com.github.nianna.karedi.util.KeyCodeCombinations;
 import main.java.com.github.nianna.karedi.util.KeyEventUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.LyricsHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -79,13 +78,13 @@ public class LyricsEditorController implements Controller {
 
 	private Timer lyricsUpdateTimer = new Timer(true);
 
-	private final SongState songState;
+	private final SongContext songContext;
 
     private final CommandExecutor commandExecutor;
 
-    public LyricsEditorController(NoteSelection noteSelection, SongState songState, CommandExecutor commandExecutor) {
+    public LyricsEditorController(NoteSelection noteSelection, SongContext songContext, CommandExecutor commandExecutor) {
 		this.noteSelection = noteSelection;
-		this.songState = songState;
+		this.songContext = songContext;
         this.commandExecutor = commandExecutor;
     }
 
@@ -136,8 +135,8 @@ public class LyricsEditorController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		songState.activeTrackProperty().addListener(this::onTrackChanged);
-		scrollPane.disableProperty().bind(songState.activeTrackProperty().isNull());
+		songContext.activeTrackProperty().addListener(this::onTrackChanged);
+		scrollPane.disableProperty().bind(songContext.activeTrackProperty().isNull());
 
 		appContext.addAction(KarediActions.INSERT_MINUS, new InsertTextAction(NoteTextArea.MINUS));
 		appContext.addAction(KarediActions.INSERT_SPACE, new InsertTextAction(NoteTextArea.SPACE));
@@ -463,7 +462,7 @@ public class LyricsEditorController implements Controller {
 			public void run() {
 				Platform.runLater(() -> {
 					synchronizer.freeze();
-					boolean changed = textArea.setTrack(songState.getActiveTrack());
+					boolean changed = textArea.setTrack(songContext.getActiveTrack());
 					if (changed) {
 						if (!textArea.isFocused()) {
 							synchronizer.updateTextSelection();

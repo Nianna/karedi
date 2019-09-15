@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.guard;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ObservableValue;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.core.annotation.Order;
@@ -12,25 +12,25 @@ import org.springframework.stereotype.Component;
 @Order(5)
 public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 
-	private final SongState songState;
+	private final SongContext songContext;
 
 	private final VisibleArea visibleArea;
 
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
-	public VisibleAreaLockedOnLineChangedGuard(SongState songState, VisibleArea visibleArea) {
-		this.songState = songState;
+	public VisibleAreaLockedOnLineChangedGuard(SongContext songContext, VisibleArea visibleArea) {
+		this.songContext = songContext;
 		this.visibleArea = visibleArea;
 	}
 
 	@Override
 	public void enable() {
-		songState.activeLineProperty().addListener(this::onLineChanged);
+		songContext.activeLineProperty().addListener(this::onLineChanged);
 	}
 
 	@Override
 	public void disable() {
-		songState.activeLineProperty().removeListener(this::onLineChanged);
+		songContext.activeLineProperty().removeListener(this::onLineChanged);
 	}
 
 	private void onLineChanged(ObservableValue<? extends SongLine> observableValue, SongLine oldLine, SongLine newLine) {
@@ -46,7 +46,7 @@ public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 	}
 
 	private void onBoundsInvalidated() {
-		SongLine activeLine = songState.getActiveLine();
+		SongLine activeLine = songContext.getActiveLine();
 		if (activeLine != null && activeLine.isValid()) {
 			visibleArea.adjustToBounds(activeLine);
 		}

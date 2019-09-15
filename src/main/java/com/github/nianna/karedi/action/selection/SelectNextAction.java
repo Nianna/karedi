@@ -5,7 +5,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 public class SelectNextAction extends NewKarediAction {
 
-    private final SongState songState;
+    private final SongContext songContext;
 
     private final NoteSelection noteSelection;
 
@@ -25,20 +25,20 @@ public class SelectNextAction extends NewKarediAction {
 
     private final SongPlayer songPlayer;
 
-    private SelectNextAction(SongState songState, NoteSelection noteSelection, VisibleArea visibleArea, SongPlayer songPlayer) {
-        this.songState = songState;
+    private SelectNextAction(SongContext songContext, NoteSelection noteSelection, VisibleArea visibleArea, SongPlayer songPlayer) {
+        this.songContext = songContext;
         this.noteSelection = noteSelection;
         this.visibleArea = visibleArea;
         this.songPlayer = songPlayer;
-        setDisabledCondition(this.songState.activeTrackIsNullProperty());
+        setDisabledCondition(this.songContext.activeTrackIsNullProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
         Optional<Note> nextNote = noteSelection.getLast().flatMap(Note::getNext)
                 .filter(this::isInVisibleBeatRange);
-        SongTrack activeTrack = songState.getActiveTrack();
-        SongLine activeLine = songState.getActiveLine();
+        SongTrack activeTrack = songContext.getActiveTrack();
+        SongLine activeLine = songContext.getActiveLine();
 
         if (!nextNote.isPresent() && noteSelection.size() == 0) {
             int markerBeat = songPlayer.getMarkerBeat();

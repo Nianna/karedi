@@ -4,7 +4,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +15,14 @@ public class MarkerVisibleDuringPlaybackGuard implements Guard {
 
     private final VisibleArea visibleArea;
 
-    private final SongState songState;
+    private final SongContext songContext;
 
     private final InvalidationListener markerPositionChangeListener = this::onMarkerPositionWhilePlayingChanged;
 
-    public MarkerVisibleDuringPlaybackGuard(SongPlayer songPlayer, VisibleArea visibleArea, SongState songState) {
+    public MarkerVisibleDuringPlaybackGuard(SongPlayer songPlayer, VisibleArea visibleArea, SongContext songContext) {
         this.songPlayer = songPlayer;
         this.visibleArea = visibleArea;
-        this.songState = songState;
+        this.songContext = songContext;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class MarkerVisibleDuringPlaybackGuard implements Guard {
         if (!visibleArea.inBoundsX(markerBeat)) {
             int xRange = visibleArea.getUpperXBound() - visibleArea.getLowerXBound();
             visibleArea.setXBounds(markerBeat - 1, markerBeat - 1 + xRange);
-            songState.setActiveLine(null);
+            songContext.setActiveLine(null);
         }
     }
 }

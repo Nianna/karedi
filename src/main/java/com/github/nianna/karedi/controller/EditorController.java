@@ -60,7 +60,6 @@ import main.java.com.github.nianna.karedi.util.MusicalScale;
 import main.java.com.github.nianna.karedi.util.NodeUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragSelectionHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -102,14 +101,14 @@ public class EditorController implements Controller {
 
 	private final NoteSelection selection;
 	private final SongPlayer songPlayer;
-	private final SongState songState;
+	private final SongContext songContext;
     private final CommandHistory history;
     private final CommandExecutor commandExecutor;
 
-    public EditorController(NoteSelection selection, SongPlayer songPlayer, SongState songState, CommandHistory history, CommandExecutor commandExecutor) {
+    public EditorController(NoteSelection selection, SongPlayer songPlayer, SongContext songContext, CommandHistory history, CommandExecutor commandExecutor) {
         this.selection = selection;
         this.songPlayer = songPlayer;
-        this.songState = songState;
+        this.songContext = songContext;
         this.history = history;
         this.commandExecutor = commandExecutor;
     }
@@ -132,11 +131,11 @@ public class EditorController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		songState.activeSongProperty().addListener(this::onSongChanged);
+		songContext.activeSongProperty().addListener(this::onSongChanged);
 		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaChanged);
 		selection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
-		songState.activeTrackProperty().addListener(this::onTrackChanged);
+		songContext.activeTrackProperty().addListener(this::onTrackChanged);
 		songPlayer.statusProperty().addListener(this::onPlayerStatusChanged);
 
 		noteListChangeListener = ListenersUtils.createListContentChangeListener(this::addNote,
@@ -161,9 +160,9 @@ public class EditorController implements Controller {
 	}
 
 	private void configureChart() {
-		chart.disableProperty().bind(songState.activeSongProperty().isNull());
+		chart.disableProperty().bind(songContext.activeSongProperty().isNull());
 		chart.getTAxis().tickLabelsVisibleProperty()
-				.bind(songState.activeSongProperty().isNotNull());
+				.bind(songContext.activeSongProperty().isNotNull());
 
 		chart.getTAxis().lowerBoundProperty().bind(Bindings.createDoubleBinding(() -> {
 			return appContext.beatToMillis((int) chart.getXAxis().getLowerBound()) / 1000.0;
@@ -304,7 +303,7 @@ public class EditorController implements Controller {
 			int highestTone = Math.min(sceneYtoTone(upperLeft.getY()),
 					visibleArea.getUpperYBound());
 
-			List<Note> selectedNotes = songState.getActiveTrack().getNotes(lowestBeat, highestBeat)
+			List<Note> selectedNotes = songContext.getActiveTrack().getNotes(lowestBeat, highestBeat)
 					.stream()
 					.filter(note -> note.getTone() <= highestTone && note.getTone() >= lowestTone)
 					.collect(Collectors.toList());
@@ -470,7 +469,7 @@ public class EditorController implements Controller {
 
 		public TogglePianoVisibilityAction() {
 			super();
-			setDisabledCondition(songState.activeSongProperty().isNull());
+			setDisabledCondition(songContext.activeSongProperty().isNull());
 		}
 
 		@Override
@@ -493,7 +492,7 @@ public class EditorController implements Controller {
 		private long updateInterval;
 
 		private TapNotesAction() {
-			setDisabledCondition(songState.activeTrackProperty().isNull()
+			setDisabledCondition(songContext.activeTrackProperty().isNull()
 					.or(songPlayer.activeAudioFileProperty().isNull()));
 			playerStatusListener = (obs -> {
 				if (songPlayer.getStatus() != Status.PLAYING) {
@@ -502,7 +501,7 @@ public class EditorController implements Controller {
 					hBox.setOnKeyPressed(onKeyPressed);
 					hBox.setOnKeyReleased(onKeyReleased);
 					obs.removeListener(this.playerStatusListener);
-					songState.activeTrackProperty().removeListener(activeTrackListener);
+					songContext.activeTrackProperty().removeListener(activeTrackListener);
 				}
 			});
 			activeTrackListener = (obs -> {
@@ -520,7 +519,7 @@ public class EditorController implements Controller {
 			tone = getToneForTappedNote();
 			updateInterval = getBeatDuration() / 2;
 			tapping = true;
-			songState.activeTrackProperty().addListener(activeTrackListener);
+			songContext.activeTrackProperty().addListener(activeTrackListener);
 			appContext.execute(KarediActions.PLAY_VISIBLE_AUDIO);
 			songPlayer.statusProperty().addListener(playerStatusListener);
 			hBox.setOnKeyPressed(this::onKeyPressedWhileTapping);
@@ -556,11 +555,11 @@ public class EditorController implements Controller {
 				lastNote = new Note(songPlayer.getMarkerBeat() - 1, 1, tone);
 
 				// add new note to existing SongLine if possible
-				songState.getActiveTrack().lineAt(songPlayer.getMarkerBeat())
+				songContext.getActiveTrack().lineAt(songPlayer.getMarkerBeat())
 						.ifPresent(markerLine -> line = markerLine);
 
-				if (line == null || !songState.getActiveTrack().contains(line)) {
-                    commandExecutor.execute(new AddNoteCommand(lastNote, songState.getActiveTrack()));
+				if (line == null || !songContext.getActiveTrack().contains(line)) {
+                    commandExecutor.execute(new AddNoteCommand(lastNote, songContext.getActiveTrack()));
 					line = lastNote.getLine();
 				} else {
                     commandExecutor.execute(new AddNoteCommand(lastNote, line));
@@ -862,7 +861,7 @@ public class EditorController implements Controller {
 		}
 
 		private void onMousePressed(MouseEvent event) {
-			if (event.isShortcutDown() && songState.getActiveTrack() != null) {
+			if (event.isShortcutDown() && songContext.getActiveTrack() != null) {
 				if (MusicalScale.isToneValid(getTone(event))) {
 					note = new Note(getBeat(event), 1, getTone(event));
 					Optional<SongLine> line = getLineForBeat(getBeat(event));
@@ -870,7 +869,7 @@ public class EditorController implements Controller {
 					if (line.isPresent()) {
 						cmd = new AddNoteCommand(note, line.get());
 					} else {
-						cmd = new AddNoteCommand(note, songState.getActiveTrack());
+						cmd = new AddNoteCommand(note, songContext.getActiveTrack());
 					}
                     commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {
 						selection.selectOnly(note);
@@ -882,12 +881,12 @@ public class EditorController implements Controller {
 		}
 
 		private Optional<SongLine> getLineForBeat(int beat) {
-			Optional<SongLine> prevLine = songState.getActiveTrack().lineAtOrEarlier(beat)
+			Optional<SongLine> prevLine = songContext.getActiveTrack().lineAtOrEarlier(beat)
 					.filter(this::isPreviousVisible);
 			if (prevLine.isPresent()) {
 				return prevLine;
 			} else {
-				Optional<SongLine> nextLine = songState.getActiveTrack().lineAtOrLater(beat)
+				Optional<SongLine> nextLine = songContext.getActiveTrack().lineAtOrLater(beat)
 						.filter(this::isNextVisible);
 				return nextLine;
 			}
@@ -960,7 +959,7 @@ public class EditorController implements Controller {
 		private void onDragActiveInvalidated(Observable obs) {
 			if (helper.isActive()) {
 				int beat = songPlayer.getMarkerBeat();
-				notesToDrag = songState.getActiveTrack().getNotes(beat);
+				notesToDrag = songContext.getActiveTrack().getNotes(beat);
 				if (notesToDrag.size() > 0) {
 					selection.selectOnly(notesToDrag.get(0));
 					initialDistance = songPlayer.getMarkerBeat() - beat;

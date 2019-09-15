@@ -5,7 +5,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -19,7 +19,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.INCREASE_S
 @Component
 public class SelectMoreAction extends NewKarediAction {
 
-    private final SongState songState;
+    private final SongContext songContext;
 
     private final NoteSelection selection;
 
@@ -27,12 +27,12 @@ public class SelectMoreAction extends NewKarediAction {
 
     private final VisibleArea visibleArea;
 
-    private SelectMoreAction(SongState songState, NoteSelection selection, SongPlayer songPlayer, VisibleArea visibleArea) {
-        this.songState = songState;
+    private SelectMoreAction(SongContext songContext, NoteSelection selection, SongPlayer songPlayer, VisibleArea visibleArea) {
+        this.songContext = songContext;
         this.selection = selection;
         this.songPlayer = songPlayer;
         this.visibleArea = visibleArea;
-        setDisabledCondition(this.songState.activeTrackIsNullProperty());
+        setDisabledCondition(this.songContext.activeTrackIsNullProperty());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class SelectMoreAction extends NewKarediAction {
                 correctVisibleArea(lastNote.get(), nextNote);
             });
         } else {
-            songState.getActiveTrack().noteAtOrLater(songPlayer.getMarkerBeat()).ifPresent(selection::select);
+            songContext.getActiveTrack().noteAtOrLater(songPlayer.getMarkerBeat()).ifPresent(selection::select);
         }
     }
 
@@ -57,18 +57,18 @@ public class SelectMoreAction extends NewKarediAction {
             if (!visibleArea.inBoundsX(nextLineUpperBound)) {
                 upperXBound = nextLineUpperBound;
                 setVisibleAreaXBounds(lowerXBound, upperXBound);
-                List<Note> visibleNotes = songState.getActiveTrack().getNotes(lowerXBound, upperXBound);
+                List<Note> visibleNotes = songContext.getActiveTrack().getNotes(lowerXBound, upperXBound);
                 if (visibleNotes.size() > 0) {
                     visibleArea.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
                 }
             }
-            songState.setActiveLine(null);
+            songContext.setActiveLine(null);
         }
     }
 
     private void setVisibleAreaXBounds(int lowerXBound, int upperXBound) {
         if (visibleArea.setXBounds(lowerXBound, upperXBound)) {
-            songState.setActiveLine(null);
+            songContext.setActiveLine(null);
         }
     }
 

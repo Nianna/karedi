@@ -3,8 +3,7 @@ package main.java.com.github.nianna.karedi.action.view;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -18,16 +17,14 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.VIEW_MEDLE
 @Component
 class ViewMedleyAction extends NewKarediAction {
 
-    private final SongState songState;
-    private final AppContext appContext;
+    private final SongContext songContext;
     private final VisibleArea visibleArea;
 
-    ViewMedleyAction(SongState songState, AppContext appContext, VisibleArea visibleArea) {
-        this.songState = songState;
-        this.appContext = appContext;
+    ViewMedleyAction(SongContext songContext, VisibleArea visibleArea) {
+        this.songContext = songContext;
         this.visibleArea = visibleArea;
         setDisabledCondition(true);
-        this.songState.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
+        this.songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
             if (newVal == null) {
                 setDisabledCondition(true);
             } else {
@@ -38,19 +35,19 @@ class ViewMedleyAction extends NewKarediAction {
 
     @Override
     protected void onAction(ActionEvent event) {
-        Song.Medley medley = appContext.getSong().getMedley();
+        Song.Medley medley = songContext.getActiveSong().getMedley();
         setVisibleAreaXBounds(medley.getStartBeat(), medley.getEndBeat());
         assertAllNeededTonesVisible();
     }
 
     private void assertAllNeededTonesVisible() { //TODO refactor
-        List<Note> notes = appContext.getSong().getVisibleNotes(visibleArea.getLowerXBound(), visibleArea.getUpperXBound());
+        List<Note> notes = songContext.getActiveSong().getVisibleNotes(visibleArea.getLowerXBound(), visibleArea.getUpperXBound());
         visibleArea.assertBoundsYVisible(visibleArea.addMargins(new BoundingBox<>(notes)));
     }
 
     private void setVisibleAreaXBounds(int lowerXBound, int upperXBound) {
         if (visibleArea.setXBounds(lowerXBound, upperXBound)) {
-            songState.setActiveLine(null);
+            songContext.setActiveLine(null);
         }
     }
 

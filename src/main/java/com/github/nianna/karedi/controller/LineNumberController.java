@@ -7,7 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongState;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
@@ -22,10 +22,10 @@ public class LineNumberController implements Controller {
 
 	private AppContext appContext;
 	private ListChangeListener<? super SongLine> lineListChangeListener;
-	private final SongState songState;
+	private final SongContext songContext;
 
-	public LineNumberController(SongState songState) {
-		this.songState = songState;
+	public LineNumberController(SongContext songContext) {
+		this.songContext = songContext;
 	}
 
 	@Override
@@ -35,8 +35,8 @@ public class LineNumberController implements Controller {
 		lineListChangeListener = ListenersUtils.createListChangeListener(line -> updateLabel(),
 				ListenersUtils::pass, ListenersUtils::pass, ListenersUtils::pass);
 
-		songState.activeLineProperty().addListener(obs -> updateLabel());
-		songState.activeTrackProperty().addListener(this::onTrackChanged);
+		songContext.activeLineProperty().addListener(obs -> updateLabel());
+		songContext.activeTrackProperty().addListener(this::onTrackChanged);
 	}
 
 	@Override
@@ -45,8 +45,8 @@ public class LineNumberController implements Controller {
 	}
 
 	private String getActiveLineNumber() {
-		if (songState.getActiveTrack() != null && songState.getActiveLine() != null) {
-			return (songState.getActiveTrack().indexOf(songState.getActiveLine()) + 1) + "";
+		if (songContext.getActiveTrack() != null && songContext.getActiveLine() != null) {
+			return (songContext.getActiveTrack().indexOf(songContext.getActiveLine()) + 1) + "";
 		}
 		return "";
 	}

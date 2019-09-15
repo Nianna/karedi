@@ -1,8 +1,10 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ListChangeListener;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -11,15 +13,16 @@ import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SongState {
+public class SongContext {
 
     private final ReadOnlyObjectWrapper<Song> activeSong = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<SongTrack> activeTrack = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<SongLine> activeLine = new ReadOnlyObjectWrapper<>();
 
     private BooleanBinding activeSongIsNull = activeSongProperty().isNull();
-
     private BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
+    private IntegerProperty activeSongTrackCount = new SimpleIntegerProperty();
+    private BooleanBinding activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
 
     private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
             .createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
@@ -28,8 +31,8 @@ public class SongState {
         return activeSong.get();
     }
 
-    public ReadOnlyObjectWrapper<Song> activeSongProperty() {
-        return activeSong;
+    public ReadOnlyObjectProperty<Song> activeSongProperty() {
+        return activeSong.getReadOnlyProperty();
     }
 
     public SongTrack getActiveTrack() {
@@ -54,6 +57,27 @@ public class SongState {
 
     public BooleanBinding activeTrackIsNullProperty() {
         return activeTrackIsNull;
+    }
+
+    public BooleanBinding activeSongHasOneOrZeroTracksProperty() {
+        return activeSongHasOneOrZeroTracks;
+    }
+
+    public void setActiveSong(Song newSong) {
+        Song oldSong = getActiveSong();
+        activeSong.set(newSong);
+
+        if (oldSong != null) {
+            activeSongTrackCount.unbind();
+        }
+
+        if (newSong == null) {
+            setActiveTrack(null);
+            activeSongTrackCount.set(0);
+        } else {
+            setActiveTrack(newSong.getDefaultTrack().orElse(null));
+            activeSongTrackCount.bind(newSong.trackCount());
+        }
     }
 
     public final void setActiveTrack(SongTrack newTrack) {

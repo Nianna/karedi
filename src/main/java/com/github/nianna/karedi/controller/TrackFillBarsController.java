@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.BeatRange;
 import main.java.com.github.nianna.karedi.display.FillBar;
 import main.java.com.github.nianna.karedi.event.ControllerEvent;
 import main.java.com.github.nianna.karedi.region.Bounded;
@@ -52,7 +53,10 @@ public class TrackFillBarsController implements Controller {
 	private double lastDragX;
 	private boolean ignoreNextClick = false;
 
-	public TrackFillBarsController() {
+	private final BeatRange beatRange;
+
+	public TrackFillBarsController(BeatRange beatRange) {
+		this.beatRange = beatRange;
 		trackListListener = ListenersUtils.createListContentChangeListener(this::addFillBar,
 				this::removeFillBar);
 	}
@@ -84,16 +88,16 @@ public class TrackFillBarsController implements Controller {
 		resizer.activeProperty().addListener(obs -> onResizerActiveInvalidated());
 
 		unitWidth.bind(Bindings.createDoubleBinding(() -> {
-			int beatRange = appContext.getMaxBeat() - appContext.getMinBeat();
-			if (beatRange == 0) {
+			int beatRangeSpan = beatRange.getMaxBeat() - beatRange.getMinBeat();
+			if (beatRangeSpan == 0) {
 				return 0.0;
 			} else {
-				return pane.getWidth() / beatRange;
+				return pane.getWidth() / beatRangeSpan;
 			}
-		}, appContext.minBeatProperty(), appContext.maxBeatProperty(), pane.widthProperty()));
+		}, beatRange.minBeatProperty(), beatRange.maxBeatProperty(), pane.widthProperty()));
 
 		content.translateXProperty()
-				.bind(unitWidth.multiply(appContext.minBeatProperty()).negate());
+				.bind(unitWidth.multiply(beatRange.minBeatProperty()).negate());
 	}
 
 	@Override

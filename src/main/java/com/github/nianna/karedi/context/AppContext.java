@@ -223,19 +223,11 @@ public class AppContext {
 	}
 
 	// Beat range
-	public Integer getMinBeat() {
-		return beatRange.getMinBeat();
-	}
-
-	public ReadOnlyIntegerProperty minBeatProperty() {
+	private ReadOnlyIntegerProperty minBeatProperty() {
 		return beatRange.minBeatProperty();
 	}
 
-	public Integer getMaxBeat() {
-		return beatRange.getMaxBeat();
-	}
-
-	public ReadOnlyIntegerProperty maxBeatProperty() {
+	private ReadOnlyIntegerProperty maxBeatProperty() {
 		return beatRange.maxBeatProperty();
 	}
 

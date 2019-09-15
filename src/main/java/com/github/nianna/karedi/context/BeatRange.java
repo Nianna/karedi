@@ -67,19 +67,19 @@ public class BeatRange {
 		refresh();
 	}
 
-	ReadOnlyIntegerProperty minBeatProperty() {
+	public ReadOnlyIntegerProperty minBeatProperty() {
 		return minBeat.getReadOnlyProperty();
 	}
 
-	ReadOnlyIntegerProperty maxBeatProperty() {
+	public ReadOnlyIntegerProperty maxBeatProperty() {
 		return maxBeat.getReadOnlyProperty();
 	}
 
-	final int getMinBeat() {
+	public final int getMinBeat() {
 		return minBeatProperty().get();
 	}
 
-	final int getMaxBeat() {
+	public final int getMaxBeat() {
 		return maxBeatProperty().get();
 	}
 

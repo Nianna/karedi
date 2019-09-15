@@ -20,4 +20,18 @@ public class ActionManager {
     public KarediAction get(KarediActions key) {
         return actionMap.get(key);
     }
+
+    public void execute(KarediActions action) {
+        if (canExecute(action)) {
+            getAction(action).handle(null);
+        }
+    }
+
+    boolean canExecute(KarediActions action) {
+        return !getAction(action).isDisabled();
+    }
+
+    KarediAction getAction(KarediActions key) {
+        return actionMap.get(key);
+    }
 }

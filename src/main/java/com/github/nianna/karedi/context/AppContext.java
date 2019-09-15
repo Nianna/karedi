@@ -127,6 +127,10 @@ public class AppContext {
 	@Autowired
     private ActionManager actionManager;
 
+	public ObservableList<Note> getObservableSelection() {
+		return observableSelection;
+	}
+
 	private final ObservableList<Note> observableSelection = FXCollections
 			.observableArrayList(note -> new Observable[] { note });
 
@@ -143,6 +147,11 @@ public class AppContext {
 	private BooleanBinding activeFileIsNull;
 	private BooleanBinding activeAudioIsNull;
 	private IntegerProperty activeSongTrackCount;
+
+	public BooleanBinding activeSongHasOneOrZeroTracksProperty() {
+		return activeSongHasOneOrZeroTracks;
+	}
+
 	private BooleanBinding activeSongHasOneOrZeroTracks;
 
 	@Autowired
@@ -557,21 +566,7 @@ public class AppContext {
 		}
 
 		private void addEditActions() {
-			add(KarediActions.UNDO, new UndoAction());
-			add(KarediActions.REDO, new RedoAction());
 
-			add(KarediActions.MOVE_SELECTION_UP, new MoveSelectionAction(Direction.UP));
-			add(KarediActions.MOVE_SELECTION_DOWN, new MoveSelectionAction(Direction.DOWN));
-			add(KarediActions.MOVE_SELECTION_LEFT, new MoveSelectionAction(Direction.LEFT));
-			add(KarediActions.MOVE_SELECTION_RIGHT, new MoveSelectionAction(Direction.RIGHT));
-
-			add(KarediActions.SHORTEN_LEFT_SIDE, new ResizeAction(Direction.LEFT, -1));
-			add(KarediActions.SHORTEN_RIGHT_SIDE, new ResizeAction(Direction.RIGHT, -1));
-			add(KarediActions.LENGTHEN_LEFT_SIDE, new ResizeAction(Direction.LEFT, 1));
-			add(KarediActions.LENGTHEN_RIGHT_SIDE, new ResizeAction(Direction.RIGHT, 1));
-
-			add(KarediActions.CUT, new CutSelectionAction());
-			add(KarediActions.COPY, new CopySelectionAction());
 			add(KarediActions.PASTE, new PasteAction());
 			add(KarediActions.SET_TONES, new MergeAction(MergeMode.TONES));
 			add(KarediActions.SET_SYNCHRO, new MergeAction(MergeMode.SYNCHRO));
@@ -583,20 +578,9 @@ public class AppContext {
 					new MergeAction(MergeMode.TONES_SYNCHRO_LYRICS));
 
 			add(KarediActions.ADD_NOTE, new AddNoteAction());
-			add(KarediActions.ADD_TRACK, new AddTrackAction());
-			add(KarediActions.DELETE_SELECTION, new DeleteSelectionAction(true));
-			add(KarediActions.DELETE_LYRICS, new DeleteSelectionLyricsAction());
-			add(KarediActions.DELETE_SELECTION_HARD, new DeleteSelectionAction(false));
-			add(KarediActions.DELETE_TRACK, new DeleteTrackAction());
-			add(KarediActions.TOGGLE_LINEBREAK, new ToggleLineBreakAction());
-			add(KarediActions.SPLIT_SELECTION, new SplitSelectionAction());
-//			add(KarediActions.JOIN_SELECTION, new JoinSelectionAction());
-			add(KarediActions.MARK_AS_FREESTYLE, new ChangeSelectionTypeAction(Type.FREESTYLE));
-			add(KarediActions.MARK_AS_GOLDEN, new ChangeSelectionTypeAction(Type.GOLDEN));
-			add(KarediActions.MARK_AS_RAP, new ChangeSelectionTypeAction(Type.RAP));
 
-			add(KarediActions.ROLL_LYRICS_LEFT, new RollLyricsLeftAction());
-			add(KarediActions.ROLL_LYRICS_RIGHT, new RollLyricsRightAction());
+			add(KarediActions.DELETE_LYRICS, new DeleteSelectionLyricsAction());
+			add(KarediActions.SPLIT_SELECTION, new SplitSelectionAction());
 
 			add(KarediActions.SHOW_PREFERENCES, new ShowPreferencesAction());
 		}
@@ -870,21 +854,6 @@ public class AppContext {
 		}
 	}
 
-	private class MoveSelectionAction extends KarediAction {
-		private Direction direction;
-
-		private MoveSelectionAction(Direction direction) {
-			this.direction = direction;
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			execute(new MoveCollectionCommand<Integer, Note>(getSelection().get(), direction, 1));
-		}
-
-	}
-
 	private class NextLineAction extends KarediAction {
 
 		private NextLineAction() {
@@ -942,54 +911,6 @@ public class AppContext {
 		}
 	}
 
-	private class UndoAction extends KarediAction {
-
-		private UndoAction() {
-			setDisabledCondition(Bindings.createBooleanBinding(() -> {
-				return !history.canUndo();
-			}, history.activeIndexProperty()));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			history.undo();
-		}
-	}
-
-	private class RedoAction extends KarediAction {
-		private BooleanBinding redoDisabled;
-
-		private RedoAction() {
-			redoDisabled = Bindings.createBooleanBinding(() -> {
-				return !history.canRedo();
-			}, history.activeIndexProperty(), history.sizeProperty());
-
-			setDisabledCondition(redoDisabled);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			history.redo();
-		}
-
-	}
-
-	private class ToggleLineBreakAction extends KarediAction {
-
-		private ToggleLineBreakAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Note splittingNote = selection.getFirst().get();
-			Command cmd = new ToggleLineBreakCommand(splittingNote);
-			execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
-				setActiveLine(splittingNote.getLine());
-				selection.selectOnly(splittingNote);
-			}));
-		}
-	}
 
 	private class SplitSelectionAction extends KarediAction {
 		private ObjectBinding<Note> splitNote = BindingsUtils.valueAt(getSelection().get(), 0);
@@ -1034,34 +955,6 @@ public class AppContext {
 			}
 			return (int) Math.ceil(note.getLength() / 2.0);
 		}
-	}
-
-	private class DeleteSelectionAction extends KarediAction {
-		private boolean keepLyrics;
-
-		private DeleteSelectionAction(boolean keepLyrics) {
-			this.keepLyrics = keepLyrics;
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			player.stop();
-			execute(getCommand());
-		}
-
-		private Command getCommand() {
-			Command cmd = new DeleteNotesCommand(getSelected(), keepLyrics);
-			IntBounded bounds = BoundingBox.boundsFrom(getVisibleAreaBounds());
-			return new ChangePostStateCommandDecorator(cmd, (command) -> {
-				selection.clear();
-				if (getActiveLine() != null && !getActiveLine().isValid()) {
-					setActiveLine(null);
-					visibleArea.setBounds(bounds);
-				}
-			});
-		}
-
 	}
 
 	private class DeleteSelectionLyricsAction extends KarediAction {
@@ -1147,61 +1040,6 @@ public class AppContext {
 		private Optional<SongLine> getLastVisibleLineBeforeMarker() {
 			return getActiveTrack().lineAtOrEarlier(getMarkerBeat())
 					.filter(prevLine -> prevLine.getUpperXBound() > visibleArea.getLowerXBound());
-		}
-	}
-
-	private class AddTrackAction extends KarediAction {
-
-		private AddTrackAction() {
-			setDisabledCondition(songState.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Command cmd = new AddTrackCommand(getSong());
-			execute(new ChangePostStateCommandDecorator(cmd, c -> {
-				getSong().getLastTrack().ifPresent(AppContext.this::setActiveTrack);
-			}));
-		}
-
-	}
-
-	private class DeleteTrackAction extends KarediAction {
-
-		private DeleteTrackAction() {
-			setDisabledCondition(activeSongHasOneOrZeroTracks);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			execute(new DeleteTrackCommand(getSong(), getActiveTrack()));
-		}
-
-	}
-
-	private class RollLyricsLeftAction extends KarediAction {
-		private RollLyricsLeftAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			List<Note> notes = getActiveTrack().getNotes(getSelection().getFirst().get(), null);
-			Command cmd = new RollLyricsLeftCommand(notes);
-			execute(cmd);
-		}
-	}
-
-	private class RollLyricsRightAction extends KarediAction {
-		private RollLyricsRightAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			List<Note> notes = getActiveTrack().getNotes(getSelection().getFirst().get(), null);
-			Command cmd = new RollLyricsRightCommand(notes);
-			execute(cmd);
 		}
 	}
 
@@ -1309,35 +1147,6 @@ public class AppContext {
 
 	}
 
-	private class ResizeAction extends KarediAction {
-		private Direction direction;
-		private int by;
-		private BooleanProperty disabled;
-
-		private ResizeAction(Direction direction, int by) {
-			this.direction = direction;
-			this.by = by;
-
-			if (by < 0) {
-				disabled = new SimpleBooleanProperty(true);
-				observableSelection.addListener((InvalidationListener) inv -> refreshDisabled());
-				setDisabledCondition(disabled);
-			} else {
-				setDisabledCondition(selection.isEmptyProperty());
-			}
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			execute(new ResizeNotesCommand(getSelection().get(), direction, by));
-		}
-
-		private void refreshDisabled() {
-			disabled.set(!ResizeNotesCommand.canExecute(getSelection().get(), direction, by));
-		}
-
-	}
-
 	private class ToggleTicksAction extends KarediAction {
 
 		private ToggleTicksAction() {
@@ -1429,60 +1238,6 @@ public class AppContext {
 		}
 	}
 
-	private class CutSelectionAction extends KarediAction {
-
-		private CutSelectionAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			player.stop();
-			Command cmd = new ChangePreStateCommandDecorator(
-					new DeleteSelectionAction(false).getCommand(), c -> {
-						execute(KarediActions.COPY);
-					});
-			cmd.setTitle(I18N.get("common.cut"));
-			execute(cmd);
-		}
-	}
-
-	private class CopySelectionAction extends KarediAction {
-		private boolean includeLineBreak;
-
-		private CopySelectionAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			final Clipboard clipboard = Clipboard.getSystemClipboard();
-			final ClipboardContent content = new ClipboardContent();
-
-			includeLineBreak = false;
-			String result = getSelected().stream()
-					.collect(
-							Collectors.groupingBy(Note::getLine, TreeMap::new, Collectors.toList()))
-					.entrySet().stream().flatMap(this::disassembleLinePart).map(unparser::unparse)
-					.collect(Collectors.joining(System.lineSeparator()));
-
-			content.putString(result);
-			clipboard.setContent(content);
-		}
-
-		private Stream<VisitableSongElement> disassembleLinePart(
-				Map.Entry<SongLine, List<Note>> entry) {
-			List<VisitableSongElement> list = entry.getValue().stream()
-					.map(songDisassembler::disassemble).collect(Collectors.toList());
-			if (includeLineBreak) {
-				list.add(0, new LineBreakElement(entry.getKey().getLineBreak()));
-			} else {
-				includeLineBreak = true;
-			}
-			return list.stream();
-		}
-	}
-
 	private abstract class ClipboardAction extends KarediAction {
 
 		protected Song buildSong(String[] lines) {
@@ -1549,20 +1304,6 @@ public class AppContext {
 		}
 	}
 
-	private class ChangeSelectionTypeAction extends KarediAction {
-		private Type type;
-
-		private ChangeSelectionTypeAction(Type type) {
-			this.type = type;
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			execute(new MarkAsTypeCommand(new ArrayList<>(getSelected()), type));
-		}
-
-	}
 
 	private class RenameAction extends KarediAction {
 

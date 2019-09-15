@@ -74,7 +74,7 @@ public class VisibleArea implements IntBounded {
 		setBounds(bounds);
 	}
 
-	boolean setBounds(IntBounded bounds) {
+	public boolean setBounds(IntBounded bounds) {
 		if (bounds.isValid()) {
 			return setBounds(bounds.getLowerXBound(), bounds.getUpperXBound(),
 					bounds.getLowerYBound(), bounds.getUpperYBound());

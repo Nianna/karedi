@@ -408,6 +408,9 @@ public class MenuBarController implements Controller {
 
 	private void bind(MenuItem menuItem, KarediActions actionKey) {
 		Action action = appContext.getAction(actionKey);
+		if (action == null) {
+			throw new IllegalStateException("Action definition for "+ actionKey + " not found"); //TODO checkState
+		}
 		action.acceleratorProperty().bind(menuItem.acceleratorProperty());
 		menuItem.disableProperty().bind(action.disabledProperty());
 		menuItem.setOnAction(action::handle);

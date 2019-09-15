@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import main.java.com.github.nianna.karedi.context.SongState;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -71,8 +72,7 @@ public class LyricsEditorController implements Controller {
 
 	private AppContext appContext;
 	
-	@Autowired
-	private NoteSelection noteSelection;
+	private final NoteSelection noteSelection;
 
 	private TextAndNoteSelectionSynchronizer synchronizer;
 
@@ -84,6 +84,13 @@ public class LyricsEditorController implements Controller {
 	private ListChangeListener<? super Note> noteListChangeListener;
 
 	private Timer lyricsUpdateTimer = new Timer(true);
+
+	private final SongState songState;
+
+	public LyricsEditorController(NoteSelection noteSelection, SongState songState) {
+		this.noteSelection = noteSelection;
+		this.songState = songState;
+	}
 
 	@FXML
 	public void initialize() {
@@ -132,8 +139,8 @@ public class LyricsEditorController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		appContext.activeTrackProperty().addListener(this::onTrackChanged);
-		scrollPane.disableProperty().bind(appContext.activeTrackProperty().isNull());
+		songState.activeTrackProperty().addListener(this::onTrackChanged);
+		scrollPane.disableProperty().bind(songState.activeTrackProperty().isNull());
 
 		appContext.addAction(KarediActions.INSERT_MINUS, new InsertTextAction(NoteTextArea.MINUS));
 		appContext.addAction(KarediActions.INSERT_SPACE, new InsertTextAction(NoteTextArea.SPACE));
@@ -459,7 +466,7 @@ public class LyricsEditorController implements Controller {
 			public void run() {
 				Platform.runLater(() -> {
 					synchronizer.freeze();
-					boolean changed = textArea.setTrack(appContext.getActiveTrack());
+					boolean changed = textArea.setTrack(songState.getActiveTrack());
 					if (changed) {
 						if (!textArea.isFocused()) {
 							synchronizer.updateTextSelection();

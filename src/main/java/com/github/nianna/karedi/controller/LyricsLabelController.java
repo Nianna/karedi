@@ -22,6 +22,7 @@ import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
+import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -54,12 +55,18 @@ public class LyricsLabelController implements Controller {
 			Note::getLine, TreeMap::new,
 			Collectors.mapping(this::getNoteText, Collectors.toList()));
 
-	@Autowired
-	private NoteSelection noteSelection;
+	private final NoteSelection noteSelection;
 	
-	@Autowired
-	private SongPlayer songPlayer;
-	
+	private final SongPlayer songPlayer;
+
+	private final SongState songState;
+
+	public LyricsLabelController(NoteSelection noteSelection, SongPlayer songPlayer, SongState songState) {
+		this.noteSelection = noteSelection;
+		this.songPlayer = songPlayer;
+		this.songState = songState;
+	}
+
 	@FXML
 	public void initialize() {
 		clip.heightProperty().bind(pane.heightProperty());
@@ -72,8 +79,8 @@ public class LyricsLabelController implements Controller {
 		visibleArea = appContext.getVisibleAreaBounds();
 
 		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaInvalidated);
-		appContext.activeTrackProperty().addListener(this::onTrackChanged);
-		appContext.activeLineProperty().addListener(this::onLineChanged);
+		songState.activeTrackProperty().addListener(this::onTrackChanged);
+		songState.activeLineProperty().addListener(this::onLineChanged);
 		noteSelection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
 		songPlayer.statusProperty().addListener(this::onPlayerStatusChanged);
@@ -111,7 +118,7 @@ public class LyricsLabelController implements Controller {
 	}
 
 	private void onMarkerBeatChanged(Observable obs, Number oldBeat, Number newBeat) {
-		Optional<Note> optionalNote = appContext.getActiveTrack().noteAt(newBeat.intValue());
+		Optional<Note> optionalNote = songState.getActiveTrack().noteAt(newBeat.intValue());
 		if (optionalNote.isPresent()) {
 			Note note = optionalNote.get();
 			if (note != lastColoredNote) {
@@ -141,11 +148,11 @@ public class LyricsLabelController implements Controller {
 	}
 
 	private void updateLyrics() {
-		if (appContext.getActiveLine() != null) {
+		if (songState.getActiveLine() != null) {
 			setActiveLineLyrics();
 		} else {
 			textFlow.getChildren().clear();
-			SongTrack activeTrack = appContext.getActiveTrack();
+			SongTrack activeTrack = songState.getActiveTrack();
 			if (activeTrack != null) {
 				setVisibleNotesLyrics();
 			}
@@ -173,12 +180,12 @@ public class LyricsLabelController implements Controller {
 	}
 
 	private List<Note> getVisibleNotes() {
-		return appContext.getActiveTrack().getNotes(visibleArea.getLowerXBound(),
+		return songState.getActiveTrack().getNotes(visibleArea.getLowerXBound(),
 				visibleArea.getUpperXBound());
 	}
 
 	private List<Note> getActiveLineNotes() {
-		return appContext.getActiveLine().getNotes();
+		return songState.getActiveLine().getNotes();
 	}
 
 	private void setActiveLineLyrics() {

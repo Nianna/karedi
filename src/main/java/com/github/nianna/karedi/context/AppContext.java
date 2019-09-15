@@ -122,9 +122,12 @@ public class AppContext {
 	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
 	private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
 
-	private final ReadOnlyObjectWrapper<Song> activeSong = new ReadOnlyObjectWrapper<>();
-	private final ReadOnlyObjectWrapper<SongTrack> activeTrack = new ReadOnlyObjectWrapper<>();
-	private final ReadOnlyObjectWrapper<SongLine> activeLine = new ReadOnlyObjectWrapper<>();
+	@Autowired
+	private SongState songState;
+	private ReadOnlyObjectWrapper<Song> activeSong;
+	private ReadOnlyObjectWrapper<SongTrack> activeTrack;
+	private ReadOnlyObjectWrapper<SongLine> activeLine;
+
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 	private final ReadOnlyObjectWrapper<ViewMode> activeViewMode = new ReadOnlyObjectWrapper<>(
 			KarediApp.getInstance().getViewMode());
@@ -180,8 +183,7 @@ public class AppContext {
 
 	// Convenience bindings for actions
 	private BooleanBinding selectionIsEmpty;
-	private BooleanBinding activeSongIsNull;
-	private BooleanBinding activeTrackIsNull;
+
 	private BooleanBinding activeFileIsNull;
 	private BooleanBinding activeAudioIsNull;
 	private IntegerProperty activeSongTrackCount;
@@ -198,9 +200,12 @@ public class AppContext {
 
 	@PostConstruct
 	public void initAppContext() {
+		activeSong = songState.activeSongProperty();
+		activeTrack = songState.activeTrackProperty();
+		activeLine = songState.activeLineProperty();
+
+
 		selectionIsEmpty = selection.sizeProperty().isEqualTo(0);
-		activeSongIsNull = activeSongProperty().isNull();
-		 activeTrackIsNull = activeTrackProperty().isNull();
 		activeFileIsNull = activeFileProperty().isNull();
 		activeAudioIsNull = player.activeAudioFileProperty().isNull();
 		activeSongTrackCount = new SimpleIntegerProperty();
@@ -455,11 +460,11 @@ public class AppContext {
 	}
 
 	// Getters and setters for properties
-	public ReadOnlyObjectProperty<Song> activeSongProperty() {
+	private ReadOnlyObjectProperty<Song> activeSongProperty() {
 		return activeSong.getReadOnlyProperty();
 	}
 
-	public final Song getSong() {
+	private Song getSong() {
 		return activeSongProperty().get();
 	}
 
@@ -520,10 +525,6 @@ public class AppContext {
 				assert (getSong() == null);
 			}
 		}
-	}
-
-	public ReadOnlyObjectProperty<SongLine> activeLineProperty() {
-		return activeLine.getReadOnlyProperty();
 	}
 
 	public final SongLine getActiveLine() {
@@ -864,7 +865,7 @@ public class AppContext {
 			this.from = from;
 			this.to = to;
 
-			BooleanBinding condition = activeSongIsNull;
+			BooleanBinding condition = songState.activeSongIsNullProperty();
 			if (mode != Mode.MIDI_ONLY) {
 				condition = condition.or(activeAudioIsNull);
 			}
@@ -886,7 +887,7 @@ public class AppContext {
 		private PlayMedleyAction(Mode mode) {
 			this.mode = mode;
 
-			basicCondition = activeSongIsNull;
+			basicCondition = songState.activeSongIsNullProperty();
 			if (mode != Mode.MIDI_ONLY) {
 				basicCondition = basicCondition.or(activeAudioIsNull);
 			}
@@ -929,7 +930,7 @@ public class AppContext {
 		private List<Color> colors;
 
 		private ReloadSongAction() {
-			setDisabledCondition(activeFileIsNull.or(activeSongIsNull));
+			setDisabledCondition(activeFileIsNull.or(songState.activeSongIsNullProperty()));
 		}
 
 		@Override
@@ -981,7 +982,7 @@ public class AppContext {
 	private class SaveSongAction extends KarediAction {
 
 		private SaveSongAction() {
-			setDisabledCondition(activeSongIsNull
+			setDisabledCondition(songState.activeSongIsNullProperty()
 					.or(lastSavedCommand.isEqualTo(history.activeCommandProperty())));
 		}
 
@@ -998,7 +999,7 @@ public class AppContext {
 	private class SaveSongAsAction extends KarediAction {
 
 		private SaveSongAsAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -1013,7 +1014,7 @@ public class AppContext {
 	private class ImportAudioAction extends KarediAction {
 
 		private ImportAudioAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -1055,7 +1056,7 @@ public class AppContext {
 	private class SelectMoreAction extends KarediAction {
 
 		private SelectMoreAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1106,7 +1107,7 @@ public class AppContext {
 	private class SelectAllAction extends KarediAction {
 
 		private SelectAllAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1119,7 +1120,7 @@ public class AppContext {
 	private class SelectVisibleAction extends KarediAction {
 
 		private SelectVisibleAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1139,7 +1140,7 @@ public class AppContext {
 	private class SelectNextAction extends KarediAction {
 
 		private SelectNextAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1166,7 +1167,7 @@ public class AppContext {
 	private class SelectPreviousAction extends KarediAction {
 
 		private SelectPreviousAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1480,7 +1481,7 @@ public class AppContext {
 	private class AddTrackAction extends KarediAction {
 
 		private AddTrackAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -1723,7 +1724,7 @@ public class AppContext {
 		private FitToVisibleAction(boolean vertically, boolean horizontally) {
 			this.vertically = vertically;
 			this.horizontally = horizontally;
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -1835,7 +1836,7 @@ public class AppContext {
 
 	private class PasteAction extends ClipboardAction {
 		private PasteAction() {
-			setDisabledCondition(activeTrackIsNull);
+			setDisabledCondition(songState.activeTrackIsNullProperty());
 		}
 
 		@Override
@@ -1896,7 +1897,7 @@ public class AppContext {
 		private boolean promptUser;
 
 		private EditBpmAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 			promptUser = true;
 		}
 
@@ -1951,7 +1952,7 @@ public class AppContext {
 	private class EditMedleyAction extends KarediAction {
 
 		private EditMedleyAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -1978,7 +1979,7 @@ public class AppContext {
 	private class RenameAction extends KarediAction {
 
 		private RenameAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 		@Override
@@ -2084,7 +2085,7 @@ public class AppContext {
 	private abstract class TagAction extends KarediAction {
 
 		private TagAction() {
-			setDisabledCondition(activeSongIsNull);
+			setDisabledCondition(songState.activeSongIsNullProperty());
 		}
 
 	}

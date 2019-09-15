@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongState;
 import org.controlsfx.glyphfont.Glyph;
 
 import javafx.beans.Observable;
@@ -60,6 +61,9 @@ public class ProblemsController implements Controller {
 	@Autowired
 	private NoteSelection noteSelection;
 
+	@Autowired
+	private SongState songState;
+
 	@FXML
 	public void initialize() {
 		errorGlyph.setColor(Color.RED);
@@ -94,7 +98,7 @@ public class ProblemsController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		appContext.activeSongProperty().addListener(this::onSongChanged);
+		songState.activeSongProperty().addListener(this::onSongChanged);
 
 		tree.getSelectionModel().selectedItemProperty().addListener(this::onSelectionInvalidated);
 	}
@@ -115,7 +119,7 @@ public class ProblemsController implements Controller {
 		problem.getTrack().ifPresent(appContext::setActiveTrack);
 		problem.getAffectedBounds().ifPresent(bounds -> {
 			if (bounds.isValid()) {
-				List<Note> affectedNotes = appContext.getActiveTrack()
+				List<Note> affectedNotes = songState.getActiveTrack()
 						.getNotes(bounds.getLowerXBound(), bounds.getUpperXBound());
 				if (affectedNotes.size() > 0) {
 					SongLine line = affectedNotes.get(0).getLine();

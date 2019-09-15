@@ -18,6 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.BeatRange;
+import main.java.com.github.nianna.karedi.context.SongState;
 import main.java.com.github.nianna.karedi.display.FillBar;
 import main.java.com.github.nianna.karedi.event.ControllerEvent;
 import main.java.com.github.nianna.karedi.region.Bounded;
@@ -29,6 +30,7 @@ import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -55,8 +57,11 @@ public class TrackFillBarsController implements Controller {
 
 	private final BeatRange beatRange;
 
-	public TrackFillBarsController(BeatRange beatRange) {
+	private final SongState songState;
+
+	public TrackFillBarsController(BeatRange beatRange, SongState songState) {
 		this.beatRange = beatRange;
+		this.songState = songState;
 		trackListListener = ListenersUtils.createListContentChangeListener(this::addFillBar,
 				this::removeFillBar);
 	}
@@ -78,8 +83,8 @@ public class TrackFillBarsController implements Controller {
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
 
-		appContext.activeSongProperty().addListener(this::onActiveSongChanged);
-		appContext.activeTrackProperty().addListener(this::onActiveTrackChanged);
+		songState.activeSongProperty().addListener(this::onActiveSongChanged);
+		songState.activeTrackProperty().addListener(this::onActiveTrackChanged);
 
 		area = appContext.getVisibleAreaBounds();
 		area.addListener(obs -> onVisibleAreaInvalidated());
@@ -162,7 +167,7 @@ public class TrackFillBarsController implements Controller {
 
 	private void increaseVisibleAreaToBeat(int beat) {
 		if (!area.inRangeX(beat)) {
-			Optional<SongLine> clickedLine = appContext.getActiveTrack().lineAt(beat);
+			Optional<SongLine> clickedLine = songState.getActiveTrack().lineAt(beat);
 			if (clickedLine.isPresent()) {
 				if (beat < area.getLowerXBound()) {
 					beat = clickedLine.get().getLowerXBound();
@@ -177,7 +182,7 @@ public class TrackFillBarsController implements Controller {
 	}
 
 	private void moveVisibleAreaToBeat(int beat) {
-		Optional<SongLine> clickedLine = appContext.getActiveTrack().lineAt(beat);
+		Optional<SongLine> clickedLine = songState.getActiveTrack().lineAt(beat);
 		if (clickedLine.isPresent()) {
 			appContext.setActiveLine(clickedLine.get());
 		} else {
@@ -231,7 +236,7 @@ public class TrackFillBarsController implements Controller {
 			newSong.getTracks().forEach(track -> {
 				addFillBar(track);
 			});
-			moveToFront(appContext.getActiveTrack());
+			moveToFront(songState.getActiveTrack());
 			newSong.getTracks().addListener(trackListListener);
 			pane.setMaxHeight(20);
 		}

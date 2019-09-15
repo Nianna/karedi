@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import main.java.com.github.nianna.karedi.context.SongState;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.Validator;
 import org.controlsfx.validation.decoration.GraphicValidationDecoration;
@@ -46,6 +47,7 @@ import main.java.com.github.nianna.karedi.util.MathUtils;
 import main.java.com.github.nianna.karedi.util.NumericNodeUtils;
 import main.java.com.github.nianna.karedi.util.TableViewUtils;
 import main.java.com.github.nianna.karedi.util.ValidationUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -64,6 +66,9 @@ public class TagsTableController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
+	@Autowired
+	private SongState songState;
+
 	@FXML
 	private void initialize() {
 		keyColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getKey()));
@@ -75,7 +80,7 @@ public class TagsTableController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		appContext.activeSongProperty().addListener((obs, oldVal, newVal) -> display(newVal));
+		songState.activeSongProperty().addListener((obs, oldVal, newVal) -> display(newVal));
 
 		table.setRowFactory(getRowFactory());
 		TableViewUtils.makeRowsDraggable(table, TransferMode.MOVE, mode -> {
@@ -205,12 +210,12 @@ public class TagsTableController implements Controller {
 
 	private void changeTagValueIfValid(TagKey key, String value) {
 		if (!TagValidators.hasValidationErrors(key, value)) {
-			appContext.execute(new ChangeTagValueCommand(appContext.getSong(), key, value));
+			appContext.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
 		}
 	}
 
 	private void changeTagValue(String key, String value) {
-		appContext.execute(new ChangeTagValueCommand(appContext.getSong(), key, value));
+		appContext.execute(new ChangeTagValueCommand(songState.getActiveSong(), key, value));
 	}
 
 	private void display(Song song) {

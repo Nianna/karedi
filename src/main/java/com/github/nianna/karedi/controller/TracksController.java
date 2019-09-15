@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorCommand;
+import main.java.com.github.nianna.karedi.context.SongState;
 import org.controlsfx.control.action.Action;
 
 import javafx.beans.Observable;
@@ -62,6 +63,12 @@ public class TracksController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
+	private final SongState songState;
+
+	public TracksController(SongState songState) {
+		this.songState = songState;
+	}
+
 	@FXML
 	public void initialize() {
 		configureColorColumn();
@@ -78,11 +85,11 @@ public class TracksController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		song = appContext.getSong();
+		song = songState.getActiveSong();
 
-		appContext.activeSongProperty().addListener(obs -> display(appContext.getSong()));
-		appContext.activeTrackProperty().addListener(obs -> {
-			table.getSelectionModel().select(appContext.getActiveTrack());
+		songState.activeSongProperty().addListener(obs -> display(songState.getActiveSong()));
+		songState.activeTrackProperty().addListener(obs -> {
+			table.getSelectionModel().select(songState.getActiveTrack());
 		});
 
 		table.setRowFactory(getRowFactory());
@@ -213,7 +220,7 @@ public class TracksController implements Controller {
 	}
 
 	private void onSelectedItemChanged(Observable obs, SongTrack oldTrack, SongTrack newTrack) {
-		SongTrack activeTrack = appContext.getActiveTrack();
+		SongTrack activeTrack = songState.getActiveTrack();
 		if (newTrack != null && newTrack != activeTrack) {
 			appContext.setActiveTrack(newTrack);
 		} else {
@@ -276,7 +283,7 @@ public class TracksController implements Controller {
 			super.updateItem(item, empty);
 			SongTrack track = getTrack();
 			if (track != null) {
-				disableProperty().bind(appContext.activeTrackProperty().isEqualTo(track));
+				disableProperty().bind(songState.activeTrackProperty().isEqualTo(track));
 			}
 		}
 

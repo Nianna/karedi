@@ -7,12 +7,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import main.java.com.github.nianna.karedi.song.Note;
+import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
 
 @Component

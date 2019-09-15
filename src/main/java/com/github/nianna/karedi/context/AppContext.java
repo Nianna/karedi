@@ -121,7 +121,6 @@ import javax.annotation.PostConstruct;
 public class AppContext {
 	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
 	private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
-	private static final int MAX_HISTORY_SIZE = 1000;
 
 	private final ReadOnlyObjectWrapper<Song> activeSong = new ReadOnlyObjectWrapper<>();
 	private final ReadOnlyObjectWrapper<SongTrack> activeTrack = new ReadOnlyObjectWrapper<>();
@@ -138,7 +137,8 @@ public class AppContext {
 	private final SongSaver songSaver = new SongSaver(unparser, songDisassembler);
 	private final ActionHelper actionHelper = new ActionHelper();
 
-	private final History history = new History();
+	@Autowired
+	private History history;
 
 	@Autowired
 	private NoteSelection selection;
@@ -179,7 +179,6 @@ public class AppContext {
 
 	public AppContext() {
 		LOGGER.setUseParentHandlers(false);
-		history.setMaxSize(MAX_HISTORY_SIZE);
 //		actionHelper.addActions(); //TODO
 
 //		Bindings.bindContent(observableSelection, getSelected());
@@ -198,7 +197,6 @@ public class AppContext {
 		activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
 
 		LOGGER.setUseParentHandlers(false);
-		history.setMaxSize(MAX_HISTORY_SIZE);
 		actionHelper.addActions();
 
 		Bindings.bindContent(observableSelection, getSelected());
@@ -304,26 +302,6 @@ public class AppContext {
 	// History
 	public boolean execute(Command command) {
 		return history.push(new BackupStateCommandDecorator(command, this));
-	}
-
-	public ObservableList<Command> getHistory() {
-		return history.getList();
-	}
-
-	public void clearHistory() {
-		history.clear();
-	}
-
-	public ReadOnlyObjectProperty<Command> activeCommandProperty() {
-		return history.activeCommandProperty();
-	}
-
-	public ReadOnlyIntegerProperty activeCommandIndexProperty() {
-		return history.activeIndexProperty();
-	}
-
-	public Integer getActiveCommandIndex() {
-		return history.getActiveIndex();
 	}
 
 	public Command getActiveCommand() {

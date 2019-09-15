@@ -11,7 +11,9 @@ import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.History;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,6 +28,9 @@ public class HistoryController implements Controller {
 	private AppContext appContext;
 	private boolean changedByUser = false;
 
+	@Autowired
+	private History history;
+
 	@FXML
 	public void initialize() {
 		list.setCellFactory(getCellFactory());
@@ -33,17 +38,17 @@ public class HistoryController implements Controller {
 
 	@FXML
 	private void handleClear() {
-		appContext.clearHistory();
+		history.clear();
 	}
 
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
 		list.setDisable(false);
-		list.setItems(appContext.getHistory());
+		list.setItems(history.getList());
 		clearMenuItem.disableProperty().bind(BindingsUtils.isEmpty(list.getItems()));
 		list.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-		appContext.activeCommandProperty().addListener(this::onActiveCommandChanged);
+		history.activeCommandProperty().addListener(this::onActiveCommandChanged);
 	}
 
 	@Override
@@ -52,7 +57,7 @@ public class HistoryController implements Controller {
 	}
 
 	private void onSelectedItemChanged(Observable obs, Command oldCmd, Command newCmd) {
-		int oldIndex = appContext.getActiveCommandIndex();
+		int oldIndex = history.getActiveIndex();
 		int newIndex = list.getItems().indexOf(newCmd);
 		if (newIndex != oldIndex) {
 			changedByUser = true;

@@ -7,7 +7,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import main.java.com.github.nianna.karedi.command.Command;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class History {
 	private int maxSize;
 
@@ -18,7 +21,7 @@ public class History {
 	private ReadOnlyIntegerWrapper activeIndex = new ReadOnlyIntegerWrapper(-1);
 	private ReadOnlyIntegerWrapper size = new ReadOnlyIntegerWrapper();
 
-	public void setMaxSize(int maxSize) {
+	public History(@Value("${history.size.max}") int maxSize) {
 		assert maxSize > 0;
 		this.maxSize = maxSize;
 	}

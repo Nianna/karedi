@@ -792,7 +792,7 @@ public class LyricsEditorController implements Controller {
 		private InsertTextAction(String text) {
 			this.text = text;
 			setDisabledCondition(
-					textArea.focusedProperty().not().or(noteSelection.sizeProperty().isEqualTo(0)));
+					textArea.focusedProperty().not().or(noteSelection.isEmptyProperty()));
 		}
 
 		@Override

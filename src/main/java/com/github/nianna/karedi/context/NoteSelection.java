@@ -1,21 +1,20 @@
 package main.java.com.github.nianna.karedi.context;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import main.java.com.github.nianna.karedi.song.Note;
-import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class NoteSelection implements Selection<Note> {
@@ -25,6 +24,8 @@ public class NoteSelection implements Selection<Note> {
 	private ReadOnlyIntegerWrapper size = new ReadOnlyIntegerWrapper();
 
 	private boolean isConsecutive = true;
+
+	private BooleanBinding isEmptyPropery = size.isEqualTo(0);
 
 	public NoteSelection() {
 		sortedSelection.addListener((InvalidationListener) (inv) -> {
@@ -165,4 +166,7 @@ public class NoteSelection implements Selection<Note> {
 		selection.remove(1, selection.size());
 	}
 
+	public BooleanBinding isEmptyProperty() {
+		return isEmptyPropery;
+	}
 }

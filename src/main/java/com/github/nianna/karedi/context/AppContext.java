@@ -179,8 +179,6 @@ public class AppContext {
 	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
 
 	// Convenience bindings for actions
-	private BooleanBinding selectionIsEmpty;
-
 	private BooleanBinding activeFileIsNull;
 	private BooleanBinding activeAudioIsNull;
 	private IntegerProperty activeSongTrackCount;
@@ -201,8 +199,6 @@ public class AppContext {
 		activeTrack = songState.activeTrackProperty();
 		activeLine = songState.activeLineProperty();
 
-
-		selectionIsEmpty = selection.sizeProperty().isEqualTo(0);
 		activeFileIsNull = activeFileProperty().isNull();
 		activeAudioIsNull = player.activeAudioFileProperty().isNull();
 		activeSongTrackCount = new SimpleIntegerProperty();
@@ -774,7 +770,7 @@ public class AppContext {
 
 		private PlaySelectionAction(Mode mode) {
 			this.mode = mode;
-			BooleanBinding condition = selectionIsEmpty;
+			BooleanBinding condition = selection.isEmptyProperty();
 			if (mode != Mode.MIDI_ONLY) {
 				condition = condition.or(activeAudioIsNull);
 			}
@@ -972,7 +968,7 @@ public class AppContext {
 
 		private MoveSelectionAction(Direction direction) {
 			this.direction = direction;
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -985,7 +981,7 @@ public class AppContext {
 	private class SelectNoneAction extends KarediAction {
 
 		private SelectNoneAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1228,7 +1224,7 @@ public class AppContext {
 	private class ToggleLineBreakAction extends KarediAction {
 
 		private ToggleLineBreakAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1290,7 +1286,7 @@ public class AppContext {
 	private class JoinSelectionAction extends KarediAction {
 
 		private JoinSelectionAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1310,7 +1306,7 @@ public class AppContext {
 
 		private DeleteSelectionAction(boolean keepLyrics) {
 			this.keepLyrics = keepLyrics;
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1336,7 +1332,7 @@ public class AppContext {
 	private class DeleteSelectionLyricsAction extends KarediAction {
 
 		private DeleteSelectionLyricsAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1450,7 +1446,7 @@ public class AppContext {
 
 	private class RollLyricsLeftAction extends KarediAction {
 		private RollLyricsLeftAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1463,7 +1459,7 @@ public class AppContext {
 
 	private class RollLyricsRightAction extends KarediAction {
 		private RollLyricsRightAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1508,7 +1504,7 @@ public class AppContext {
 		private ChangeListener<? super Status> statusListener;
 
 		private PlayAuxiliaryNoteAction() {
-			setDisabledCondition(selectionIsEmpty.or(activeAudioIsNull));
+			setDisabledCondition(selection.isEmptyProperty().or(activeAudioIsNull));
 			statusListener = (obs, oldStatus, newStatus) -> {
 				if (oldStatus == Status.PLAYING && newStatus == Status.READY) {
 					setVisibleAreaXBounds(oldLowerBound, oldUpperBound, false);
@@ -1592,7 +1588,7 @@ public class AppContext {
 				observableSelection.addListener((InvalidationListener) inv -> refreshDisabled());
 				setDisabledCondition(disabled);
 			} else {
-				setDisabledCondition(selectionIsEmpty);
+				setDisabledCondition(selection.isEmptyProperty());
 			}
 		}
 
@@ -1687,7 +1683,7 @@ public class AppContext {
 	private class FitToSelectionAction extends KarediAction {
 
 		private FitToSelectionAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1701,7 +1697,7 @@ public class AppContext {
 	private class CutSelectionAction extends KarediAction {
 
 		private CutSelectionAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1720,7 +1716,7 @@ public class AppContext {
 		private boolean includeLineBreak;
 
 		private CopySelectionAction() {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1805,7 +1801,7 @@ public class AppContext {
 		private MergeMode mode;
 
 		private MergeAction(MergeMode mode) {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 			this.mode = mode;
 		}
 
@@ -1823,7 +1819,7 @@ public class AppContext {
 
 		private ChangeSelectionTypeAction(Type type) {
 			this.type = type;
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 		}
 
 		@Override
@@ -1876,7 +1872,7 @@ public class AppContext {
 		private boolean setEndBeat;
 
 		private SetMedleyFromSelectionAction(boolean setStartBeat, boolean setEndBeat) {
-			setDisabledCondition(selectionIsEmpty);
+			setDisabledCondition(selection.isEmptyProperty());
 			this.setEndBeat = setEndBeat;
 			this.setStartBeat = setStartBeat;
 		}

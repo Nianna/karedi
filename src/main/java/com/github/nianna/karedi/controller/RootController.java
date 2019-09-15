@@ -199,7 +199,7 @@ public class RootController implements Controller {
 	private class EditLyricsAction extends KarediAction {
 
 		private EditLyricsAction() {
-			setDisabledCondition(noteSelection.sizeProperty().isEqualTo(0));
+			setDisabledCondition(noteSelection.isEmptyProperty());
 		}
 
 		@Override

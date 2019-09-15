@@ -632,7 +632,7 @@ public class EditorController implements Controller {
 		private Stack<Note> typed = new Stack<>();
 
 		private WriteTonesAction() {
-			setDisabledCondition(selection.sizeProperty().isEqualTo(0));
+			setDisabledCondition(selection.isEmptyProperty());
 
 			selectionSizeListener = (obs -> {
 				if (selection.size() == 0) {

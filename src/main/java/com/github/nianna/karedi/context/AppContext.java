@@ -27,7 +27,6 @@ import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
-import main.java.com.github.nianna.karedi.audio.MidiPlayer;
 import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.command.*;
@@ -538,7 +537,6 @@ public class AppContext {
 			addPlayActions();
 			addTagsActions();
 			addViewActions();
-			addHelpActions();
 		}
 
 		private void addFileActions() {
@@ -674,10 +672,6 @@ public class AppContext {
 
 			add(KarediActions.RENAME, new RenameAction());
 			add(KarediActions.ADD_TAG, new AddTagAction());
-		}
-
-		private void addHelpActions() {
-			add(KarediActions.RESET_SEQUENCER, new ResetSequencerAction());
 		}
 	}
 
@@ -1909,18 +1903,6 @@ public class AppContext {
 			sb.append(" - ");
 			sb.append(song.getTagValue(TagKey.TITLE).get());
 			return sb.toString().replaceAll(ForbiddenCharacterRegex.FOR_FILENAME, "");
-		}
-	}
-
-	private class ResetSequencerAction extends KarediAction {
-
-		private ResetSequencerAction() {
-			setDisabledCondition(activeSongProperty().isNull());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			MidiPlayer.reset();
 		}
 	}
 

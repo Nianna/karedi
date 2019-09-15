@@ -68,7 +68,7 @@ public class VisibleArea implements IntBounded {
 		return true;
 	}
 
-	void adjustToBounds(IntBounded bounds) {
+	public void adjustToBounds(IntBounded bounds) {
 		assert (bounds.isValid());
 		bounds = addMargins(bounds);
 		setBounds(bounds);

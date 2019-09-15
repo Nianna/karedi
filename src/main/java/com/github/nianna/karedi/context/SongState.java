@@ -44,8 +44,8 @@ public class SongState {
         return activeLine.get();
     }
 
-    public ReadOnlyObjectWrapper<SongLine> activeLineProperty() {
-        return activeLine;
+    public ReadOnlyObjectProperty<SongLine> activeLineProperty() {
+        return activeLine.getReadOnlyProperty();
     }
 
     public BooleanBinding activeSongIsNullProperty() {
@@ -86,11 +86,9 @@ public class SongState {
         }
     }
 
-    private void setActiveLine(SongLine defaultLine) {
-        //TODO
-        activeLine.set(defaultLine);
+    public void setActiveLine(SongLine newLine) {
+        activeLine.set(newLine);
     }
-
 
     private void onLineRemoved(SongLine line) {
         if (line == getActiveLine()) {

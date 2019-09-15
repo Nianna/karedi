@@ -125,7 +125,7 @@ public class AppContext {
 	private SongState songState;
 	private ReadOnlyObjectWrapper<Song> activeSong;
 	private ReadOnlyObjectProperty<SongTrack> activeTrack;
-	private ReadOnlyObjectWrapper<SongLine> activeLine;
+	private ReadOnlyObjectProperty<SongLine> activeLine;
 
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 	private final ReadOnlyObjectWrapper<ViewMode> activeViewMode = new ReadOnlyObjectWrapper<>(
@@ -177,7 +177,6 @@ public class AppContext {
 
 	private final InvalidationListener markerPositionChangeListener = this::onMarkerPositionWhilePlayingChanged;
 	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
-	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
 	// Convenience bindings for actions
 	private BooleanBinding selectionIsEmpty;
@@ -509,23 +508,7 @@ public class AppContext {
 	}
 
 	public final void setActiveLine(SongLine line) {
-		SongLine oldLine = getActiveLine();
-		if (line != oldLine) {
-			if (oldLine != null) {
-				oldLine.removeListener(boundsListener);
-			}
-			if (line != null) {
-				player.stop();
-			}
-			activeLine.set(line);
-			if (line != null) {
-				line.addListener(boundsListener);
-				if (line.size() > 0) {
-					visibleArea.adjustToBounds(line);
-					selection.selectOnly(line.getNotes().get(0));
-				}
-			}
-		}
+        songState.setActiveLine(line);
 	}
 
 	public ReadOnlyObjectProperty<ViewMode> activeViewModeProperty() {
@@ -553,13 +536,6 @@ public class AppContext {
 		} else {
 			beatMillisConverter.setBpm(getSong().getBpm());
 			beatMillisConverter.setGap(getSong().getGap());
-		}
-	}
-
-	private void onBoundsInvalidated() {
-		SongLine activeLine = getActiveLine();
-		if (activeLine != null && activeLine.isValid()) {
-			visibleArea.adjustToBounds(activeLine);
 		}
 	}
 

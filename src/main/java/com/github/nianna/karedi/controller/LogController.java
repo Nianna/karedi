@@ -23,7 +23,9 @@ import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LogController implements Controller {
 
 	private static final FontAwesome GLYPH_FONT = new FontAwesome();

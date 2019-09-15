@@ -20,7 +20,9 @@ import main.java.com.github.nianna.karedi.event.ControllerEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import main.java.com.github.nianna.karedi.util.Utils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RootController implements Controller {
 	private static final String ERROR_STYLE_CLASS = "state-error";
 	private static final String WARNING_STYLE_CLASS = "state-warning";

@@ -56,7 +56,9 @@ import main.java.com.github.nianna.karedi.util.KeyCodeCombinations;
 import main.java.com.github.nianna.karedi.util.KeyEventUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.LyricsHelper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LyricsEditorController implements Controller {
 	private static final int TIME_LIMIT_MS = 30;
 

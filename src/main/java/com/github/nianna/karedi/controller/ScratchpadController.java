@@ -6,7 +6,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ScratchpadController implements Controller {
 	@FXML
 	private AnchorPane pane;

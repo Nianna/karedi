@@ -10,7 +10,9 @@ import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LineNumberController implements Controller {
 	@FXML
 	private AnchorPane pane;

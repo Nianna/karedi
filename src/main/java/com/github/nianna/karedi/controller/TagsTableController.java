@@ -46,7 +46,9 @@ import main.java.com.github.nianna.karedi.util.MathUtils;
 import main.java.com.github.nianna.karedi.util.NumericNodeUtils;
 import main.java.com.github.nianna.karedi.util.TableViewUtils;
 import main.java.com.github.nianna.karedi.util.ValidationUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TagsTableController implements Controller {
 	@FXML
 	private AnchorPane pane;

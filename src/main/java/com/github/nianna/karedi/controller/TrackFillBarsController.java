@@ -28,7 +28,9 @@ import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TrackFillBarsController implements Controller {
 
 	@FXML

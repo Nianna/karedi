@@ -112,7 +112,9 @@ import main.java.com.github.nianna.karedi.util.Converter;
 import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.MathUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AppContext {
 	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
 	private static final int NEW_NOTE_DEFAULT_LENGTH = 3;

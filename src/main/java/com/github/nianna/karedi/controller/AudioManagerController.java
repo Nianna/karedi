@@ -26,7 +26,9 @@ import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.control.SliderTableCell;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AudioManagerController implements Controller {
 	@FXML
 	private AnchorPane pane;

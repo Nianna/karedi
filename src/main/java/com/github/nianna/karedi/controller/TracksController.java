@@ -38,7 +38,9 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
 import main.java.com.github.nianna.karedi.util.TableViewUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TracksController implements Controller {
 	@FXML
 	private AnchorPane pane;

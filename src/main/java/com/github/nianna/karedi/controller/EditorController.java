@@ -66,7 +66,9 @@ import main.java.com.github.nianna.karedi.util.MusicalScale;
 import main.java.com.github.nianna.karedi.util.NodeUtils;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragSelectionHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EditorController implements Controller {
 	private static final Color MARKER_COLOR_READY = Color.BLACK;
 	private static final Color MARKER_COLOR_PLAYING = Color.GREEN;

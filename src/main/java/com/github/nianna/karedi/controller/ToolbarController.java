@@ -11,7 +11,9 @@ import javafx.scene.control.ToolBar;
 import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ToolbarController implements Controller {
 	@FXML
 	private ToolBar toolBar;

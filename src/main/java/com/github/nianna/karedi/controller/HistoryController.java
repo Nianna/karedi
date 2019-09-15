@@ -12,7 +12,9 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HistoryController implements Controller {
 	@FXML
 	private AnchorPane pane;

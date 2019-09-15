@@ -31,7 +31,9 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ProblemsController implements Controller {
 	@FXML
 	private AnchorPane pane;

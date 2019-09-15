@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.scene.Parent;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
@@ -26,7 +27,14 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.controller.RootController;
 import main.java.com.github.nianna.karedi.dialog.SaveChangesAlert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.annotation.PostConstruct;
+
+@SpringBootApplication
 public class KarediApp extends Application {
 	private final static String APP_NAME = "Karedi";
 	private final static String BASIC_CSS_STYLESHEET = "/Karedi.css";
@@ -47,6 +55,9 @@ public class KarediApp extends Application {
 
 	private ExtensionFilter txtFilter;
 	private ExtensionFilter mp3Filter;
+
+	private ConfigurableApplicationContext springContext;
+	private FXMLLoader loader;
 
 	public KarediApp() {
 		super();
@@ -74,16 +85,23 @@ public class KarediApp extends Application {
 		});
 	}
 
+	@Override
+	public void init() throws Exception {
+		springContext = SpringApplication.run(KarediApp.class);
+		loader = new FXMLLoader();
+		loader.setControllerFactory(springContext::getBean);
+	}
+
 	public void initRootLayout() {
 		try {
 			loadGlyphFont();
+			instance = this;
 
 			Locale locale = Settings.getLocale().filter(I18N::isLocaleSupported)
 					.orElse(I18N.getDefaultLocale());
 			ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
 			I18N.setBundle(bundle);
 
-			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(KarediApp.class.getResource("/fxml/RootLayout.fxml"));
 			loader.setResources(bundle);
 			rootLayout = (BorderPane) loader.load();
@@ -92,7 +110,7 @@ public class KarediApp extends Application {
 			scene.getStylesheets().add(BASIC_CSS_STYLESHEET);
 			primaryStage.setScene(scene);
 
-			appContext = new AppContext();
+			appContext = springContext.getBean(AppContext.class);
 			RootController controller = loader.getController();
 			controller.setAppContext(appContext);
 
@@ -117,6 +135,7 @@ public class KarediApp extends Application {
 				return;
 			}
 		}
+		springContext.stop();
 		Platform.exit();
 		System.exit(0);
 	}
@@ -142,7 +161,7 @@ public class KarediApp extends Application {
 	}
 
 	private boolean isNightModeActive() {
-		return primaryStage.getScene().getStylesheets().contains(NIGHT_MODE_CSS_STYLESHEET);
+		return false; //TOGO primaryStage.getScene().getStylesheets().contains(NIGHT_MODE_CSS_STYLESHEET);
 	}
 
 	public boolean saveChangesIfUserWantsTo() {

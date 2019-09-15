@@ -13,7 +13,9 @@ import javafx.scene.input.KeyCombination.ModifierValue;
 import javafx.scene.input.KeyEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MenuBarController implements Controller {
 	@FXML
 	private MenuItem editMenuItem;

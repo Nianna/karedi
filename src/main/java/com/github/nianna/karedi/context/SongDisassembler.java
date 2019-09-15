@@ -16,7 +16,9 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.song.tag.Tag;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SongDisassembler {
 
 	public List<VisitableSongElement> disassemble(Song song) {

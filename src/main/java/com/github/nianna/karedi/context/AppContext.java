@@ -130,11 +130,21 @@ public class AppContext {
 			KarediApp.getInstance().getViewMode());
 	private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
 
-	private final Parser parser = new BaseParser();
-	private final Unparser unparser = new BaseUnparser();
-	private final SongLoader songLoader = new SongLoader(parser, new BasicSongBuilder());
-	private final SongDisassembler songDisassembler = new SongDisassembler();
-	private final SongSaver songSaver = new SongSaver(unparser, songDisassembler);
+	@Autowired
+	private Parser parser;
+
+	@Autowired
+	private Unparser unparser;
+
+	@Autowired
+	private SongLoader songLoader;
+
+	@Autowired
+	private SongDisassembler songDisassembler;
+
+	@Autowired
+	private SongSaver songSaver;
+
 	private final ActionHelper actionHelper = new ActionHelper();
 
 	@Autowired

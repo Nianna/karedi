@@ -12,12 +12,14 @@ import main.java.com.github.nianna.karedi.parser.elementunparser.LineBreakElemen
 import main.java.com.github.nianna.karedi.parser.elementunparser.NoteElementUnparser;
 import main.java.com.github.nianna.karedi.parser.elementunparser.TagElementUnparser;
 import main.java.com.github.nianna.karedi.parser.elementunparser.TrackElementUnparser;
+import org.springframework.stereotype.Component;
 
 /**
  * Generates String representations of {@link VisitableSongElement}s.
  * <p>
  * Uses default unparsers, but all of them can be substituted.
  */
+@Component
 public class BaseUnparser implements Unparser, SongElementVisitor {
 	protected String result;
 	private Unparser tagElementUnparser = new TagElementUnparser();

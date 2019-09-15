@@ -14,7 +14,9 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.song.tag.Tag;
 import main.java.com.github.nianna.karedi.util.MultiplayerTags;
+import org.springframework.stereotype.Component;
 
+@Component
 class SongSaver {
 	private static final Logger LOGGER = Logger.getLogger(SongSaver.class.getName());
 

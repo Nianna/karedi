@@ -8,6 +8,7 @@ import main.java.com.github.nianna.karedi.parser.elementparser.NoteParser;
 import main.java.com.github.nianna.karedi.parser.elementparser.SongElementParser;
 import main.java.com.github.nianna.karedi.parser.elementparser.TagParser;
 import main.java.com.github.nianna.karedi.parser.elementparser.TrackParser;
+import org.springframework.stereotype.Component;
 
 /**
  * Creates appropriate {@link VisitableSongElement}s from their string representations.
@@ -19,6 +20,7 @@ import main.java.com.github.nianna.karedi.parser.elementparser.TrackParser;
  * The default parsers recognize only valid input, otherwise
  * {@link InvalidSongElementException} is thrown.
  */
+@Component
 public class BaseParser implements Parser {
 
 	private SongElementParser parserChain;

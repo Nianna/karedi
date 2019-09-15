@@ -20,7 +20,9 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.parser.element.InvalidSongElementException;
 import main.java.com.github.nianna.karedi.song.Song;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SongLoader {
 	private static final String UTF8_BOM = "\uFEFF";
 	private static final Logger LOGGER = Logger.getLogger(SongLoader.class.getName());

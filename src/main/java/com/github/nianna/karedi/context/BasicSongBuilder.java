@@ -18,7 +18,9 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.LyricsHelper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BasicSongBuilder implements SongBuilder, SongElementVisitor {
 	public static final Integer DEFAULT_TRACK = 1;
 	private Song song;

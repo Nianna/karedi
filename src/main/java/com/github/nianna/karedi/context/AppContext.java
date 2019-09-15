@@ -124,7 +124,7 @@ public class AppContext {
 	@Autowired
 	private SongState songState;
 	private ReadOnlyObjectWrapper<Song> activeSong;
-	private ReadOnlyObjectWrapper<SongTrack> activeTrack;
+	private ReadOnlyObjectProperty<SongTrack> activeTrack;
 	private ReadOnlyObjectWrapper<SongLine> activeLine;
 
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
@@ -175,8 +175,6 @@ public class AppContext {
 	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
 	private File directory;
 
-	private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
-			.createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
 	private final InvalidationListener markerPositionChangeListener = this::onMarkerPositionWhilePlayingChanged;
 	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
@@ -495,7 +493,7 @@ public class AppContext {
 	}
 
 	public ReadOnlyObjectProperty<SongTrack> activeTrackProperty() {
-		return activeTrack.getReadOnlyProperty();
+		return activeTrack;
 	}
 
 	public final SongTrack getActiveTrack() {
@@ -503,29 +501,7 @@ public class AppContext {
 	}
 
 	public final void setActiveTrack(SongTrack track) {
-		SongTrack oldTrack = getActiveTrack();
-		if (track != oldTrack) {
-//			selection.clear();
-			activeTrack.set(track);
-			setActiveLine(null);
-			if (oldTrack != null) {
-				oldTrack.removeLineListListener(lineListChangeListener);
-//				oldTrack.removeNoteListListener(noteListChangeListener);
-			}
-			if (track != null) {
-				track.addLineListListener(lineListChangeListener);
-//				track.addNoteListListener(noteListChangeListener);
-				track.setVisible(true);
-				track.setMuted(false);
-				if (oldTrack == null) {
-					setActiveLine(track.getDefaultLine());
-				} else {
-					assertAllNeededTonesVisible();
-				}
-			} else {
-				assert (getSong() == null);
-			}
-		}
+		songState.setActiveTrack(track);
 	}
 
 	public final SongLine getActiveLine() {
@@ -602,18 +578,6 @@ public class AppContext {
 		if (!visibleArea.inBoundsX(markerBeat)) {
 			int xRange = visibleArea.getUpperXBound() - visibleArea.getLowerXBound();
 			setVisibleAreaXBounds(markerBeat - 1, markerBeat - 1 + xRange);
-		}
-	}
-
-	private void onLineRemoved(SongLine line) {
-		if (line == getActiveLine()) {
-			setActiveLine(null);
-		}
-	}
-
-	private void onNoteRemoved(Note note) {
-		if (selection.isSelected(note)) {
-			selection.deselect(note);
 		}
 	}
 

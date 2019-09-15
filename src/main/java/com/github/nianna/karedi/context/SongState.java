@@ -1,10 +1,13 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.ListChangeListener;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
+import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +21,9 @@ public class SongState {
 
     private BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
 
+    private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
+            .createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
+
     public Song getActiveSong() {
         return activeSong.get();
     }
@@ -30,8 +36,8 @@ public class SongState {
         return activeTrack.get();
     }
 
-    public ReadOnlyObjectWrapper<SongTrack> activeTrackProperty() {
-        return activeTrack;
+    public ReadOnlyObjectProperty<SongTrack> activeTrackProperty() {
+        return activeTrack.getReadOnlyProperty();
     }
 
     public SongLine getActiveLine() {
@@ -48,5 +54,47 @@ public class SongState {
 
     public BooleanBinding activeTrackIsNullProperty() {
         return activeTrackIsNull;
+    }
+
+    public final void setActiveTrack(SongTrack newTrack) {
+        SongTrack oldTrack = getActiveTrack();
+        if (newTrack != oldTrack) {
+            if (oldTrack != null) {
+                oldTrack.removeLineListListener(lineListChangeListener);
+            }
+            if (newTrack != null) {
+                newTrack.addLineListListener(lineListChangeListener);
+            }
+            activeTrack.set(newTrack);
+            if (oldTrack == null) {
+                setActiveLine(newTrack.getDefaultLine());
+            } else {
+                setActiveLine(null);
+            }
+//            setActiveLine(null);
+//
+//            if (newTrack != null) {
+//                newTrack.addLineListListener(lineListChangeListener);
+//                if (oldTrack == null) {
+//                    setActiveLine(newTrack.getDefaultLine());
+//                } else {
+////                    assertAllNeededTonesVisible(); //TODO by a guard
+//                }
+//            } else {
+//                // Song is also supposed to be null
+//            }
+        }
+    }
+
+    private void setActiveLine(SongLine defaultLine) {
+        //TODO
+        activeLine.set(defaultLine);
+    }
+
+
+    private void onLineRemoved(SongLine line) {
+        if (line == getActiveLine()) {
+            setActiveLine(null);
+        }
     }
 }

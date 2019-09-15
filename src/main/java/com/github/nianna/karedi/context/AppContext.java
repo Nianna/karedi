@@ -88,8 +88,7 @@ import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog;
 import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog.BpmEditResult;
 import main.java.com.github.nianna.karedi.dialog.OverwriteAlert;
 import main.java.com.github.nianna.karedi.dialog.PreferencesDialog;
-import main.java.com.github.nianna.karedi.parser.BaseParser;
-import main.java.com.github.nianna.karedi.parser.BaseUnparser;
+import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.parser.Unparser;
 import main.java.com.github.nianna.karedi.parser.element.InvalidSongElementException;
@@ -168,13 +167,14 @@ public class AppContext {
 	@Autowired
 	private  VisibleArea visibleArea;
 
+	@Autowired
+	private List<Guard> guards;
+
 	private final ObservableList<Note> observableSelection = FXCollections
 			.observableArrayList(note -> new Observable[] { note });
 	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
 	private File directory;
 
-	private final ListChangeListener<? super Note> noteListChangeListener = ListenersUtils
-			.createListContentChangeListener(ListenersUtils::pass, this::onNoteRemoved);
 	private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
 			.createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
 	private final InvalidationListener markerPositionChangeListener = this::onMarkerPositionWhilePlayingChanged;
@@ -218,6 +218,7 @@ public class AppContext {
 		player.statusProperty().addListener(this::onPlayerStatusChanged);
 		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
 
+		guards.forEach(Guard::enable);
 	}
 
 	// Actions
@@ -504,16 +505,16 @@ public class AppContext {
 	public final void setActiveTrack(SongTrack track) {
 		SongTrack oldTrack = getActiveTrack();
 		if (track != oldTrack) {
-			selection.clear();
+//			selection.clear();
 			activeTrack.set(track);
 			setActiveLine(null);
 			if (oldTrack != null) {
 				oldTrack.removeLineListListener(lineListChangeListener);
-				oldTrack.removeNoteListListener(noteListChangeListener);
+//				oldTrack.removeNoteListListener(noteListChangeListener);
 			}
 			if (track != null) {
 				track.addLineListListener(lineListChangeListener);
-				track.addNoteListListener(noteListChangeListener);
+//				track.addNoteListListener(noteListChangeListener);
 				track.setVisible(true);
 				track.setMuted(false);
 				if (oldTrack == null) {

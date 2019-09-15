@@ -26,7 +26,7 @@ public class VisibleArea implements IntBounded {
 		area = new Area(0, 20, -8, 8);
 	}
 
-	boolean assertBorderlessBoundsVisible(IntBounded bounds) {
+	public boolean assertBorderlessBoundsVisible(IntBounded bounds) {
 		return assertBoundsVisible(addMargins(bounds));
 	}
 

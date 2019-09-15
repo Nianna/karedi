@@ -1,34 +1,12 @@
 package main.java.com.github.nianna.karedi.context;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyLongProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -60,17 +38,9 @@ import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
 import main.java.com.github.nianna.karedi.command.tag.RescaleSongToBpmCommand;
 import main.java.com.github.nianna.karedi.command.track.AddTrackCommand;
 import main.java.com.github.nianna.karedi.command.track.DeleteTrackCommand;
-import main.java.com.github.nianna.karedi.dialog.ChooseTracksDialog;
-import main.java.com.github.nianna.karedi.dialog.EditBpmDialog;
-import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog;
+import main.java.com.github.nianna.karedi.dialog.*;
 import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog.FilenamesEditResult;
-import main.java.com.github.nianna.karedi.dialog.EditMedleyDialog;
-import main.java.com.github.nianna.karedi.dialog.EditTagDialog;
-import main.java.com.github.nianna.karedi.dialog.ExportWithErrorsAlert;
-import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog;
 import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog.BpmEditResult;
-import main.java.com.github.nianna.karedi.dialog.OverwriteAlert;
-import main.java.com.github.nianna.karedi.dialog.PreferencesDialog;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.parser.Unparser;
@@ -88,15 +58,18 @@ import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.song.tag.Tag;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
-import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
-import main.java.com.github.nianna.karedi.util.BindingsUtils;
-import main.java.com.github.nianna.karedi.util.Converter;
-import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
-import main.java.com.github.nianna.karedi.util.MathUtils;
+import main.java.com.github.nianna.karedi.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class AppContext {
@@ -279,11 +252,6 @@ public class AppContext {
 	public void moveVisibleArea(Direction direction, int by) {
 		visibleArea.move(direction, by);
 		setActiveLine(null);
-	}
-
-	private boolean isInVisibleBeatRange(Note note) {
-		return MathUtils.inRange(note.getStart(), visibleArea.getLowerXBound(),
-				visibleArea.getUpperXBound());
 	}
 
 	// History
@@ -568,7 +536,6 @@ public class AppContext {
 			addFileActions();
 			addEditActions();
 			addPlayActions();
-			addSelectionActions();
 			addTagsActions();
 			addViewActions();
 			addHelpActions();
@@ -668,16 +635,6 @@ public class AppContext {
 			add(KarediActions.PLAY_AFTER_SELECTION, new PlayAuxiliaryNoteAfterSelectionAction());
 			add(KarediActions.STOP_PLAYBACK, new StopPlaybackAction());
 			add(KarediActions.TOGGLE_TICKS, new ToggleTicksAction());
-		}
-
-		private void addSelectionActions() {
-			add(KarediActions.SELECT_PREVIOUS, new SelectPreviousAction());
-			add(KarediActions.SELECT_NEXT, new SelectNextAction());
-			add(KarediActions.DECREASE_SELECTION, new SelectLessAction());
-			add(KarediActions.INCREASE_SELECTION, new SelectMoreAction());
-//			add(KarediActions.CLEAR_SELECTION, new SelectNoneAction());
-			add(KarediActions.SELECT_VISIBLE, new SelectVisibleAction());
-			add(KarediActions.SELECT_ALL, new SelectAllAction());
 		}
 
 		private void addViewActions() {
@@ -945,160 +902,6 @@ public class AppContext {
 		}
 
 	}
-//
-//	private class SelectNoneAction extends KarediAction {
-//
-//		private SelectNoneAction() {
-//			setDisabledCondition(selection.isEmptyProperty());
-//		}
-//
-//		@Override
-//		protected void onAction(ActionEvent event) {
-//			selection.clear();
-//		}
-//	}
-
-	private class SelectMoreAction extends KarediAction {
-
-		private SelectMoreAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			selection.makeSelectionConsecutive();
-			Optional<Note> lastNote = selection.getLast();
-			if (lastNote.isPresent()) {
-				lastNote.flatMap(Note::getNext).ifPresent(nextNote -> {
-					selection.select(nextNote);
-					correctVisibleArea(lastNote.get(), nextNote);
-				});
-			} else {
-				getActiveTrack().noteAtOrLater(getMarkerBeat()).ifPresent(selection::select);
-			}
-		}
-
-		private void correctVisibleArea(Note lastNote, Note nextNote) {
-			int lowerXBound = visibleArea.getLowerXBound();
-			int upperXBound = visibleArea.getUpperXBound();
-			if (lastNote.getLine() != nextNote.getLine()) {
-				int nextLineUpperBound = nextNote.getLine().getLast().getStart() + 1;
-				if (!visibleArea.inBoundsX(nextLineUpperBound)) {
-					upperXBound = nextLineUpperBound;
-					setVisibleAreaXBounds(lowerXBound, upperXBound);
-					List<Note> visibleNotes = getActiveTrack().getNotes(lowerXBound, upperXBound);
-					if (visibleNotes.size() > 0) {
-						visibleArea.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
-					}
-				}
-				setActiveLine(null);
-			}
-		}
-	}
-
-	private class SelectLessAction extends KarediAction {
-
-		private SelectLessAction() {
-			setDisabledCondition(selection.sizeProperty().lessThanOrEqualTo(1));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			selection.makeSelectionConsecutive();
-			selection.getLast().ifPresent(note -> selection.deselect(note));
-		}
-	}
-
-	private class SelectAllAction extends KarediAction {
-
-		private SelectAllAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			selection.set(getActiveTrack().getNotes());
-		}
-
-	}
-
-	private class SelectVisibleAction extends KarediAction {
-
-		private SelectVisibleAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			List<Note> notes;
-			if (getActiveLine() != null) {
-				notes = getActiveLine().getNotes();
-			} else {
-				notes = getActiveTrack().getNotes(visibleArea.getLowerXBound(),
-						visibleArea.getUpperXBound());
-			}
-			selection.set(notes);
-		}
-
-	}
-
-	private class SelectNextAction extends KarediAction {
-
-		private SelectNextAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Optional<Note> nextNote = selection.getLast().flatMap(Note::getNext)
-					.filter(AppContext.this::isInVisibleBeatRange);
-			if (!nextNote.isPresent() && selection.size() == 0) {
-				int markerBeat = getMarkerBeat();
-				nextNote = getActiveTrack().noteAtOrLater(markerBeat)
-						.filter(AppContext.this::isInVisibleBeatRange);
-			}
-			if (!nextNote.isPresent()) {
-				nextNote = getActiveTrack().noteAtOrLater(visibleArea.getLowerXBound());
-			}
-			if (getActiveLine() != null) {
-				nextNote = Optional
-						.ofNullable(nextNote.filter(note -> note.getLine().equals(getActiveLine()))
-								.orElse(getActiveLine().getFirst()));
-			}
-			nextNote.ifPresent(selection::selectOnly);
-		}
-	}
-
-	private class SelectPreviousAction extends KarediAction {
-
-		private SelectPreviousAction() {
-			setDisabledCondition(songState.activeTrackIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Optional<Note> prevNote = selection.getFirst().flatMap(Note::getPrevious)
-					.filter(AppContext.this::isInVisibleBeatRange);
-
-			if (!prevNote.isPresent() && selection.size() == 0) {
-				int markerBeat = getMarkerBeat();
-				if (beatMillisConverter.beatToMillis(markerBeat) > getMarkerTime()) {
-					markerBeat -= 1;
-				}
-				prevNote = getActiveTrack().noteAtOrEarlier(markerBeat)
-						.filter(AppContext.this::isInVisibleBeatRange);
-			}
-			if (!prevNote.isPresent()) {
-				prevNote = getActiveTrack().noteAtOrEarlier(visibleArea.getUpperXBound() - 1);
-			}
-			if (getActiveLine() != null) {
-				prevNote = Optional
-						.ofNullable(prevNote.filter(note -> note.getLine().equals(getActiveLine()))
-								.orElse(getActiveLine().getLast()));
-			}
-			prevNote.ifPresent(selection::selectOnly);
-		}
-	}
 
 	private class NextLineAction extends KarediAction {
 
@@ -1250,24 +1053,6 @@ public class AppContext {
 			return (int) Math.ceil(note.getLength() / 2.0);
 		}
 	}
-
-//	private class JoinSelectionAction extends KarediAction {
-//
-//		private JoinSelectionAction() {
-//			setDisabledCondition(selection.isEmptyProperty());
-//		}
-//
-//		@Override
-//		protected void onAction(ActionEvent event) {
-//			Note outcome = selection.getFirst().get();
-//			if (selection.size() == 1) {
-//				selection.getLast().flatMap(Note::getNext).ifPresent(selection::select);
-//			}
-//			execute(new JoinNotesCommand(getSelected()));
-//			selection.selectOnly(outcome);
-//		}
-//
-//	}
 
 	private class DeleteSelectionAction extends KarediAction {
 		private boolean keepLyrics;

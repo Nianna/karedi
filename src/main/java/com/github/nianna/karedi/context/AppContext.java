@@ -112,7 +112,10 @@ import main.java.com.github.nianna.karedi.util.Converter;
 import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.MathUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class AppContext {
@@ -137,11 +140,18 @@ public class AppContext {
 
 	private final History history = new History();
 	private final NoteSelection selection = new NoteSelection();
-	private final BeatMillisConverter beatMillisConverter = new BeatMillisConverter(
-			Song.DEFAULT_GAP, Song.DEFAULT_BPM);
-	private final SongPlayer player = new SongPlayer(beatMillisConverter);
-	private final BeatRange beatRange = new BeatRange(beatMillisConverter);
-	private final VisibleArea visibleArea = new VisibleArea(beatRange);
+
+	@Autowired
+	private BeatMillisConverter beatMillisConverter;
+
+	@Autowired
+	private SongPlayer player;
+
+	@Autowired
+	private  BeatRange beatRange;
+
+	@Autowired
+	private  VisibleArea visibleArea;
 
 	private final ObservableList<Note> observableSelection = FXCollections
 			.observableArrayList(note -> new Observable[] { note });
@@ -161,12 +171,23 @@ public class AppContext {
 	private final BooleanBinding activeSongIsNull = activeSongProperty().isNull();
 	private final BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
 	private final BooleanBinding activeFileIsNull = activeFileProperty().isNull();
-	private final BooleanBinding activeAudioIsNull = player.activeAudioFileProperty().isNull();
+	private final BooleanBinding activeAudioIsNull = activeSongIsNull; //player.activeAudioFileProperty().isNull(); //TODO
 	private final IntegerProperty activeSongTrackCount = new SimpleIntegerProperty();
 	private final BooleanBinding activeSongHasOneOrZeroTracks = activeSongTrackCount
 			.lessThanOrEqualTo(1);
 
 	public AppContext() {
+		LOGGER.setUseParentHandlers(false);
+		history.setMaxSize(MAX_HISTORY_SIZE);
+//		actionHelper.addActions(); //TODO
+
+//		Bindings.bindContent(observableSelection, getSelected());
+//		player.statusProperty().addListener(this::onPlayerStatusChanged);
+//		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
+	}
+
+	@PostConstruct
+	public void initAppContext() {
 		LOGGER.setUseParentHandlers(false);
 		history.setMaxSize(MAX_HISTORY_SIZE);
 		actionHelper.addActions();

@@ -10,7 +10,9 @@ import javafx.beans.value.ChangeListener;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Marker {
 	private final ReadOnlyLongWrapper markerTime = new ReadOnlyLongWrapper();
 	private final ReadOnlyIntegerWrapper markerBeat = new ReadOnlyIntegerWrapper();
@@ -21,10 +23,6 @@ public class Marker {
 
 	public Marker(BeatMillisConverter converter, Player player) {
 		setConverter(converter);
-		setPlayer(player);
-	}
-
-	public Marker(Player player) {
 		setPlayer(player);
 	}
 

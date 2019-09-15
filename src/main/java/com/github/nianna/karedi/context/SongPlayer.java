@@ -18,28 +18,30 @@ import main.java.com.github.nianna.karedi.audio.Playlist;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 class SongPlayer {
 	private static final int TONE_OFFSET = 60;
 
-	private final Player player = new Player();
-	private final Marker marker = new Marker(player);
-	private final Playlist playlist = player.getPlaylist();
+	private final Player player;
+	private final Marker marker;
+	private final BeatMillisConverter converter;
 
-	private BeatMillisConverter converter;
+	private final Playlist playlist;
+
 	private Song song;
 
-	public SongPlayer(BeatMillisConverter converter) {
-		setConverter(converter);
+	public SongPlayer(Player player, Marker marker, BeatMillisConverter converter) {
+		this.player = player;
+		this.marker = marker;
+		this.converter = converter;
+		playlist = player.getPlaylist();
 	}
 
 	public void setSong(Song song) {
 		this.song = song;
-	}
-
-	public void setConverter(BeatMillisConverter converter) {
-		this.converter = converter;
-		marker.setConverter(converter);
 	}
 
 	public void play(int fromBeat, int toBeat, Mode mode) {

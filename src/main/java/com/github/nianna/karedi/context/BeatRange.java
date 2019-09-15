@@ -5,7 +5,10 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BeatRange {
 	private static final int MIN_BEAT = 0;
 	private static final int MAX_BEAT = 4800;
@@ -19,11 +22,12 @@ public class BeatRange {
 	private InvalidationListener refresher = obs -> refresh();
 	private Long maxTime;
 
+	@Autowired
 	BeatRange(BeatMillisConverter converter) {
 		this(MIN_BEAT, MAX_BEAT, converter);
 	}
 
-	BeatRange(int minBeat, int maxBeat, BeatMillisConverter converter) {
+	private BeatRange(int minBeat, int maxBeat, BeatMillisConverter converter) {
 		this.minBeat = new ReadOnlyIntegerWrapper(minBeat);
 		this.maxBeat = new ReadOnlyIntegerWrapper(maxBeat);
 		this.converter = converter;

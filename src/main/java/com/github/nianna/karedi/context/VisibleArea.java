@@ -7,7 +7,9 @@ import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.util.MusicalScale;
+import org.springframework.stereotype.Component;
 
+@Component
 public class VisibleArea implements IntBounded {
 	public static final int MIN_WIDTH = 4;
 	public static final int MIN_HEIGHT = 14;

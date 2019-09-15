@@ -17,7 +17,9 @@ import javafx.concurrent.Task;
 import javafx.util.Pair;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import javazoom.jl.player.advanced.PlaybackListener;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Player {
 	private static final int TIME_UPDATE_INTERVAL_MS = 5;
 

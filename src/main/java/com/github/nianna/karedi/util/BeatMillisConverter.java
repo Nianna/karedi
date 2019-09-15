@@ -2,7 +2,10 @@ package main.java.com.github.nianna.karedi.util;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BeatMillisConverter implements Observable {
 	private int gap;
 	private double bpm;
@@ -10,7 +13,7 @@ public class BeatMillisConverter implements Observable {
 
 	private ListenersManager listenerManager;
 
-	public BeatMillisConverter(int gap, double bpm) {
+	public BeatMillisConverter(@Value("${song.default.gap}") int gap, @Value("${song.default.bpm}") double bpm) {
 		listenerManager = new ListenersManager(this);
 		setGap(gap);
 		setBpm(bpm);

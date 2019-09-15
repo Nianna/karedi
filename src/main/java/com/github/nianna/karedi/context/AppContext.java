@@ -169,13 +169,13 @@ public class AppContext {
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
 	// Convenience bindings for actions
-	private BooleanBinding selectionIsEmpty; // = selection.sizeProperty().isEqualTo(0);
-	private BooleanBinding activeSongIsNull = activeSongProperty().isNull();
-	private BooleanBinding activeTrackIsNull = activeTrackProperty().isNull();
-	private BooleanBinding activeFileIsNull = activeFileProperty().isNull();
-	private BooleanBinding activeAudioIsNull = activeSongIsNull; //player.activeAudioFileProperty().isNull(); //TODO
-	private IntegerProperty activeSongTrackCount = new SimpleIntegerProperty();
-	private BooleanBinding activeSongHasOneOrZeroTracks = activeSongTrackCount.lessThanOrEqualTo(1);
+	private BooleanBinding selectionIsEmpty;
+	private BooleanBinding activeSongIsNull;
+	private BooleanBinding activeTrackIsNull;
+	private BooleanBinding activeFileIsNull;
+	private BooleanBinding activeAudioIsNull;
+	private IntegerProperty activeSongTrackCount;
+	private BooleanBinding activeSongHasOneOrZeroTracks;
 
 	public AppContext() {
 		LOGGER.setUseParentHandlers(false);

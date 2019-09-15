@@ -14,6 +14,7 @@ public class ActionManager {
 
     @Autowired
     public void mapActions(List<NewKarediAction> karediActions) {
+        //TODO warning if already in map
         karediActions.forEach(action -> actionMap.put(action.handles(), action));
     }
 

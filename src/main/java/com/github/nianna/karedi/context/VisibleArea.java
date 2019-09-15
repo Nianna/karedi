@@ -30,7 +30,7 @@ public class VisibleArea implements IntBounded {
 		return assertBoundsVisible(addMargins(bounds));
 	}
 
-	void assertBoundsYVisible(IntBounded bounds) {
+	public void assertBoundsYVisible(IntBounded bounds) {
 		if (bounds.isValid() && !area.inBoundsY(bounds)) {
 			int lowerYBound = Math.min(bounds.getLowerYBound(), area.getLowerYBound());
 			int upperYBound = Math.max(bounds.getUpperYBound(), area.getUpperYBound());
@@ -110,7 +110,7 @@ public class VisibleArea implements IntBounded {
 		return false;
 	}
 
-	boolean setYBounds(int lowerYBound, int upperYBound) {
+	public boolean setYBounds(int lowerYBound, int upperYBound) {
 		IntBounded maxVisibleArea = getMaxVisibleArea();
 		lowerYBound = Math.max(lowerYBound, maxVisibleArea.getLowerYBound());
 		upperYBound = Math.max(upperYBound, lowerYBound + MIN_HEIGHT);
@@ -143,7 +143,7 @@ public class VisibleArea implements IntBounded {
 		return false;
 	}
 
-	IntBounded addMargins(IntBounded bounds) {
+	public IntBounded addMargins(IntBounded bounds) {
 		if (bounds.isValid()) {
 			int lowerXBound = bounds.getLowerXBound() == 0 ? 0
 					: bounds.getLowerXBound() - LEFT_MARGIN;
@@ -164,7 +164,7 @@ public class VisibleArea implements IntBounded {
 				MusicalScale.MIN_TONE, MusicalScale.MAX_TONE));
 	}
 
-	void move(Direction direction, Integer by) {
+	public void move(Direction direction, Integer by) {
 		if (by < 0) {
 			move(Direction.opposite(direction), -by);
 			return;

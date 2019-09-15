@@ -1,5 +1,6 @@
 package main.java.com.github.nianna.karedi.controller;
 
+import main.java.com.github.nianna.karedi.action.view.SwitchViewModeAction;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
@@ -66,6 +67,12 @@ public class ToolbarController implements Controller {
 
 	private AppContext appContext;
 
+	private final SwitchViewModeAction switchViewModeAction;
+
+	public ToolbarController(SwitchViewModeAction switchViewModeAction) {
+		this.switchViewModeAction = switchViewModeAction;
+	}
+
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
@@ -95,9 +102,9 @@ public class ToolbarController implements Controller {
 
 		bind(switchModeButton, KarediActions.SWITCH_MODE);
 
-		switchModeGlyph.setIcon(iconForViewMode(appContext.getActiveViewMode()));
-		appContext.activeViewModeProperty().addListener(inv -> {
-			switchModeGlyph.setIcon(iconForViewMode(appContext.getActiveViewMode()));
+		switchModeGlyph.setIcon(iconForViewMode(switchViewModeAction.getActiveViewMode()));
+		switchViewModeAction.activeViewModeProperty().addListener(inv -> {
+			switchModeGlyph.setIcon(iconForViewMode(switchViewModeAction.getActiveViewMode()));
 		});
 	}
 
@@ -108,7 +115,7 @@ public class ToolbarController implements Controller {
 	}
 
 	private FontAwesome.Glyph iconForViewMode(ViewMode mode) {
-		if (appContext.getActiveViewMode() == ViewMode.NIGHT) {
+		if (switchViewModeAction.getActiveViewMode() == ViewMode.NIGHT) {
 			return FontAwesome.Glyph.SUN_ALT;
 		} else {
 			return FontAwesome.Glyph.MOON_ALT;

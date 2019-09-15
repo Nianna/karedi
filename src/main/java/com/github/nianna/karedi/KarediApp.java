@@ -161,7 +161,7 @@ public class KarediApp extends Application {
 	}
 
 	private boolean isNightModeActive() {
-		return false; //TOGO primaryStage.getScene().getStylesheets().contains(NIGHT_MODE_CSS_STYLESHEET);
+		return primaryStage.getScene().getStylesheets().contains(NIGHT_MODE_CSS_STYLESHEET);
 	}
 
 	public boolean saveChangesIfUserWantsTo() {

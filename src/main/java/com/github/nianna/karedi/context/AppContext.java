@@ -75,8 +75,6 @@ public class AppContext {
 	private ReadOnlyObjectProperty<SongLine> activeLine;
 
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
-	private final ReadOnlyObjectWrapper<ViewMode> activeViewMode = new ReadOnlyObjectWrapper<>(
-			KarediApp.getInstance().getViewMode());
 	private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
 
 	@Autowired
@@ -463,14 +461,6 @@ public class AppContext {
         songState.setActiveLine(line);
 	}
 
-	public ReadOnlyObjectProperty<ViewMode> activeViewModeProperty() {
-		return activeViewMode.getReadOnlyProperty();
-	}
-
-	public final ViewMode getActiveViewMode() {
-		return activeViewModeProperty().get();
-	}
-
 	// Listeners that are necessary to assure consistency
 
 	private void onBeatMillisConverterInvalidated() {
@@ -541,7 +531,6 @@ public class AppContext {
 		private void addActions() {
 			addFileActions();
 			addPlayActions();
-			addViewActions();
 		}
 
 		private void addFileActions() {
@@ -595,28 +584,6 @@ public class AppContext {
 			add(KarediActions.STOP_PLAYBACK, new StopPlaybackAction());
 			add(KarediActions.TOGGLE_TICKS, new ToggleTicksAction());
 		}
-
-		private void addViewActions() {
-			add(KarediActions.VIEW_NEXT_LINE, new NextLineAction());
-			add(KarediActions.VIEW_PREVIOUS_LINE, new PreviousLineAction());
-			add(KarediActions.VIEW_NEXT_TRACK, new NextTrackAction());
-			add(KarediActions.VIEW_PREVIOUS_TRACK, new PreviousTrackAction());
-
-			add(KarediActions.FIT_TO_VISIBLE, new FitToVisibleAction(true, true));
-			add(KarediActions.FIT_TO_SELECTION, new FitToSelectionAction());
-			add(KarediActions.FIT_VERTICALLY, new FitToVisibleAction(true, false));
-			add(KarediActions.FIT_HORIZONTALLY, new FitToVisibleAction(false, true));
-
-			add(KarediActions.MOVE_VISIBLE_AREA_LEFT, new MoveVisibleAreaAction(Direction.LEFT, 1));
-			add(KarediActions.MOVE_VISIBLE_AREA_RIGHT,
-					new MoveVisibleAreaAction(Direction.RIGHT, 1));
-			add(KarediActions.MOVE_VISIBLE_AREA_UP, new MoveVisibleAreaAction(Direction.UP, 1));
-			add(KarediActions.MOVE_VISIBLE_AREA_DOWN, new MoveVisibleAreaAction(Direction.DOWN, 1));
-
-			add(KarediActions.VIEW_MEDLEY, new ViewMedleyAction());
-			add(KarediActions.SWITCH_MODE, new SwitchModeAction());
-		}
-
 	}
 
 	private class ExitAction extends KarediAction {
@@ -826,92 +793,6 @@ public class AppContext {
 		}
 	}
 
-	private class NextLineAction extends KarediAction {
-
-		private NextLineAction() {
-			setDisabledCondition(Bindings.createBooleanBinding(() -> {
-				if (getActiveTrack() == null || !computeNextLine().isPresent()) {
-					return true;
-				}
-				return false;
-			}, activeTrack, activeLine, markerBeatProperty()));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			computeNextLine().ifPresent(line -> setActiveLine(line));
-		}
-
-		private Optional<SongLine> computeNextLine() {
-			if (getActiveLine() != null) {
-				return getActiveLine().getNext();
-			} else {
-				SongLine nextLine = selection.getLast().map(Note::getLine)
-						.orElse(getActiveTrack().lineAtOrLater(getMarkerBeat()).orElse(null));
-				return Optional.ofNullable(nextLine);
-			}
-
-		}
-	}
-
-	private class PreviousLineAction extends KarediAction {
-
-		private PreviousLineAction() {
-			setDisabledCondition(Bindings.createBooleanBinding(() -> {
-				if (getActiveTrack() == null || !computePreviousLine().isPresent()) {
-					return true;
-				}
-				return false;
-			}, activeTrack, activeLine, markerBeatProperty()));
-
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			computePreviousLine().ifPresent(line -> setActiveLine(line));
-		}
-
-		private Optional<SongLine> computePreviousLine() {
-			if (getActiveLine() != null) {
-				return getActiveLine().getPrevious();
-			} else {
-				SongLine previousLine = selection.getFirst().map(Note::getLine)
-						.orElse(getActiveTrack().lineAtOrEarlier(getMarkerBeat()).orElse(null));
-				return Optional.ofNullable(previousLine);
-			}
-
-		}
-	}
-
-
-	private class NextTrackAction extends KarediAction {
-
-		private NextTrackAction() {
-			setDisabledCondition(activeSongHasOneOrZeroTracks);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Song song = getSong();
-			int nextIndex = (song.indexOf(getActiveTrack()) + 1) % song.size();
-			setActiveTrack(song.get(nextIndex));
-		}
-	}
-
-	private class PreviousTrackAction extends KarediAction {
-
-		private PreviousTrackAction() {
-			setDisabledCondition(activeSongHasOneOrZeroTracks);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Song song = getSong();
-			int prevIndex = (song.indexOf(getActiveTrack()) + song.size() - 1) % song.size();
-			setActiveTrack(song.get(prevIndex));
-		}
-	}
-
 	private abstract class PlayAuxiliaryNoteAction extends KarediAction {
 		private int oldLowerBound;
 		private int oldUpperBound;
@@ -999,84 +880,6 @@ public class AppContext {
 			player.setTickingEnabled(!player.isTickingEnabled());
 		}
 
-	}
-
-	private class MoveVisibleAreaAction extends KarediAction {
-		private Direction direction;
-		private int by;
-
-		private MoveVisibleAreaAction(Direction direction, int by) {
-			this.direction = direction;
-			this.by = by;
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			moveVisibleArea(direction, by);
-		}
-
-	}
-
-	private class ViewMedleyAction extends KarediAction {
-
-		private ViewMedleyAction() {
-			setDisabledCondition(true);
-			activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
-				if (newVal == null) {
-					setDisabledCondition(true);
-				} else {
-					setDisabledCondition(newVal.getMedley().sizeProperty().lessThanOrEqualTo(0));
-				}
-			});
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			Medley medley = getSong().getMedley();
-			setVisibleAreaXBounds(medley.getStartBeat(), medley.getEndBeat());
-			assertAllNeededTonesVisible();
-		}
-
-	}
-
-	private class FitToVisibleAction extends KarediAction {
-		private boolean vertically;
-		private boolean horizontally;
-
-		private FitToVisibleAction(boolean vertically, boolean horizontally) {
-			this.vertically = vertically;
-			this.horizontally = horizontally;
-			setDisabledCondition(songState.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			List<Note> visibleNotes = getSong().getVisibleNotes(visibleArea.getLowerXBound(),
-					visibleArea.getUpperXBound());
-			if (visibleNotes.size() > 0) {
-				IntBounded bounds = addMargins(new BoundingBox<>(visibleNotes));
-				if (horizontally) {
-					setVisibleAreaXBounds(bounds.getLowerXBound(), bounds.getUpperXBound());
-				}
-				if (vertically) {
-					setVisibleAreaYBounds(bounds.getLowerYBound(), bounds.getUpperYBound());
-				}
-			}
-		}
-	}
-
-	private class FitToSelectionAction extends KarediAction {
-
-		private FitToSelectionAction() {
-			setDisabledCondition(selection.isEmptyProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			player.stop();
-			setActiveLine(null);
-			visibleArea.setBounds(addMargins(selectionBounds));
-		}
 	}
 
 	private abstract class ClipboardAction extends KarediAction {
@@ -1214,20 +1017,6 @@ public class AppContext {
 
 		private TagAction() {
 			setDisabledCondition(songState.activeSongIsNullProperty());
-		}
-
-	}
-
-	private class SwitchModeAction extends KarediAction {
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (KarediApp.getInstance().getViewMode() == ViewMode.DAY) {
-				KarediApp.getInstance().setViewMode(ViewMode.NIGHT);
-			} else {
-				KarediApp.getInstance().setViewMode(ViewMode.DAY);
-			}
-			activeViewMode.set(KarediApp.getInstance().getViewMode());
 		}
 
 	}

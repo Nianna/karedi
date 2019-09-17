@@ -6,14 +6,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.scene.control.ButtonType;
-import javafx.scene.input.Clipboard;
-import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
@@ -23,45 +17,30 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.audio.Player.Mode;
-import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.CommandComposite;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
-import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
-import main.java.com.github.nianna.karedi.dialog.ChooseTracksDialog;
-import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog;
-import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog.FilenamesEditResult;
-import main.java.com.github.nianna.karedi.dialog.ExportWithErrorsAlert;
-import main.java.com.github.nianna.karedi.dialog.OverwriteAlert;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.parser.Unparser;
-import main.java.com.github.nianna.karedi.parser.element.InvalidSongElementException;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
-import main.java.com.github.nianna.karedi.song.Song.Medley;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
-import main.java.com.github.nianna.karedi.util.ForbiddenCharacterRegex;
 import main.java.com.github.nianna.karedi.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component
 public class AppContext {
@@ -153,6 +132,10 @@ public class AppContext {
         return activeFileIsNull;
     }
 
+    public BooleanBinding activeAudioIsNullProperty() {
+        return activeAudioIsNull;
+    }
+
 	@PostConstruct
 	public void initAppContext() {
 		activeTrack = songContext.activeTrackProperty();
@@ -162,7 +145,6 @@ public class AppContext {
 		activeAudioIsNull = player.activeAudioFileProperty().isNull();
 
 		LOGGER.setUseParentHandlers(false);
-		actionHelper.addActions();
 
 		Bindings.bindContent(observableSelection, getSelected());
 		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
@@ -188,13 +170,23 @@ public class AppContext {
 	}
 
 	// Beat range
-	private ReadOnlyIntegerProperty minBeatProperty() {
+    public ReadOnlyIntegerProperty minBeatProperty() {
 		return beatRange.minBeatProperty();
 	}
 
-	private ReadOnlyIntegerProperty maxBeatProperty() {
+	public ReadOnlyIntegerProperty maxBeatProperty() {
 		return beatRange.maxBeatProperty();
 	}
+
+	public IntegerBinding playToTheEndStartBeatProperty() {
+        return Bindings.createIntegerBinding(() -> {
+            if (isMarkerVisible()) {
+                return getMarkerBeat();
+            } else {
+                return visibleArea.getLowerXBound();
+            }
+        }, markerBeatProperty(), visibleArea);
+    }
 
 	// Visible area
 	public void invalidateVisibleArea() {
@@ -299,7 +291,7 @@ public class AppContext {
 	}
 
 	// Player
-	private void playRange(int fromBeat, int toBeat, Mode mode) {
+    public void playRange(int fromBeat, int toBeat, Mode mode) {
 		assertAllNeededTonesVisible(fromBeat, toBeat);
 		player.play(fromBeat, toBeat, mode);
 	}
@@ -496,242 +488,24 @@ public class AppContext {
 	// *************************** ACTIONS ***************************
 
 	private class ActionHelper {
-		private ActionMap actionMap = new ActionMap();
+        private ActionMap actionMap = new ActionMap();
 
-		public void add(KarediActions key, KarediAction action) {
-			actionMap.put(key.toString(), action);
-		}
+        public void add(KarediActions key, KarediAction action) {
+            actionMap.put(key.toString(), action);
+        }
 
-		public void execute(KarediActions action) {
-			if (canExecute(action)) {
-				getAction(action).handle(null);
-			}
-		}
+        public void execute(KarediActions action) {
+            if (canExecute(action)) {
+                getAction(action).handle(null);
+            }
+        }
 
-		public boolean canExecute(KarediActions action) {
-			return !getAction(action).isDisabled();
-		}
+        public boolean canExecute(KarediActions action) {
+            return !getAction(action).isDisabled();
+        }
 
-		public KarediAction get(KarediActions key) {
-			return actionMap.get(key.toString());
-		}
-
-		private void addActions() {
-			addPlayActions();
-		}
-
-		private void addPlayActions() {
-			add(KarediActions.PLAY_SELECTION_AUDIO, new PlaySelectionAction(Mode.AUDIO_ONLY));
-			add(KarediActions.PLAY_SELECTION_MIDI, new PlaySelectionAction(Mode.MIDI_ONLY));
-			add(KarediActions.PLAY_SELECTION_AUDIO_MIDI, new PlaySelectionAction(Mode.AUDIO_MIDI));
-			add(KarediActions.PLAY_VISIBLE_AUDIO, new PlayRangeAction(Mode.AUDIO_ONLY,
-					visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty()));
-			add(KarediActions.PLAY_VISIBLE_MIDI, new PlayRangeAction(Mode.MIDI_ONLY,
-					visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty()));
-			add(KarediActions.PLAY_VISIBLE_AUDIO_MIDI, new PlayRangeAction(Mode.AUDIO_MIDI,
-					visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty()));
-			add(KarediActions.PLAY_ALL_AUDIO,
-					new PlayRangeAction(Mode.AUDIO_ONLY, minBeatProperty(), maxBeatProperty()));
-			add(KarediActions.PLAY_ALL_MIDI,
-					new PlayRangeAction(Mode.MIDI_ONLY, minBeatProperty(), maxBeatProperty()));
-			add(KarediActions.PLAY_ALL_AUDIO_MIDI,
-					new PlayRangeAction(Mode.AUDIO_MIDI, minBeatProperty(), maxBeatProperty()));
-
-			IntegerBinding playToTheEndStartBeat = Bindings.createIntegerBinding(() -> {
-				if (isMarkerVisible()) {
-					return getMarkerBeat();
-				} else {
-					return visibleArea.getLowerXBound();
-				}
-			}, markerBeatProperty(), visibleArea);
-			add(KarediActions.PLAY_TO_THE_END_AUDIO,
-					new PlayRangeAction(Mode.AUDIO_ONLY, playToTheEndStartBeat, maxBeatProperty()));
-			add(KarediActions.PLAY_TO_THE_END_MIDI,
-					new PlayRangeAction(Mode.MIDI_ONLY, playToTheEndStartBeat, maxBeatProperty()));
-			add(KarediActions.PLAY_TO_THE_END_AUDIO_MIDI,
-					new PlayRangeAction(Mode.AUDIO_MIDI, playToTheEndStartBeat, maxBeatProperty()));
-			add(KarediActions.PLAY_MEDLEY_AUDIO, new PlayMedleyAction(Mode.AUDIO_ONLY));
-			add(KarediActions.PLAY_MEDLEY_AUDIO_MIDI, new PlayMedleyAction(Mode.AUDIO_MIDI));
-			add(KarediActions.PLAY_MEDLEY_MIDI, new PlayMedleyAction(Mode.MIDI_ONLY));
-			add(KarediActions.PLAY_BEFORE_SELECTION, new PlayAuxiliaryNoteBeforeSelectionAction());
-			add(KarediActions.PLAY_AFTER_SELECTION, new PlayAuxiliaryNoteAfterSelectionAction());
-			add(KarediActions.STOP_PLAYBACK, new StopPlaybackAction());
-			add(KarediActions.TOGGLE_TICKS, new ToggleTicksAction());
-		}
-	}
-
-
-	private class PlaySelectionAction extends KarediAction {
-		private Mode mode;
-
-		private PlaySelectionAction(Mode mode) {
-			this.mode = mode;
-			BooleanBinding condition = selection.isEmptyProperty();
-			if (mode != Mode.MIDI_ONLY) {
-				condition = condition.or(activeAudioIsNull);
-			}
-			setDisabledCondition(condition);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			playSelection(mode);
-		}
-
-		private void playSelection(Mode mode) {
-			if (selection.size() > 0 && selectionBounds.isValid()) {
-				long startMillis = beatToMillis(selectionBounds.getLowerXBound());
-				long endMillis = beatToMillis(selectionBounds.getUpperXBound());
-				play(startMillis, endMillis, getSelected(), mode);
-			}
-		}
-	}
-
-	private class PlayRangeAction extends KarediAction {
-		private Mode mode;
-		private ObservableValue<? extends Number> from;
-		private ObservableValue<? extends Number> to;
-
-		private PlayRangeAction(Mode mode, ObservableValue<? extends Number> from,
-				ObservableValue<? extends Number> to) {
-			this.mode = mode;
-			this.from = from;
-			this.to = to;
-
-			BooleanBinding condition = songContext.activeSongIsNullProperty();
-			if (mode != Mode.MIDI_ONLY) {
-				condition = condition.or(activeAudioIsNull);
-			}
-			setDisabledCondition(condition);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			playRange(from.getValue().intValue(), to.getValue().intValue(), mode);
-		}
-
-	}
-
-	private class PlayMedleyAction extends KarediAction {
-		private Mode mode;
-		private BooleanBinding basicCondition;
-		private Medley medley;
-
-		private PlayMedleyAction(Mode mode) {
-			this.mode = mode;
-
-			basicCondition = songContext.activeSongIsNullProperty();
-			if (mode != Mode.MIDI_ONLY) {
-				basicCondition = basicCondition.or(activeAudioIsNull);
-			}
-			setDisabledCondition(basicCondition);
-			songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
-				if (newVal == null) {
-					setDisabledCondition(basicCondition);
-				} else {
-					medley = newVal.getMedley();
-					setDisabledCondition(
-							basicCondition.or(medley.sizeProperty().lessThanOrEqualTo(0)));
-				}
-			});
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			selection.clear();
-			playRange(medley.getStartBeat(), medley.getEndBeat(), mode);
-		}
-
-	}
-
-
-	private abstract class PlayAuxiliaryNoteAction extends KarediAction {
-		private int oldLowerBound;
-		private int oldUpperBound;
-		private ChangeListener<? super Status> statusListener;
-
-		private PlayAuxiliaryNoteAction() {
-			setDisabledCondition(selection.isEmptyProperty().or(activeAudioIsNull));
-			statusListener = (obs, oldStatus, newStatus) -> {
-				if (oldStatus == Status.PLAYING && newStatus == Status.READY) {
-					setVisibleAreaXBounds(oldLowerBound, oldUpperBound, false);
-					obs.removeListener(statusListener);
-				}
-			};
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			player.stop();
-
-			int auxiliaryNoteStartBeat = getAuxiliaryNoteStartBeat();
-			int auxiliaryNoteEndBeat = auxiliaryNoteStartBeat + getAuxiliaryNoteLength();
-			adjustVisibleArea(auxiliaryNoteStartBeat, auxiliaryNoteEndBeat);
-			player.play(beatMillisConverter.beatToMillis(auxiliaryNoteStartBeat),
-					beatMillisConverter.beatToMillis(auxiliaryNoteEndBeat), null, Mode.AUDIO_ONLY);
-		}
-
-		private void adjustVisibleArea(int auxiliaryNoteStartBeat, int auxiliaryNoteEndBeat) {
-			oldLowerBound = visibleArea.getLowerXBound();
-			oldUpperBound = visibleArea.getUpperXBound();
-			int newLowerBound = Math.min(oldLowerBound, auxiliaryNoteStartBeat);
-			int newUpperBound = Math.max(oldUpperBound, auxiliaryNoteEndBeat);
-			if (newLowerBound != oldLowerBound || newUpperBound != oldUpperBound) {
-				setVisibleAreaXBounds(newLowerBound, newUpperBound, false);
-				player.statusProperty().addListener(statusListener);
-			}
-		}
-
-		protected int getAuxiliaryNoteLength() {
-			return (int) (beatMillisConverter.getBpm() / 100) + 1;
-		}
-
-		protected abstract int getAuxiliaryNoteStartBeat();
-	}
-
-	private class PlayAuxiliaryNoteBeforeSelectionAction extends PlayAuxiliaryNoteAction {
-
-		@Override
-		protected int getAuxiliaryNoteStartBeat() {
-			return selection.getFirst().get().getStart() + 1 - getAuxiliaryNoteLength();
-		}
-
-	}
-
-	private class PlayAuxiliaryNoteAfterSelectionAction extends PlayAuxiliaryNoteAction {
-
-		@Override
-		protected int getAuxiliaryNoteStartBeat() {
-			return selection.getLast().get().getEnd() - 1;
-		}
-
-	}
-
-	private class StopPlaybackAction extends KarediAction {
-
-		private StopPlaybackAction() {
-			setDisabledCondition(player.statusProperty().isNotEqualTo(Status.PLAYING));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			// player.stop();
-			setMarkerTime(getMarkerTime());
-		}
-
-	}
-
-	private class ToggleTicksAction extends KarediAction {
-
-		private ToggleTicksAction() {
-			setSelected(player.isTickingEnabled());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			player.setTickingEnabled(!player.isTickingEnabled());
-		}
-
-	}
-
+        public KarediAction get(KarediActions key) {
+            return actionMap.get(key.toString());
+        }
+    }
 }

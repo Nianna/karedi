@@ -17,7 +17,7 @@ import main.java.com.github.nianna.karedi.util.MultiplayerTags;
 import org.springframework.stereotype.Component;
 
 @Component
-class SongSaver {
+public class SongSaver {
 	private static final Logger LOGGER = Logger.getLogger(SongSaver.class.getName());
 
 	private final TxtFileSaver txtFileSaver = new TxtFileSaver();
@@ -34,7 +34,7 @@ class SongSaver {
 				I18N.get("songsaver.save.fail"));
 	}
 
-	boolean exportToFile(File file, List<Tag> tags, List<SongTrack> tracks) {
+	public boolean exportToFile(File file, List<Tag> tags, List<SongTrack> tracks) {
 		return save(file, tags, tracks, I18N.get("songsaver.export.success"),
 				I18N.get("songsaver.export.fail"));
 	}

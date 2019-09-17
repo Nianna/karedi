@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class AppContext {
-	private static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName());
+	public static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName()); //TODO refactor
 
 	@Autowired
 	private SongContext songContext;
@@ -144,6 +144,14 @@ public class AppContext {
     public AppContext() {
 		LOGGER.setUseParentHandlers(false);
 	}
+
+	public BooleanBinding hasNoChangesProperty() {
+        return lastSavedCommand.isEqualTo(history.activeCommandProperty());
+    }
+
+    public BooleanBinding activeFileIsNullProperty() {
+        return activeFileIsNull;
+    }
 
 	@PostConstruct
 	public void initAppContext() {
@@ -266,7 +274,7 @@ public class AppContext {
 		player.removeAudioFile(file);
 	}
 
-	private void loadAudioFile(File file) {
+	public void loadAudioFile(File file) {
 		AudioFileLoader.loadMp3File(file, (newAudio -> {
 			if (newAudio.isPresent()) {
 				player.addAudioFile(newAudio.get());
@@ -355,7 +363,7 @@ public class AppContext {
 		return activeFileProperty().get();
 	}
 
-	private void setActiveFile(File file) {
+	public void setActiveFile(File file) {
 		this.activeFile.set(file);
 		KarediApp.getInstance().updatePrimaryStageTitle(file);
 		directory = file == null ? null : file.getParentFile();
@@ -369,7 +377,7 @@ public class AppContext {
 		loadSongFile(file, true);
 	}
 
-	private void loadSongFile(File file, boolean resetPlayer) {
+	public void loadSongFile(File file, boolean resetPlayer) {
 		if (file != null) {
 			reset(resetPlayer);
 			setActiveFile(file);
@@ -382,7 +390,7 @@ public class AppContext {
 		}
 	}
 
-	private boolean saveSongToFile(File file) {
+	public boolean saveSongToFile(File file) {
 		if (file != null) {
 			if (songSaver.saveSongToFile(file, getSong())) {
 				lastSavedCommand.set(history.getActiveCommand());
@@ -474,7 +482,7 @@ public class AppContext {
 		return LOGGER;
 	}
 
-	private void reset(boolean resetPlayer) {
+	public void reset(boolean resetPlayer) {
 		setSong(null);
 		lastSavedCommand.set(null);
 		history.clear();
@@ -509,21 +517,7 @@ public class AppContext {
 		}
 
 		private void addActions() {
-			addFileActions();
 			addPlayActions();
-		}
-
-		private void addFileActions() {
-			add(KarediActions.NEW, new NewSongAction());
-			add(KarediActions.LOAD, new LoadSongAction());
-			add(KarediActions.RELOAD, new ReloadSongAction());
-			add(KarediActions.RENAME, new RenameAction());
-			add(KarediActions.SAVE, new SaveSongAction());
-			add(KarediActions.SAVE_AS, new SaveSongAsAction());
-			add(KarediActions.IMPORT_AUDIO, new ImportAudioAction());
-			add(KarediActions.EXPORT_AS_SINGLEPLAYER, new ExportTracksAction(1));
-			add(KarediActions.EXPORT_AS_DUET, new ExportTracksAction(2));
-			add(KarediActions.EXIT, new ExitAction());
 		}
 
 		private void addPlayActions() {
@@ -566,14 +560,6 @@ public class AppContext {
 		}
 	}
 
-	private class ExitAction extends KarediAction {
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			KarediApp.getInstance().exit(event);
-		}
-
-	}
 
 	private class PlaySelectionAction extends KarediAction {
 		private Mode mode;
@@ -658,120 +644,6 @@ public class AppContext {
 
 	}
 
-	private class LoadSongAction extends KarediAction {
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (KarediApp.getInstance().saveChangesIfUserWantsTo()) {
-				File file = KarediApp.getInstance().getTxtFileToOpen();
-				if (file != null) {
-					loadSongFile(file, true);
-				}
-			}
-		}
-	}
-
-	private class ReloadSongAction extends KarediAction {
-		private Integer trackNumber;
-		private Integer lineNumber;
-		private List<Color> colors;
-
-		private ReloadSongAction() {
-			setDisabledCondition(activeFileIsNull.or(songContext.activeSongIsNullProperty()));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (KarediApp.getInstance().saveChangesIfUserWantsTo()) {
-				backupTrackAndLine();
-				backupColors();
-				loadSongFile(getActiveFile(), false);
-
-				if (getSong() != null) {
-					restoreTrackAndLine();
-					restoreColors();
-				}
-			}
-		}
-
-		private void backupTrackAndLine() {
-			trackNumber = null;
-			lineNumber = null;
-			if (getActiveTrack() != null) {
-				trackNumber = getSong().indexOf(getActiveTrack());
-				if (getActiveLine() != null) {
-					lineNumber = getActiveTrack().indexOf(getActiveLine());
-				}
-			}
-		}
-
-		private void backupColors() {
-			colors = getSong().getTracks().stream().map(SongTrack::getColor)
-					.collect(Collectors.toList());
-		}
-
-		private void restoreTrackAndLine() {
-			if (trackNumber != null && getSong().size() > trackNumber) {
-				setActiveTrack(getSong().get(trackNumber));
-				if (lineNumber != null && getActiveTrack().size() > lineNumber) {
-					setActiveLine(getActiveTrack().get(lineNumber));
-				}
-			}
-		}
-
-		private void restoreColors() {
-			for (int i = 0; i < getSong().size() && i < colors.size(); ++i) {
-				getSong().getTrack(i).setColor(colors.get(i));
-			}
-		}
-	}
-
-	private class SaveSongAction extends KarediAction {
-
-		private SaveSongAction() {
-			setDisabledCondition(songContext.activeSongIsNullProperty()
-					.or(lastSavedCommand.isEqualTo(history.activeCommandProperty())));
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (getActiveFile() != null) {
-				saveSongToFile(getActiveFile());
-			} else {
-				execute(KarediActions.SAVE_AS);
-			}
-		}
-	}
-
-	private class SaveSongAsAction extends KarediAction {
-
-		private SaveSongAsAction() {
-			setDisabledCondition(songContext.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			File file = KarediApp.getInstance().getTxtFileToSave();
-			if (saveSongToFile(file)) {
-				setActiveFile(file);
-			}
-		}
-	}
-
-	private class ImportAudioAction extends KarediAction {
-
-		private ImportAudioAction() {
-			setDisabledCondition(songContext.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			File file = KarediApp.getInstance().getMp3FileToOpen();
-			if (file != null) {
-				loadAudioFile(file);
-			}
-		}
-	}
 
 	private abstract class PlayAuxiliaryNoteAction extends KarediAction {
 		private int oldLowerBound;
@@ -861,229 +733,5 @@ public class AppContext {
 		}
 
 	}
-
-	private abstract class ClipboardAction extends KarediAction {
-
-		protected Song buildSong(String[] lines) {
-			SongBuilder builder = new BasicSongBuilder();
-			Arrays.asList(lines).forEach(line -> {
-				try {
-					builder.buildPart(parser.parse(line));
-				} catch (InvalidSongElementException e) {
-					// ignore
-				}
-			});
-			return builder.getResult();
-		}
-
-		protected String[] getLinesFromClipboard() {
-			final Clipboard clipboard = Clipboard.getSystemClipboard();
-			if (clipboard.getString() == null) {
-				return new String[0];
-			}
-			return clipboard.getString().split("\\R");
-		}
-	}
-
-
-
-	private class RenameAction extends KarediAction {
-
-		private RenameAction() {
-			setDisabledCondition(songContext.activeSongIsNullProperty());
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			EditFilenamesDialog dialog = new EditFilenamesDialog();
-
-			getSong().getTagValue(TagKey.ARTIST).ifPresent(value -> dialog.setSongArtist(value));
-			getSong().getTagValue(TagKey.TITLE).ifPresent(value -> dialog.setSongTitle(value));
-			getSong().getTagValue(TagKey.MP3).ifPresent(value -> dialog.setAudioFilename(value));
-			getSong().getTagValue(TagKey.COVER).ifPresent(value -> dialog.setCoverFilename(value));
-
-			Optional<String> optVideoFilename = getSong().getTagValue(TagKey.VIDEO);
-			if (optVideoFilename.isPresent()) {
-				dialog.setVideoFilename(optVideoFilename.get());
-			} else {
-				dialog.hideVideo();
-			}
-
-			Optional<String> optBackgroundFilename = getSong().getTagValue(TagKey.BACKGROUND);
-			if (optBackgroundFilename.isPresent()) {
-				dialog.setBackgroundFilename(optBackgroundFilename.get());
-			} else {
-				dialog.hideBackground();
-			}
-
-			Optional<FilenamesEditResult> optionalResult = dialog.showAndWait();
-			optionalResult.ifPresent(result -> execute(commandFromResults(result)));
-		}
-
-		private Command commandFromResults(FilenamesEditResult result) {
-			return new CommandComposite(I18N.get("ui.common.rename")) {
-
-				@Override
-				protected void buildSubCommands() {
-					addSubCommand(new ChangeTagValueCommand(getSong(), TagKey.ARTIST,
-							result.getArtist()));
-					addSubCommand(
-							new ChangeTagValueCommand(getSong(), TagKey.TITLE, result.getTitle()));
-					addSubCommand(new ChangeTagValueCommand(getSong(), TagKey.MP3,
-							result.getAudioFilename()));
-					addSubCommand(new ChangeTagValueCommand(getSong(), TagKey.COVER,
-							result.getCoverFilename()));
-					result.getBackgroundFilename().ifPresent(filename -> {
-						addSubCommand(
-								new ChangeTagValueCommand(getSong(), TagKey.BACKGROUND, filename));
-					});
-					result.getVideoFilename().ifPresent(filename -> {
-						addSubCommand(new ChangeTagValueCommand(getSong(), TagKey.VIDEO, filename));
-					});
-				}
-			};
-		}
-	}
-
-	private class ExportTracksAction extends KarediAction {
-		private int trackCount;
-
-		private ExportTracksAction(int trackCount) {
-			this.trackCount = trackCount;
-			songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
-				if (newVal != null) {
-					setDisabledCondition(newVal.trackCount().lessThan(trackCount));
-				} else {
-					setDisabledCondition(true);
-				}
-			});
-			setDisabledCondition(true);
-		}
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (getSong().getProblems().size() > 0) {
-				new ExportWithErrorsAlert().showAndWait().filter(result -> result == ButtonType.OK)
-						.ifPresent(ok -> export());
-			} else {
-				export();
-			}
-		}
-
-		private void export() {
-			List<SongTrack> tracks = getSong().getTracks();
-			if (tracks.size() != trackCount) {
-				ChooseTracksDialog dialog = new ChooseTracksDialog(tracks, trackCount);
-				dialog.select(getActiveTrack());
-				Optional<List<SongTrack>> result = dialog.showAndWait();
-				if (result.isPresent()) {
-					tracks = result.get();
-				} else {
-					return;
-				}
-			}
-
-			File file = KarediApp.getInstance().getTxtFileToSave(getInitialFileName());
-			songSaver.exportToFile(file, getSong().getTags(), tracks);
-		}
-
-		private String getInitialFileName() {
-			File file = getActiveFile();
-			return file == null ? "" : file.getName();
-		}
-	}
-
-	private abstract class TagAction extends KarediAction {
-
-		private TagAction() {
-			setDisabledCondition(songContext.activeSongIsNullProperty());
-		}
-
-	}
-
-	private class NewSongAction extends KarediAction {
-		private Song song;
-		private File audioFile;
-		private File outputDir;
-
-		@Override
-		protected void onAction(ActionEvent event) {
-			if (needsSaving()) {
-				boolean proceed = KarediApp.getInstance().saveChangesIfUserWantsTo();
-				if (!proceed) {
-					return;
-				}
-			}
-			new NewSongWizard().start().ifPresent(result -> {
-				song = result.getSong();
-				audioFile = result.getAudioFile();
-				outputDir = result.getOutputDir();
-				finish();
-			});
-		}
-
-		private boolean finish() {
-			reset(true);
-			if (outputDir == null && audioFile != null) {
-				loadAudioFile(audioFile);
-			}
-			setSong(song);
-			if (outputDir != null) {
-				File songFolder = new File(outputDir, getSongFilename());
-				if ((songFolder.exists() || songFolder.mkdirs()) && songFolder.canWrite()) {
-					LOGGER.info(I18N.get("creator.subfolder.success"));
-					KarediApp.getInstance().setInitialDirectory(songFolder);
-					copyAudioFile(songFolder);
-					createTxtFile(songFolder);
-				} else {
-					LOGGER.severe(I18N.get("creator.subfolder.fail"));
-				}
-			}
-			return true;
-		}
-
-		private void createTxtFile(File songFolder) {
-			File txtFile = new File(songFolder, getSongFilename() + ".txt");
-			if (canProceedToWriteFile(txtFile)) {
-				saveSongToFile(txtFile);
-				setActiveFile(txtFile);
-			}
-		}
-
-		private void copyAudioFile(File songFolder) {
-			if (audioFile != null) {
-				song.getTagValue(TagKey.MP3).ifPresent(audioFilename -> {
-					File newAudioFile = new File(songFolder, audioFilename);
-					if (canProceedToWriteFile(newAudioFile)) {
-						try {
-							Files.copy(audioFile.toPath(), newAudioFile.toPath(),
-									StandardCopyOption.REPLACE_EXISTING);
-						} catch (Exception e) {
-							LOGGER.warning(I18N.get("creator.copy_audio.fail"));
-							e.printStackTrace();
-						}
-						loadAudioFile(newAudioFile);
-					}
-				});
-			}
-		}
-
-		private boolean canProceedToWriteFile(File file) {
-			if (file.exists()) {
-				return new OverwriteAlert(file).showAndWait().filter(type -> type == ButtonType.OK)
-						.map(type -> true).orElse(false);
-			}
-			return true;
-		}
-
-		private String getSongFilename() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(song.getTagValue(TagKey.ARTIST).get());
-			sb.append(" - ");
-			sb.append(song.getTagValue(TagKey.TITLE).get());
-			return sb.toString().replaceAll(ForbiddenCharacterRegex.FOR_FILENAME, "");
-		}
-	}
-
 
 }

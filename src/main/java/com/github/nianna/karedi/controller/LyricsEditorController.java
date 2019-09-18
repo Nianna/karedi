@@ -16,12 +16,13 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Note.Type;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -75,10 +76,13 @@ public class LyricsEditorController implements Controller {
 
     private final CommandExecutor commandExecutor;
 
-    public LyricsEditorController(NoteSelection noteSelection, DisplayContext displayContext, CommandExecutor commandExecutor) {
+    private final ActionManager actionManager;
+
+    public LyricsEditorController(NoteSelection noteSelection, DisplayContext displayContext, CommandExecutor commandExecutor, ActionManager actionManager) {
 		this.noteSelection = noteSelection;
 		this.displayContext = displayContext;
         this.commandExecutor = commandExecutor;
+        this.actionManager = actionManager;
     }
 
 	@FXML
@@ -131,8 +135,8 @@ public class LyricsEditorController implements Controller {
 		displayContext.activeTrackProperty().addListener(this::onTrackChanged);
 		scrollPane.disableProperty().bind(displayContext.activeTrackProperty().isNull());
 
-		appContext.addAction(KarediActions.INSERT_MINUS, new InsertTextAction(NoteTextArea.MINUS));
-		appContext.addAction(KarediActions.INSERT_SPACE, new InsertTextAction(NoteTextArea.SPACE));
+        actionManager.addAction(new InsertTextAction(KarediActions.INSERT_MINUS, NoteTextArea.MINUS));
+        actionManager.addAction(new InsertTextAction(KarediActions.INSERT_SPACE, NoteTextArea.SPACE));
 
 		lineListChangeListener = ListenersUtils.createListChangeListener(
 				e -> scheduleLyricsUpdate(), ListenersUtils::pass, e -> scheduleLyricsUpdate(),
@@ -325,7 +329,7 @@ public class LyricsEditorController implements Controller {
 	}
 
 	private boolean wasActionFired(KarediActions action, KeyEvent event) {
-		return appContext.getAction(action).wasFired(event);
+        return actionManager.getAction(action).wasFired(event);
 	}
 
 	private KarediActions getFiredAction(KeyEvent event) {
@@ -341,7 +345,7 @@ public class LyricsEditorController implements Controller {
 	}
 
 	private void executeAction(KarediActions action) {
-		appContext.execute(action);
+        actionManager.execute(action);
 	}
 
 	private void onKeyPressed(KeyEvent event) {
@@ -365,7 +369,7 @@ public class LyricsEditorController implements Controller {
 
 		if (wasActionFired(KarediActions.TOGGLE_LINEBREAK, event)) {
 			textArea.selectNone();
-			appContext.execute(KarediActions.TOGGLE_LINEBREAK);
+            executeAction(KarediActions.TOGGLE_LINEBREAK);
 			event.consume();
 			return;
 		}
@@ -775,18 +779,24 @@ public class LyricsEditorController implements Controller {
 		}
 	}
 
-	private class InsertTextAction extends KarediAction {
-		private String text;
+    private class InsertTextAction extends NewKarediAction {
+        private final KarediActions handledAction;
+        private final String text;
 
-		private InsertTextAction(String text) {
+        private InsertTextAction(KarediActions handledAction, String text) {
+            this.handledAction = handledAction;
 			this.text = text;
-			setDisabledCondition(
-					textArea.focusedProperty().not().or(noteSelection.isEmptyProperty()));
+            setDisabledCondition(textArea.focusedProperty().not().or(noteSelection.isEmptyProperty()));
 		}
 
 		@Override
 		protected void onAction(ActionEvent event) {
 			insertText(text);
 		}
+
+        @Override
+        public KarediActions handles() {
+            return handledAction;
+        }
 	}
 }

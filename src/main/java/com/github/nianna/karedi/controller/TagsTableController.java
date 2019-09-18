@@ -13,6 +13,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.I18N;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
@@ -57,9 +58,12 @@ public class TagsTableController implements Controller {
 
 	private final CommandExecutor commandExecutor;
 
-	public TagsTableController(DisplayContext displayContext, CommandExecutor commandExecutor) {
+    private final ActionManager actionManager;
+
+    public TagsTableController(DisplayContext displayContext, CommandExecutor commandExecutor, ActionManager actionManager) {
 		this.displayContext = displayContext;
 		this.commandExecutor = commandExecutor;
+        this.actionManager = actionManager;
 	}
 
 	@FXML
@@ -188,7 +192,7 @@ public class TagsTableController implements Controller {
 
 	@FXML
 	private void handleAdd() {
-		appContext.execute(KarediActions.ADD_TAG);
+        actionManager.execute(KarediActions.ADD_TAG);
 	}
 
 	private void handleEdit(int index) {

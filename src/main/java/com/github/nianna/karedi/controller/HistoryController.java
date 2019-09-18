@@ -8,12 +8,12 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
+import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,8 +28,14 @@ public class HistoryController implements Controller {
 	private AppContext appContext;
 	private boolean changedByUser = false;
 
-	@Autowired
-	private CommandHistory history;
+    private final CommandHistory history;
+
+    private final ActionManager actionManager;
+
+    public HistoryController(CommandHistory history, ActionManager actionManager) {
+        this.history = history;
+        this.actionManager = actionManager;
+    }
 
 	@FXML
 	public void initialize() {
@@ -64,7 +70,7 @@ public class HistoryController implements Controller {
 			int difference = newIndex - oldIndex;
 			KarediActions historyCmd = difference > 0 ? KarediActions.REDO : KarediActions.UNDO;
 			for (int i = 0; i < Math.abs(difference); ++i) {
-				appContext.execute(historyCmd);
+                actionManager.execute(historyCmd);
 			}
 			changedByUser = false;
 		}

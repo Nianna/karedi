@@ -14,6 +14,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.I18N;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.context.AppContext;
@@ -21,7 +22,6 @@ import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.control.SliderTableCell;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -41,11 +41,17 @@ public class AudioManagerController implements Controller {
 
 	private AppContext appContext;
 
-	@Autowired
-	private SongPlayer songPlayer;
+    private final SongPlayer songPlayer;
 
-	@Autowired
-	private DisplayContext displayContext;
+    private final DisplayContext displayContext;
+
+    private final ActionManager actionManager;
+
+    public AudioManagerController(SongPlayer songPlayer, DisplayContext displayContext, ActionManager actionManager) {
+        this.songPlayer = songPlayer;
+        this.displayContext = displayContext;
+        this.actionManager = actionManager;
+    }
 
 	@FXML
 	public void initialize() {
@@ -94,7 +100,7 @@ public class AudioManagerController implements Controller {
 
 	@FXML
 	private void handleAdd(ActionEvent event) {
-		appContext.execute(KarediActions.IMPORT_AUDIO);
+        actionManager.execute(KarediActions.IMPORT_AUDIO);
 	}
 
 	private void handleRemove(CachedAudioFile file) {

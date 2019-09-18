@@ -13,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import main.java.com.github.nianna.karedi.I18N;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackColorCommand;
@@ -59,10 +60,12 @@ public class TracksController implements Controller {
 
 	private final DisplayContext displayContext;
 	private final CommandExecutor commandExecutor;
+    private final ActionManager actionManager;
 
-	public TracksController(DisplayContext displayContext, CommandExecutor commandExecutor) {
+    public TracksController(DisplayContext displayContext, CommandExecutor commandExecutor, ActionManager actionManager) {
 		this.displayContext = displayContext;
 		this.commandExecutor = commandExecutor;
+        this.actionManager = actionManager;
 	}
 
 	@FXML
@@ -127,7 +130,7 @@ public class TracksController implements Controller {
 	}
 
 	private void bind(MenuItem menuItem, KarediActions actionKey) {
-		Action action = appContext.getAction(actionKey);
+        Action action = actionManager.getAction(actionKey);
 		menuItem.disableProperty().bind(action.disabledProperty());
 		menuItem.setOnAction(action::handle);
 	}
@@ -140,13 +143,13 @@ public class TracksController implements Controller {
 
 	@FXML
 	private void handleAdd() {
-		appContext.execute(KarediActions.ADD_TRACK);
+        actionManager.execute(KarediActions.ADD_TRACK);
 	}
 
 	@FXML
 	private void onKeyPressed(KeyEvent event) {
 		if (event.getCode() == KeyCode.DELETE) {
-			appContext.execute(KarediActions.DELETE_TRACK);
+            actionManager.execute(KarediActions.DELETE_TRACK);
 			event.consume();
 		}
 	}
@@ -205,7 +208,7 @@ public class TracksController implements Controller {
 		mutedColumn.setCellValueFactory(cell -> cell.getValue().mutedProperty());
 		mutedColumn.setCellFactory(
 				column -> new TrackPropertyCheckboxTableCell(column, (track, isMuted) -> {
-					appContext.execute(KarediActions.STOP_PLAYBACK);
+                    actionManager.execute(KarediActions.STOP_PLAYBACK);
 					track.setMuted(isMuted);
 				}));
 	}

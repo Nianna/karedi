@@ -1,16 +1,5 @@
 package main.java.com.github.nianna.karedi;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
-import javafx.scene.Parent;
-import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.GlyphFontRegistry;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -23,16 +12,24 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.controller.RootController;
 import main.java.com.github.nianna.karedi.dialog.SaveChangesAlert;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 @SpringBootApplication
 public class KarediApp extends Application {
@@ -47,6 +44,9 @@ public class KarediApp extends Application {
 
 	private AppContext appContext;
 	private ChooserManager chooserManager = new ChooserManager();
+
+    @Autowired
+    private ActionManager actionManager;
 
 	public enum ViewMode {
 		NIGHT,
@@ -176,7 +176,7 @@ public class KarediApp extends Application {
 					return false;
 				}
 				if (result.get() == SaveChangesAlert.SAVE_BUTTON) {
-					appContext.execute(KarediActions.SAVE);
+                    actionManager.execute(KarediActions.SAVE);
 					if (appContext.needsSaving()) {
 						// Save failed or was cancelled by the user
 						return false;

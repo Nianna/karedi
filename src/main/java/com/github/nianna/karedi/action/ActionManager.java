@@ -18,7 +18,12 @@ public class ActionManager {
         karediActions.forEach(action -> actionMap.put(action.handles(), action));
     }
 
-    public KarediAction get(KarediActions key) {
+    public void addAction(NewKarediAction action) {
+        //TODO warning if already in map
+        actionMap.put(action.handles(), action);
+    }
+
+    public NewKarediAction get(KarediActions key) {
         return actionMap.get(key);
     }
 
@@ -28,11 +33,11 @@ public class ActionManager {
         }
     }
 
-    boolean canExecute(KarediActions action) {
-        return !getAction(action).isDisabled();
+    public boolean canExecute(KarediActions action) {
+        return getAction(action) != null && !getAction(action).isDisabled();
     }
 
-    KarediAction getAction(KarediActions key) {
+    public NewKarediAction getAction(KarediActions key) {
         return actionMap.get(key);
     }
 }

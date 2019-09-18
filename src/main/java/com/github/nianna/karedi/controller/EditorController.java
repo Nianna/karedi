@@ -27,8 +27,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import main.java.com.github.nianna.karedi.I18N;
-import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.*;
@@ -94,14 +95,16 @@ public class EditorController implements Controller {
     private final CommandHistory history;
     private final CommandExecutor commandExecutor;
     private final BeatMillisConverter beatMillisConverter;
+    private final ActionManager actionManager;
 
-    public EditorController(NoteSelection selection, SongPlayer songPlayer, DisplayContext displayContext, CommandHistory history, CommandExecutor commandExecutor, BeatMillisConverter beatMillisConverter) {
+    public EditorController(NoteSelection selection, SongPlayer songPlayer, DisplayContext displayContext, CommandHistory history, CommandExecutor commandExecutor, BeatMillisConverter beatMillisConverter, ActionManager actionManager) {
         this.selection = selection;
         this.songPlayer = songPlayer;
         this.displayContext = displayContext;
         this.history = history;
         this.commandExecutor = commandExecutor;
 		this.beatMillisConverter = beatMillisConverter;
+        this.actionManager = actionManager;
 	}
 
     @FXML
@@ -222,9 +225,9 @@ public class EditorController implements Controller {
 	}
 
 	private void addActions() {
-		appContext.addAction(KarediActions.TOGGLE_PIANO, new TogglePianoVisibilityAction());
-		appContext.addAction(KarediActions.TAP_NOTES, new TapNotesAction());
-		appContext.addAction(KarediActions.WRITE_TONES, new WriteTonesAction());
+        actionManager.addAction(new TogglePianoVisibilityAction());
+        actionManager.addAction(new TapNotesAction());
+        actionManager.addAction(new WriteTonesAction());
 	}
 
 	public ReadOnlyDoubleProperty yUnitLengthProperty() {
@@ -262,7 +265,7 @@ public class EditorController implements Controller {
 		}
 
 		if (event.getCode().isDigitKey()) {
-			appContext.execute(KarediActions.STOP_PLAYBACK);
+            actionManager.execute(KarediActions.STOP_PLAYBACK);
 			KeyEventUtils.getPressedDigit(event).ifPresent(digit -> {
 				selection.leaveOne();
 				Note selected = selection.getFirst().orElse(null);
@@ -415,25 +418,25 @@ public class EditorController implements Controller {
 
 	private void moveAreaVertically(boolean down) {
 		if (down) {
-			appContext.execute(KarediActions.MOVE_VISIBLE_AREA_DOWN);
+            actionManager.execute(KarediActions.MOVE_VISIBLE_AREA_DOWN);
 		} else {
-			appContext.execute(KarediActions.MOVE_VISIBLE_AREA_UP);
+            actionManager.execute(KarediActions.MOVE_VISIBLE_AREA_UP);
 		}
 	}
 
 	private void moveAreaHorizontally(boolean right) {
 		if (right) {
-			appContext.execute(KarediActions.MOVE_VISIBLE_AREA_RIGHT);
+            actionManager.execute(KarediActions.MOVE_VISIBLE_AREA_RIGHT);
 		} else {
-			appContext.execute(KarediActions.MOVE_VISIBLE_AREA_LEFT);
+            actionManager.execute(KarediActions.MOVE_VISIBLE_AREA_LEFT);
 		}
 	}
 
 	private void changeLine(boolean next) {
 		if (next) {
-			appContext.execute(KarediActions.VIEW_NEXT_LINE);
+            actionManager.execute(KarediActions.VIEW_NEXT_LINE);
 		} else {
-			appContext.execute(KarediActions.VIEW_PREVIOUS_LINE);
+            actionManager.execute(KarediActions.VIEW_PREVIOUS_LINE);
 		}
 	}
 
@@ -458,7 +461,7 @@ public class EditorController implements Controller {
 		return sceneYtoTone(event.getSceneY());
 	}
 
-	private class TogglePianoVisibilityAction extends KarediAction {
+    private class TogglePianoVisibilityAction extends NewKarediAction {
 
 		public TogglePianoVisibilityAction() {
 			super();
@@ -471,9 +474,14 @@ public class EditorController implements Controller {
 				piano.toggle();
 			}
 		}
-	}
 
-	private class TapNotesAction extends KarediAction {
+        @Override
+        public KarediActions handles() {
+            return KarediActions.TOGGLE_PIANO;
+        }
+    }
+
+    private class TapNotesAction extends NewKarediAction {
 		private InvalidationListener playerStatusListener;
 		private InvalidationListener activeTrackListener;
 		private EventHandler<? super KeyEvent> onKeyPressed;
@@ -513,14 +521,14 @@ public class EditorController implements Controller {
 			updateInterval = getBeatDuration() / 2;
 			tapping = true;
 			displayContext.activeTrackProperty().addListener(activeTrackListener);
-			appContext.execute(KarediActions.PLAY_VISIBLE_AUDIO);
+            actionManager.execute(KarediActions.PLAY_VISIBLE_AUDIO);
 			songPlayer.statusProperty().addListener(playerStatusListener);
 			hBox.setOnKeyPressed(this::onKeyPressedWhileTapping);
 			hBox.setOnKeyReleased(this::onKeyReleasedWhileTapping);
 		}
 
 		private void reset() {
-			appContext.execute(KarediActions.STOP_PLAYBACK);
+            actionManager.execute(KarediActions.STOP_PLAYBACK);
 			lastNote = null;
 			line = null;
 			updateLengthTimer = null;
@@ -540,7 +548,7 @@ public class EditorController implements Controller {
 					return;
 				}
 				if (event.getCode() == KeyCode.ESCAPE) {
-					appContext.execute(KarediActions.STOP_PLAYBACK);
+                    actionManager.execute(KarediActions.STOP_PLAYBACK);
 					event.consume();
 					return;
 				}
@@ -607,9 +615,14 @@ public class EditorController implements Controller {
             int lowerTone = displayContext.getVisibleAreaBounds().getLowerYBound();
 			return lowerTone + VisibleArea.BOTTOM_MARGIN;
 		}
-	}
 
-	private class WriteTonesAction extends KarediAction {
+        @Override
+        public KarediActions handles() {
+            return KarediActions.TAP_NOTES;
+        }
+    }
+
+    private class WriteTonesAction extends NewKarediAction {
 		private InvalidationListener selectionSizeListener;
 		private InvalidationListener chartFocusListener;
 		private InvalidationListener finishWriting = obs -> finish();
@@ -651,7 +664,7 @@ public class EditorController implements Controller {
 
 		@Override
 		protected void onAction(ActionEvent event) {
-			appContext.execute(KarediActions.STOP_PLAYBACK);
+            actionManager.execute(KarediActions.STOP_PLAYBACK);
 			typed = new Stack<>();
 			backupState();
 			chart.requestFocus();
@@ -708,23 +721,23 @@ public class EditorController implements Controller {
 
 		private void execute(KarediActions action) {
 			selection.sizeProperty().removeListener(selectionSizeListener);
-			appContext.execute(action);
+            actionManager.execute(action);
 			selection.sizeProperty().addListener(selectionSizeListener);
 		}
 
 		private void onKeyPressedWhileWriting(KeyEvent event) {
-			if (appContext.getAction(KarediActions.UNDO).wasFired(event)) {
+            if (actionManager.getAction(KarediActions.UNDO).wasFired(event)) {
 				undo();
 				event.consume();
 				return;
 			}
-			if (appContext.getAction(KarediActions.REDO).wasFired(event)) {
+            if (actionManager.getAction(KarediActions.REDO).wasFired(event)) {
 				redo();
 				event.consume();
 				return;
 			}
-			if (appContext.getAction(KarediActions.TOGGLE_PIANO).wasFired(event)) {
-				appContext.execute(KarediActions.TOGGLE_PIANO);
+            if (actionManager.getAction(KarediActions.TOGGLE_PIANO).wasFired(event)) {
+                actionManager.execute(KarediActions.TOGGLE_PIANO);
 				event.consume();
 				return;
 			}
@@ -776,7 +789,7 @@ public class EditorController implements Controller {
 		}
 
 		private void undo() {
-			if (!appContext.canExecute(KarediActions.UNDO)
+            if (!actionManager.canExecute(KarediActions.UNDO)
 					|| history.getActiveCommand() == initialCommand) {
 				finish();
 			} else {
@@ -788,7 +801,7 @@ public class EditorController implements Controller {
 		}
 
 		private void redo() {
-			if (appContext.canExecute(KarediActions.REDO)) {
+            if (actionManager.canExecute(KarediActions.REDO)) {
 				Optional<Note> optNote = selection.getFirst();
 				execute(KarediActions.REDO);
 				optNote.ifPresent(note -> {
@@ -841,6 +854,11 @@ public class EditorController implements Controller {
 			lastCode = null;
 			event.consume();
 		}
+
+        @Override
+        public KarediActions handles() {
+            return KarediActions.WRITE_TONES;
+        }
 	}
 
 	private class NoteDrawer {

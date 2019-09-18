@@ -1,17 +1,17 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import main.java.com.github.nianna.karedi.action.view.SwitchViewModeAction;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
-
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.action.view.SwitchViewModeAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -69,8 +69,11 @@ public class ToolbarController implements Controller {
 
 	private final SwitchViewModeAction switchViewModeAction;
 
-	public ToolbarController(SwitchViewModeAction switchViewModeAction) {
+    private final ActionManager actionManager;
+
+    public ToolbarController(SwitchViewModeAction switchViewModeAction, ActionManager actionManager) {
 		this.switchViewModeAction = switchViewModeAction;
+        this.actionManager = actionManager;
 	}
 
 	@Override
@@ -109,7 +112,7 @@ public class ToolbarController implements Controller {
 	}
 
 	private void bind(Button button, KarediActions actionKey) {
-		Action action = appContext.getAction(actionKey);
+        Action action = actionManager.getAction(actionKey);
 		button.disableProperty().bind(action.disabledProperty());
 		button.setOnAction(action::handle);
 	}

@@ -1,8 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.io.File;
-import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,16 +10,21 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import main.java.com.github.nianna.karedi.KarediApp;
-import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.event.ControllerEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import main.java.com.github.nianna.karedi.util.Utils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.util.Optional;
+
+import static main.java.com.github.nianna.karedi.action.KarediActions.EDIT_LYRICS;
 
 @Component
 public class RootController implements Controller {
@@ -73,10 +75,17 @@ public class RootController implements Controller {
 	@FXML
 	private Node editor;
 
-	private AppContext appContext;
+    private final AppContext appContext;
 
-	@Autowired
-	private NoteSelection noteSelection;
+    private final NoteSelection noteSelection;
+
+    private final ActionManager actionManager;
+
+    public RootController(AppContext appContext, NoteSelection noteSelection, ActionManager actionManager) {
+        this.appContext = appContext;
+        this.noteSelection = noteSelection;
+        this.actionManager = actionManager;
+    }
 
 	@FXML
 	private void initialize() {
@@ -141,8 +150,8 @@ public class RootController implements Controller {
 
 	@Override
 	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-		appContext.addAction(KarediActions.EDIT_LYRICS, new EditLyricsAction());
+//		this.appContext = appContext;
+        actionManager.addAction(new EditLyricsAction());
 
 		// Top tab bar
 		tagsTableController.setAppContext(appContext);
@@ -196,7 +205,7 @@ public class RootController implements Controller {
 		return rootPane;
 	}
 
-	private class EditLyricsAction extends KarediAction {
+    private class EditLyricsAction extends NewKarediAction {
 
 		private EditLyricsAction() {
 			setDisabledCondition(noteSelection.isEmptyProperty());
@@ -211,5 +220,10 @@ public class RootController implements Controller {
 				editorController.requestFocus();
 			}
 		}
+
+        @Override
+        public KarediActions handles() {
+            return EDIT_LYRICS;
+        }
 	}
 }

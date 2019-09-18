@@ -133,7 +133,6 @@ public class DisplayContext {
     }
 
     private void onBeatMillisConverterInvalidated() {
-//        player.stop(); // TODO
         if (getActiveSong() == null) {
             beatMillisConverter.setBpm(Song.DEFAULT_BPM);
             beatMillisConverter.setGap(Song.DEFAULT_GAP);
@@ -206,7 +205,6 @@ public class DisplayContext {
     public void setBoundsWithMargin(IntBounded bounds) {
         visibleArea.setBounds(visibleArea.addMargins(bounds));
     }
-
 
     public void assertBorderlessBoundsVisible(BoundingBox<Note> boundingBox) {
         visibleArea.assertBorderlessBoundsVisible(boundingBox);

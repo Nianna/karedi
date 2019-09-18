@@ -1,5 +1,6 @@
 package main.java.com.github.nianna.karedi.context;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyLongProperty;
@@ -40,6 +41,11 @@ public class SongPlayer {
 		this.converter = converter;
 		playlist = player.getPlaylist();
 		activeAudioIsNull = activeAudioFileProperty().isNull();
+		converter.addListener(this::onBeatMillisConverterInvalidated);
+	}
+
+	private void onBeatMillisConverterInvalidated(Observable observable) {
+		stop();
 	}
 
 	public void play(int fromBeat, int toBeat, Mode mode) {

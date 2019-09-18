@@ -64,9 +64,6 @@ public class AppContext {
 	private SongPlayer player;
 
 	@Autowired
-	private  BeatRange beatRange;
-
-	@Autowired
 	private  VisibleArea visibleArea;
 
 	@Autowired
@@ -124,13 +121,6 @@ public class AppContext {
 	}
 
 	// Beat range
-    public ReadOnlyIntegerProperty minBeatProperty() {
-		return beatRange.minBeatProperty();
-	}
-
-	public ReadOnlyIntegerProperty maxBeatProperty() {
-		return beatRange.maxBeatProperty();
-	}
 
 	public IntegerBinding playToTheEndStartBeatProperty() {
         return Bindings.createIntegerBinding(() -> {

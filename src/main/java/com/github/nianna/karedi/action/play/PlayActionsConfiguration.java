@@ -13,77 +13,77 @@ import static main.java.com.github.nianna.karedi.audio.Player.Mode.*;
 class PlayActionsConfiguration {
 
     @Bean
-    NewKarediAction playSelectionAudio(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
-        return new PlaySelectionAction(PLAY_SELECTION_AUDIO, AUDIO_ONLY, selection, appContext, songPlayer, beatMillisConverter);
+    NewKarediAction playSelectionAudio(NoteSelection selection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_AUDIO, AUDIO_ONLY, selection, songPlayer, beatMillisConverter);
     }
 
     @Bean
-    NewKarediAction playSelectionMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
-        return new PlaySelectionAction(PLAY_SELECTION_MIDI, MIDI_ONLY, selection, appContext, songPlayer, beatMillisConverter);
+    NewKarediAction playSelectionMidi(NoteSelection selection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_MIDI, MIDI_ONLY, selection, songPlayer, beatMillisConverter);
     }
 
     @Bean
-    NewKarediAction playSelectionAudioMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
-        return new PlaySelectionAction(PLAY_SELECTION_AUDIO_MIDI, AUDIO_MIDI, selection, appContext, songPlayer, beatMillisConverter);
+    NewKarediAction playSelectionAudioMidi(NoteSelection selection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_AUDIO_MIDI, AUDIO_MIDI, selection, songPlayer, beatMillisConverter);
     }
 
     @Bean
-    NewKarediAction playMedleyAudio(SongContext songContext, AppContext appContext, NoteSelection selection) {
-        return new PlayMedleyAction(PLAY_MEDLEY_AUDIO, AUDIO_ONLY, songContext, appContext, selection);
+    NewKarediAction playMedleyAudio(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
+        return new PlayMedleyAction(PLAY_MEDLEY_AUDIO, AUDIO_ONLY, songContext, selection, songPlayer);
     }
 
     @Bean
-    NewKarediAction playMedleyMidi(SongContext songContext, AppContext appContext, NoteSelection selection) {
-        return new PlayMedleyAction(PLAY_MEDLEY_MIDI, MIDI_ONLY, songContext, appContext, selection);
+    NewKarediAction playMedleyMidi(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
+        return new PlayMedleyAction(PLAY_MEDLEY_MIDI, MIDI_ONLY, songContext, selection, songPlayer);
     }
 
     @Bean
-    NewKarediAction playMedleyAudioMidi(SongContext songContext, AppContext appContext, NoteSelection selection) {
-        return new PlayMedleyAction(PLAY_MEDLEY_AUDIO_MIDI, AUDIO_MIDI, songContext, appContext, selection);
+    NewKarediAction playMedleyAudioMidi(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
+        return new PlayMedleyAction(PLAY_MEDLEY_AUDIO_MIDI, AUDIO_MIDI, songContext, selection, songPlayer);
     }
 
     @Bean
-    NewKarediAction playVisibleAudioAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_VISIBLE_AUDIO, AUDIO_ONLY, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, appContext);
+    NewKarediAction playVisibleAudioAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer) {
+        return new PlayRangeAction(PLAY_VISIBLE_AUDIO, AUDIO_ONLY, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playVisibleMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_VISIBLE_MIDI, MIDI_ONLY, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, appContext);
+    NewKarediAction playVisibleMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer) {
+        return new PlayRangeAction(PLAY_VISIBLE_MIDI, MIDI_ONLY, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playVisibleAudioMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_VISIBLE_AUDIO_MIDI, AUDIO_MIDI, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, appContext);
+    NewKarediAction playVisibleAudioMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer) {
+        return new PlayRangeAction(PLAY_VISIBLE_AUDIO_MIDI, AUDIO_MIDI, visibleArea.lowerXBoundProperty(), visibleArea.upperXBoundProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playAllAudioAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_ALL_AUDIO, AUDIO_ONLY, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playAllAudioAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_ALL_AUDIO, AUDIO_ONLY, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playAllMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_ALL_MIDI, MIDI_ONLY, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playAllMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_ALL_MIDI, MIDI_ONLY, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playAllAudioMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_ALL_AUDIO_MIDI, AUDIO_MIDI, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playAllAudioMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_ALL_AUDIO_MIDI, AUDIO_MIDI, appContext.minBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playToTheEndAudioAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO, AUDIO_ONLY, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playToTheEndAudioAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO, AUDIO_ONLY, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playToTheEndMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_TO_THE_END_MIDI, MIDI_ONLY, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playToTheEndMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_TO_THE_END_MIDI, MIDI_ONLY, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playToTheEndAudioMidiAction(VisibleArea visibleArea, SongContext songContext, AppContext appContext) {
-        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO_MIDI, AUDIO_MIDI, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, appContext);
+    NewKarediAction playToTheEndAudioMidiAction(VisibleArea visibleArea, SongContext songContext, SongPlayer songPlayer, AppContext appContext) {
+        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO_MIDI, AUDIO_MIDI, appContext.playToTheEndStartBeatProperty(), appContext.maxBeatProperty(), songContext, songPlayer);
     }
 }

@@ -4,24 +4,26 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
-import main.java.com.github.nianna.karedi.context.*;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
+import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 
 abstract class PlayAuxiliaryNoteAction extends NewKarediAction {
     protected final NoteSelection selection;
     private final SongPlayer player;
     private final VisibleArea visibleArea;
-    private final BeatMillisConverter beatMillisConverter; //TODO should be in songContext?
+    private final BeatMillisConverter beatMillisConverter;
     private int oldLowerBound;
     private int oldUpperBound;
     private ChangeListener<? super Player.Status> statusListener;
 
-    PlayAuxiliaryNoteAction(NoteSelection selection, AppContext appContext, SongPlayer player, SongContext songContext, VisibleArea visibleArea, BeatMillisConverter beatMillisConverter) {
+    PlayAuxiliaryNoteAction(NoteSelection selection, SongPlayer player, VisibleArea visibleArea, BeatMillisConverter beatMillisConverter) {
         this.selection = selection;
         this.player = player;
         this.visibleArea = visibleArea;
         this.beatMillisConverter = beatMillisConverter;
-        setDisabledCondition(this.selection.isEmptyProperty().or(appContext.activeAudioIsNullProperty()));
+        setDisabledCondition(this.selection.isEmptyProperty().or(player.activeAudioIsNullProperty()));
         statusListener = (obs, oldStatus, newStatus) -> {
             if (oldStatus == Player.Status.PLAYING && newStatus == Player.Status.READY) {
                 visibleArea.setXBounds(oldLowerBound, oldUpperBound);

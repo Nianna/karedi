@@ -1,13 +1,10 @@
 package main.java.com.github.nianna.karedi.context;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyLongProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
@@ -16,9 +13,10 @@ import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.audio.Playlist;
 import main.java.com.github.nianna.karedi.song.Note;
-import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 @Component
 public class SongPlayer {
@@ -27,27 +25,26 @@ public class SongPlayer {
 	private final Player player;
 	private final Marker marker;
 	private final BeatMillisConverter converter;
+	private final SongContext songContext;
 
 	private final Playlist playlist;
+	private final BooleanBinding activeAudioIsNull;
 
-	private Song song;
+	private ReadOnlyObjectWrapper<Playback> currentPlayback = new ReadOnlyObjectWrapper<>();
 
-	public SongPlayer(Player player, Marker marker, BeatMillisConverter converter) {
+	public SongPlayer(Player player, Marker marker, BeatMillisConverter converter, SongContext songContext) {
 		this.player = player;
 		this.marker = marker;
 		this.converter = converter;
+		this.songContext = songContext;
 		playlist = player.getPlaylist();
-	}
-
-	public void setSong(Song song) {
-		this.song = song;
+		activeAudioIsNull = activeAudioFileProperty().isNull();
 	}
 
 	public void play(int fromBeat, int toBeat, Mode mode) {
-		assert song != null;
 		long startMillis = beatToMillis(fromBeat);
 		long endMillis = beatToMillis(toBeat);
-		List<Note> notes = song.getAudibleNotes(fromBeat, toBeat);
+		List<Note> notes = songContext.getActiveSong().getAudibleNotes(fromBeat, toBeat);
 		play(startMillis, endMillis, notes, mode);
 	}
 
@@ -58,11 +55,12 @@ public class SongPlayer {
 					.sorted(Comparator.comparing(Note::getStart))
 					.map(this::noteToTimeTonePair).forEach(list::add);
 		}
+		currentPlayback.setValue(new Playback(startMillis, endMillis, notes));
 		player.play(startMillis, endMillis, list, mode);
 	}
 
 	private Pair<Long, Integer> noteToTimeTonePair(Note note) {
-		return new Pair<Long, Integer>(beatToMillis(note.getStart()), normalize(note.getTone()));
+		return new Pair<>(beatToMillis(note.getStart()), normalize(note.getTone()));
 	}
 
 	public static int normalize(int tone) {
@@ -91,10 +89,12 @@ public class SongPlayer {
 	}
 
 	public void stop() {
+		currentPlayback.setValue(null);
 		player.stop();
 	}
 
 	public void reset() {
+		currentPlayback.setValue(null);
 		player.reset();
 	}
 
@@ -146,5 +146,41 @@ public class SongPlayer {
 
 	public ReadOnlyLongProperty markerTimeProperty() {
 		return marker.timeProperty();
+	}
+
+	public Playback getCurrentPlayback() {
+		return currentPlayback.get();
+	}
+
+	public ReadOnlyObjectWrapper<Playback> currentPlaybackProperty() {
+		return currentPlayback;
+	}
+
+	public BooleanBinding activeAudioIsNullProperty() {
+		return activeAudioIsNull;
+	}
+
+	public static class Playback {
+		private final long startMillis;
+		private final long endMillis;
+		private final List<? extends Note> notes;
+
+		Playback(long startMillis, long endMillis, List<? extends Note> notes) {
+			this.startMillis = startMillis;
+			this.endMillis = endMillis;
+			this.notes = notes == null ? new ArrayList<>() : notes;
+		}
+
+		public long getStartMillis() {
+			return startMillis;
+		}
+
+		public long getEndMillis() {
+			return endMillis;
+		}
+
+		public List<? extends Note> getNotes() {
+			return notes;
+		}
 	}
 }

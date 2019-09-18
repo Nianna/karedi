@@ -83,10 +83,6 @@ public class AppContext {
 
 	// Convenience bindings for actions
 	private BooleanBinding activeFileIsNull;
-	private BooleanBinding activeAudioIsNull;
-
-	@Autowired
-    private CommandExecutor commandExecutor;
 
     public AppContext() {
 		LOGGER.setUseParentHandlers(false);
@@ -100,14 +96,9 @@ public class AppContext {
         return activeFileIsNull;
     }
 
-    public BooleanBinding activeAudioIsNullProperty() {
-        return activeAudioIsNull;
-    }
-
 	@PostConstruct
 	public void initAppContext() {
 		activeFileIsNull = activeFileProperty().isNull();
-		activeAudioIsNull = player.activeAudioFileProperty().isNull();
 
 		LOGGER.setUseParentHandlers(false);
 
@@ -241,19 +232,6 @@ public class AppContext {
 		}
 	}
 
-	// Player
-    public void playRange(int fromBeat, int toBeat, Mode mode) {
-		assertAllNeededTonesVisible(fromBeat, toBeat);
-		player.play(fromBeat, toBeat, mode);
-	}
-
-	private void play(long startMillis, long endMillis, List<Note> notes, Mode mode) {
-		if (!isMarkerVisible()) {
-			setMarkerBeat(visibleArea.getLowerXBound());
-		}
-		player.play(startMillis, endMillis, notes, mode);
-	}
-
 	// Marker
 	private ReadOnlyIntegerProperty markerBeatProperty() {
 		return player.markerBeatProperty();
@@ -340,7 +318,7 @@ public class AppContext {
 		// The song has at least one track now
 		if (song != oldSong) {
 			songContext.setActiveSong(song);
-			player.setSong(song);
+//			player.setSong(song);
 			onBeatMillisConverterInvalidated();
 			if (oldSong != null) {
 				oldSong.getBeatMillisConverter()

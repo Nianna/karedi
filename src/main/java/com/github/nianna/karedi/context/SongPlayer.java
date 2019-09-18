@@ -13,6 +13,7 @@ import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.audio.Playlist;
 import main.java.com.github.nianna.karedi.song.Note;
+import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.stereotype.Component;
 
@@ -25,18 +26,18 @@ public class SongPlayer {
 	private final Player player;
 	private final Marker marker;
 	private final BeatMillisConverter converter;
-	private final SongContext songContext;
 
 	private final Playlist playlist;
 	private final BooleanBinding activeAudioIsNull;
 
 	private ReadOnlyObjectWrapper<Playback> currentPlayback = new ReadOnlyObjectWrapper<>();
 
-	public SongPlayer(Player player, Marker marker, BeatMillisConverter converter, SongContext songContext) {
+	private Song song;
+
+	public SongPlayer(Player player, Marker marker, BeatMillisConverter converter) {
 		this.player = player;
 		this.marker = marker;
 		this.converter = converter;
-		this.songContext = songContext;
 		playlist = player.getPlaylist();
 		activeAudioIsNull = activeAudioFileProperty().isNull();
 	}
@@ -44,7 +45,7 @@ public class SongPlayer {
 	public void play(int fromBeat, int toBeat, Mode mode) {
 		long startMillis = beatToMillis(fromBeat);
 		long endMillis = beatToMillis(toBeat);
-		List<Note> notes = songContext.getActiveSong().getAudibleNotes(fromBeat, toBeat);
+		List<Note> notes = song.getAudibleNotes(fromBeat, toBeat);
 		play(startMillis, endMillis, notes, mode);
 	}
 
@@ -57,6 +58,10 @@ public class SongPlayer {
 		}
 		currentPlayback.setValue(new Playback(startMillis, endMillis, notes));
 		player.play(startMillis, endMillis, list, mode);
+	}
+
+	public void setSong(Song song) {
+		this.song = song;
 	}
 
 	private Pair<Long, Integer> noteToTimeTonePair(Note note) {

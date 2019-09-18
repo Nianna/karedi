@@ -301,6 +301,7 @@ public class AppContext {
 		// The song has at least one track now
 		if (song != oldSong) {
 			songContext.setActiveSong(song);
+			player.setSong(song);
 			onBeatMillisConverterInvalidated();
 			if (oldSong != null) {
 				oldSong.getBeatMillisConverter()

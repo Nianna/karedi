@@ -29,7 +29,7 @@ import javafx.scene.shape.Rectangle;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.*;
@@ -461,7 +461,7 @@ public class EditorController implements Controller {
 		return sceneYtoTone(event.getSceneY());
 	}
 
-    private class TogglePianoVisibilityAction extends NewKarediAction {
+    private class TogglePianoVisibilityAction extends KarediAction {
 
 		public TogglePianoVisibilityAction() {
 			super();
@@ -481,7 +481,7 @@ public class EditorController implements Controller {
         }
     }
 
-    private class TapNotesAction extends NewKarediAction {
+    private class TapNotesAction extends KarediAction {
 		private InvalidationListener playerStatusListener;
 		private InvalidationListener activeTrackListener;
 		private EventHandler<? super KeyEvent> onKeyPressed;
@@ -622,7 +622,7 @@ public class EditorController implements Controller {
         }
     }
 
-    private class WriteTonesAction extends NewKarediAction {
+    private class WriteTonesAction extends KarediAction {
 		private InvalidationListener selectionSizeListener;
 		private InvalidationListener chartFocusListener;
 		private InvalidationListener finishWriting = obs -> finish();

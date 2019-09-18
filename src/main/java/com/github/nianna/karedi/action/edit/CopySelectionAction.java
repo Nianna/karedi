@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongDisassembler;
 import main.java.com.github.nianna.karedi.parser.Unparser;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import static main.java.com.github.nianna.karedi.action.KarediActions.COPY;
 
 @Component
-class CopySelectionAction extends NewKarediAction {
+class CopySelectionAction extends KarediAction {
 
     private final NoteSelection noteSelection;
     private final Unparser unparser;

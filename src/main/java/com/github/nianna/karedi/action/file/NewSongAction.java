@@ -5,7 +5,7 @@ import javafx.scene.control.ButtonType;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.dialog.OverwriteAlert;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -20,7 +20,7 @@ import java.nio.file.StandardCopyOption;
 import static main.java.com.github.nianna.karedi.action.KarediActions.NEW;
 
 @Component
-class NewSongAction extends NewKarediAction {
+class NewSongAction extends KarediAction {
     private final AppContext appContext;
     private Song song;
     private File audioFile;

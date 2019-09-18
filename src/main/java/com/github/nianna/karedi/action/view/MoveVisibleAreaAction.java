@@ -2,11 +2,11 @@ package main.java.com.github.nianna.karedi.action.view;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.region.Direction;
 
-class MoveVisibleAreaAction extends NewKarediAction {
+class MoveVisibleAreaAction extends KarediAction {
 
     private final KarediActions handledAction;
     private final Direction direction;

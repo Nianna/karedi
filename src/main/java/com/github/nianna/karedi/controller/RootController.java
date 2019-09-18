@@ -12,7 +12,7 @@ import javafx.scene.layout.BorderPane;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.event.ControllerEvent;
@@ -205,7 +205,7 @@ public class RootController implements Controller {
 		return rootPane;
 	}
 
-    private class EditLyricsAction extends NewKarediAction {
+    private class EditLyricsAction extends KarediAction {
 
 		private EditLyricsAction() {
 			setDisabledCondition(noteSelection.isEmptyProperty());

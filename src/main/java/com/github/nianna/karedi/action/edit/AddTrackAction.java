@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_TRACK;
 
 @Component
-class AddTrackAction extends NewKarediAction {
+class AddTrackAction extends KarediAction {
 
     private final DisplayContext displayContext;
     private final CommandExecutor commandExecutor;

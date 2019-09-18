@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.file;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandComposite;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import static main.java.com.github.nianna.karedi.action.KarediActions.RENAME;
 
 @Component
- class RenameAction extends NewKarediAction {
+ class RenameAction extends KarediAction {
 
     private final DisplayContext displayContext;
     private final CommandExecutor commandExecutor;

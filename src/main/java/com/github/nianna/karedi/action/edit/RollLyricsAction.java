@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
@@ -12,7 +12,7 @@ import main.java.com.github.nianna.karedi.song.Note;
 import java.util.List;
 import java.util.function.Function;
 
-class RollLyricsAction extends NewKarediAction {
+class RollLyricsAction extends KarediAction {
 
     private final KarediActions handledAction;
     private final NoteSelection noteSelection;

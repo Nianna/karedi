@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.selection;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.SELECT_ALL;
 
 @Component
-public class SelectAllAction extends NewKarediAction {
+public class SelectAllAction extends KarediAction {
 
     private final DisplayContext displayContext;
 

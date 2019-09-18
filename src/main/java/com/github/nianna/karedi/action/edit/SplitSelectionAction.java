@@ -6,7 +6,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.SPLIT_SELECTION;
 
 @Component
-class SplitSelectionAction extends NewKarediAction {
+class SplitSelectionAction extends KarediAction {
     private BooleanProperty disabled = new SimpleBooleanProperty();
     private final NoteSelection noteSelection;
     private final CommandExecutor commandExecutor;

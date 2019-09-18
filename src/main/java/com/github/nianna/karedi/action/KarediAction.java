@@ -5,9 +5,9 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.KeyEvent;
 import org.controlsfx.control.action.Action;
 
-public abstract class NewKarediAction extends Action {
+public abstract class KarediAction extends Action {
 
-    public NewKarediAction() {
+    public KarediAction() {
         super("");
         setEventHandler(event -> {
             if (!isDisabled()) {

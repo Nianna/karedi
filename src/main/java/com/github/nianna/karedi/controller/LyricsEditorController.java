@@ -18,7 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
@@ -779,7 +779,7 @@ public class LyricsEditorController implements Controller {
 		}
 	}
 
-    private class InsertTextAction extends NewKarediAction {
+    private class InsertTextAction extends KarediAction {
         private final KarediActions handledAction;
         private final String text;
 

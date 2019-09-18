@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.tag;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeBpmCommand;
@@ -15,7 +15,7 @@ import main.java.com.github.nianna.karedi.song.tag.TagKey;
 
 import java.util.Optional;
 
-class EditBpmAction extends NewKarediAction {
+class EditBpmAction extends KarediAction {
     private final KarediActions handledAction;
     private final CommandExecutor commandExecutor;
     private double scale;

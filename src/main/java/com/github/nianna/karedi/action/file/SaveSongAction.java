@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.file;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.SAVE;
 
 @Component
-class SaveSongAction extends NewKarediAction {
+class SaveSongAction extends KarediAction {
 
     private final AppContext appContext;
     private final ActionManager actionManager;

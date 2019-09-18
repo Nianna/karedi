@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.ChangePreStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
@@ -12,7 +12,7 @@ import main.java.com.github.nianna.karedi.context.NoteSelection;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.CUT;
 
-class CutSelectionAction extends NewKarediAction {
+class CutSelectionAction extends KarediAction {
 
     private final CommandExecutor commandExecutor;
     private final ActionManager actionManager;

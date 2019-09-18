@@ -4,12 +4,12 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 
-class PlayRangeAction extends NewKarediAction {
+class PlayRangeAction extends KarediAction {
     private final KarediActions handledAction;
     private final Player.Mode mode;
     private final ObservableValue<? extends Number> from;

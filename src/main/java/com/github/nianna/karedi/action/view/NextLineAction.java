@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.view;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import static main.java.com.github.nianna.karedi.action.KarediActions.VIEW_NEXT_LINE;
 
 @Component
-class NextLineAction extends NewKarediAction {
+class NextLineAction extends KarediAction {
 
     private final DisplayContext displayContext;
     private final NoteSelection selection;

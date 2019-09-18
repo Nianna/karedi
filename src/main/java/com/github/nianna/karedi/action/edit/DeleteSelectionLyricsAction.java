@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.DeleteTextCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.DELETE_LYRICS;
 
 @Component
-class DeleteSelectionLyricsAction extends NewKarediAction {
+class DeleteSelectionLyricsAction extends KarediAction {
 
     private final NoteSelection noteSelection;
     private final CommandExecutor commandExecutor;

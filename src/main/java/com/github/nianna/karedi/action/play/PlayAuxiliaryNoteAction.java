@@ -2,14 +2,14 @@ package main.java.com.github.nianna.karedi.action.play;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 
-abstract class PlayAuxiliaryNoteAction extends NewKarediAction {
+abstract class PlayAuxiliaryNoteAction extends KarediAction {
     protected final NoteSelection selection;
     private final SongPlayer player;
     private final DisplayContext displayContext;

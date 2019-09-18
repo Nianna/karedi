@@ -1,7 +1,7 @@
 package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.scene.input.Clipboard;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.BasicSongBuilder;
 import main.java.com.github.nianna.karedi.context.SongBuilder;
 import main.java.com.github.nianna.karedi.parser.Parser;
@@ -10,7 +10,7 @@ import main.java.com.github.nianna.karedi.song.Song;
 
 import java.util.Arrays;
 
-abstract class ClipboardAction extends NewKarediAction {
+abstract class ClipboardAction extends KarediAction {
 
     private final Parser parser;
 

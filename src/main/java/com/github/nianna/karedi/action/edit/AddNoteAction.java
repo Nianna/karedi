@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.edit;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.AddNoteCommand;
 import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
 
 @Component
- class AddNoteAction extends NewKarediAction { //TODO refactor this class
+ class AddNoteAction extends KarediAction { //TODO refactor this class
     private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
     private final DisplayContext displayContext;
     private final SongPlayer songPlayer; //TODO

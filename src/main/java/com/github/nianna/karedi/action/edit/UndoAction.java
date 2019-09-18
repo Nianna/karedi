@@ -3,14 +3,14 @@ package main.java.com.github.nianna.karedi.action.edit;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.UNDO;
 
 @Component
-class UndoAction extends NewKarediAction {
+class UndoAction extends KarediAction {
 
     private final CommandHistory history;
 

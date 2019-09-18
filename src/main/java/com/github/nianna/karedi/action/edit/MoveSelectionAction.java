@@ -2,14 +2,14 @@ package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.song.Note;
 
-class MoveSelectionAction extends NewKarediAction {
+class MoveSelectionAction extends KarediAction {
     private final KarediActions handledAction;
 
     private Direction direction;

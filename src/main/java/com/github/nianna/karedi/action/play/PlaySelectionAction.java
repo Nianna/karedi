@@ -3,14 +3,14 @@ package main.java.com.github.nianna.karedi.action.play;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 
-class PlaySelectionAction extends NewKarediAction {
+class PlaySelectionAction extends KarediAction {
     private final KarediActions handledAction;
     private final Player.Mode mode;
     private final NoteSelection selection;

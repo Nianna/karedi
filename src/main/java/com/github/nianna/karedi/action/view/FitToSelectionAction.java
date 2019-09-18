@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.view;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.FIT_TO_SELECTION;
 
 @Component
-class FitToSelectionAction extends NewKarediAction {
+class FitToSelectionAction extends KarediAction {
 
     private final DisplayContext displayContext;
     private final SongPlayer songPlayer;

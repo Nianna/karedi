@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongTrack;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static main.java.com.github.nianna.karedi.action.KarediActions.RELOAD;
 
 @Component
-class ReloadSongAction extends NewKarediAction {
+class ReloadSongAction extends KarediAction {
     private final AppContext appContext;
     private final DisplayContext displayContext;
     private Integer trackNumber;

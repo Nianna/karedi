@@ -2,13 +2,13 @@ package main.java.com.github.nianna.karedi.action.tag;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeMedleyCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 
-class SetMedleyFromSelectionAction extends NewKarediAction {
+class SetMedleyFromSelectionAction extends KarediAction {
     private boolean setStartBeat;
     private boolean setEndBeat;
     private KarediActions handledAction;

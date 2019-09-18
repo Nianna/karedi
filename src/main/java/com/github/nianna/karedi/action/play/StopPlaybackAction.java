@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.play;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import static main.java.com.github.nianna.karedi.action.KarediActions.STOP_PLAYBACK;
 
 @Component
-class StopPlaybackAction extends NewKarediAction {
+class StopPlaybackAction extends KarediAction {
 
     private final SongPlayer songPlayer;
 

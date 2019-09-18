@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.view;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.IntBounded;
@@ -10,7 +10,7 @@ import main.java.com.github.nianna.karedi.song.Note;
 
 import java.util.List;
 
-class FitToVisibleAction extends NewKarediAction {
+class FitToVisibleAction extends KarediAction {
     private final KarediActions handledAction;
     private final boolean vertically;
     private final boolean horizontally;

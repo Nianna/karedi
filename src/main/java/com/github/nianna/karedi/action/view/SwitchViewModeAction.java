@@ -5,13 +5,13 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.SWITCH_MODE;
 
 @Component
-public class SwitchViewModeAction extends NewKarediAction {
+public class SwitchViewModeAction extends KarediAction {
 
     private final ReadOnlyObjectWrapper<KarediApp.ViewMode> activeViewMode; //TODO
 

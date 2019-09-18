@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.MarkAsTypeCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
@@ -10,7 +10,7 @@ import main.java.com.github.nianna.karedi.song.Note;
 
 import java.util.ArrayList;
 
-class ChangeSelectionTypeAction extends NewKarediAction {
+class ChangeSelectionTypeAction extends KarediAction {
     private final KarediActions handledAction;
     private final Note.Type type;
     private final NoteSelection selection;

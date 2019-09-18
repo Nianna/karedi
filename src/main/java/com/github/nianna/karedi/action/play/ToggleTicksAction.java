@@ -2,14 +2,14 @@ package main.java.com.github.nianna.karedi.action.play;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.TOGGLE_TICKS;
 
 @Component
-class ToggleTicksAction extends NewKarediAction {
+class ToggleTicksAction extends KarediAction {
 
     private final SongPlayer songPlayer;
 

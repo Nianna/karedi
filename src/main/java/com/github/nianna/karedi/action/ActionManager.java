@@ -10,20 +10,20 @@ import java.util.Map;
 @Component
 public class ActionManager {
 
-    private Map<KarediActions, NewKarediAction> actionMap = new HashMap<>();
+    private Map<KarediActions, KarediAction> actionMap = new HashMap<>();
 
     @Autowired
-    public void mapActions(List<NewKarediAction> karediActions) {
+    public void mapActions(List<KarediAction> karediActions) {
         //TODO warning if already in map
         karediActions.forEach(action -> actionMap.put(action.handles(), action));
     }
 
-    public void addAction(NewKarediAction action) {
+    public void addAction(KarediAction action) {
         //TODO warning if already in map
         actionMap.put(action.handles(), action);
     }
 
-    public NewKarediAction get(KarediActions key) {
+    public KarediAction get(KarediActions key) {
         return actionMap.get(key);
     }
 
@@ -37,7 +37,7 @@ public class ActionManager {
         return getAction(action) != null && !getAction(action).isDisabled();
     }
 
-    public NewKarediAction getAction(KarediActions key) {
+    public KarediAction getAction(KarediActions key) {
         return actionMap.get(key);
     }
 }

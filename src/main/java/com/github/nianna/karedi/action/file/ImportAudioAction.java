@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.file;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.io.File;
 import static main.java.com.github.nianna.karedi.action.KarediActions.IMPORT_AUDIO;
 
 @Component
-class ImportAudioAction extends NewKarediAction {
+class ImportAudioAction extends KarediAction {
 
     private final AppContext appContext;
 

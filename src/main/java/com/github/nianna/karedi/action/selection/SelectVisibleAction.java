@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.selection;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -14,7 +14,7 @@ import java.util.List;
 import static main.java.com.github.nianna.karedi.action.KarediActions.SELECT_VISIBLE;
 
 @Component
-public class SelectVisibleAction extends NewKarediAction {
+public class SelectVisibleAction extends KarediAction {
 
     private final DisplayContext displayContext;
 

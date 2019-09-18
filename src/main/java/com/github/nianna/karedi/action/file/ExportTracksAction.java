@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonType;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.action.NewKarediAction;
+import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongSaver;
@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-class ExportTracksAction extends NewKarediAction {
+class ExportTracksAction extends KarediAction {
     private final KarediActions handledAction;
     private final int trackCount;
     private final AppContext appContext;

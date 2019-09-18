@@ -13,9 +13,7 @@ import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
-import main.java.com.github.nianna.karedi.audio.Player.Mode;
 import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
@@ -224,11 +222,6 @@ public class AppContext {
 		if (file != getActiveAudioFile()) {
 			execute(KarediActions.STOP_PLAYBACK);
 			player.setActiveAudioFile(file);
-			if (file != null) {
-				beatRange.setMaxTime(file.getDuration());
-			} else {
-				beatRange.setMaxTime(null);
-			}
 		}
 	}
 

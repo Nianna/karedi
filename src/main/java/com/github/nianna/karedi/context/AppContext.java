@@ -64,6 +64,9 @@ public class AppContext {
 	private SongPlayer player;
 
 	@Autowired
+	private  BeatRange beatRange;
+
+	@Autowired
 	private  VisibleArea visibleArea;
 
 	@Autowired
@@ -310,6 +313,7 @@ public class AppContext {
 			if (song != null) {
 				song.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
 			}
+			beatRange.setBounds(song);
 		}
 	}
 

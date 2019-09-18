@@ -1,7 +1,6 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
@@ -19,25 +18,22 @@ public class BeatRange {
 	private final ReadOnlyIntegerWrapper minBeat;
 	private final ReadOnlyIntegerWrapper maxBeat;
 	private final SongPlayer songPlayer;
-	private final SongContext songContext;
 
 	private IntBounded bounds;
 	private BeatMillisConverter converter;
 	private InvalidationListener refresher = obs -> refresh();
 
 	@Autowired
-	BeatRange(BeatMillisConverter converter, SongPlayer songPlayer, SongContext songContext) {
-		this(MIN_BEAT, MAX_BEAT, songPlayer, songContext, converter);
+	BeatRange(BeatMillisConverter converter, SongPlayer songPlayer) {
+		this(MIN_BEAT, MAX_BEAT, songPlayer, converter);
 	}
 
-	private BeatRange(int minBeat, int maxBeat, SongPlayer songPlayer, SongContext songContext, BeatMillisConverter converter) {
+	private BeatRange(int minBeat, int maxBeat, SongPlayer songPlayer, BeatMillisConverter converter) {
 		this.minBeat = new ReadOnlyIntegerWrapper(minBeat);
 		this.maxBeat = new ReadOnlyIntegerWrapper(maxBeat);
 		this.songPlayer = songPlayer;
-		this.songContext = songContext;
 		this.converter = converter;
 		songPlayer.activeAudioFileProperty().addListener(refresher);
-		songContext.activeSongProperty().addListener(this::onActiveSongInvalidated);
 		converter.addListener(refresher);
 	}
 
@@ -59,11 +55,7 @@ public class BeatRange {
 		setMaxBeat(maxBeat);
 	}
 
-	private void onActiveSongInvalidated(Observable observable) {
-		setBounds(songContext.getActiveSong());
-	}
-
-	private void setBounds(IntBounded bounds) {
+	void setBounds(IntBounded bounds) {
 		if (this.bounds != null) {
 			this.bounds.removeListener(refresher);
 		}

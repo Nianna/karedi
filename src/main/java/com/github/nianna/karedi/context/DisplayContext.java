@@ -217,4 +217,8 @@ public class DisplayContext {
     public void adjustToBounds(IntBounded bounds) {
         visibleArea.adjustToBounds(bounds);
     }
+
+    public void setMaxTime(Long maxTime) {
+        beatRange.setMaxTime(maxTime);
+    }
 }

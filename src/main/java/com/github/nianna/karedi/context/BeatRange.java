@@ -3,7 +3,6 @@ package main.java.com.github.nianna.karedi.context;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
-import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +16,21 @@ public class BeatRange {
 
 	private final ReadOnlyIntegerWrapper minBeat;
 	private final ReadOnlyIntegerWrapper maxBeat;
-	private final SongPlayer songPlayer;
 
 	private IntBounded bounds;
 	private BeatMillisConverter converter;
 	private InvalidationListener refresher = obs -> refresh();
+    private Long maxTime;
 
 	@Autowired
-	BeatRange(BeatMillisConverter converter, SongPlayer songPlayer) {
-		this(MIN_BEAT, MAX_BEAT, songPlayer, converter);
-	}
+    BeatRange(BeatMillisConverter converter) {
+        this(MIN_BEAT, MAX_BEAT, converter);
+    }
 
-	private BeatRange(int minBeat, int maxBeat, SongPlayer songPlayer, BeatMillisConverter converter) {
+    private BeatRange(int minBeat, int maxBeat, BeatMillisConverter converter) {
 		this.minBeat = new ReadOnlyIntegerWrapper(minBeat);
 		this.maxBeat = new ReadOnlyIntegerWrapper(maxBeat);
-		this.songPlayer = songPlayer;
 		this.converter = converter;
-		songPlayer.activeAudioFileProperty().addListener(refresher);
 		converter.addListener(refresher);
 	}
 
@@ -41,10 +38,8 @@ public class BeatRange {
 		int minBeat = converter.millisToBeat(0);
 		int maxBeat = MAX_BEAT;
 
-		CachedAudioFile activeAudioFile = songPlayer.getActiveAudioFile();
-
-		if (activeAudioFile != null) {
-			maxBeat = converter.millisToBeat(activeAudioFile.getDuration());
+        if (maxTime != null) {
+            maxBeat = converter.millisToBeat(maxTime);
 		}
 		if (bounds != null && bounds.isValid()) {
 			minBeat = Math.min(bounds.getLowerXBound() - BEAT_MARGIN, minBeat);
@@ -65,6 +60,11 @@ public class BeatRange {
 		}
 		refresh();
 	}
+
+    void setMaxTime(Long time) {
+        this.maxTime = time;
+        refresh();
+    }
 
 	public ReadOnlyIntegerProperty minBeatProperty() {
 		return minBeat.getReadOnlyProperty();

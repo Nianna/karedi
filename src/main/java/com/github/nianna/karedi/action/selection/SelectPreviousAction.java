@@ -1,13 +1,11 @@
 package main.java.com.github.nianna.karedi.action.selection;
 
-
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.SongContext;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.stereotype.Component;
@@ -23,16 +21,13 @@ public class SelectPreviousAction extends NewKarediAction {
 
     private final NoteSelection noteSelection;
 
-    private final VisibleArea visibleArea;
-
     private final SongPlayer songPlayer;
 
     private final BeatMillisConverter beatMillisConverter;
 
-    private SelectPreviousAction(SongContext songContext, NoteSelection noteSelection, VisibleArea visibleArea, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+    private SelectPreviousAction(SongContext songContext, NoteSelection noteSelection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
         this.songContext = songContext;
         this.noteSelection = noteSelection;
-        this.visibleArea = visibleArea;
         this.songPlayer = songPlayer;
         this.beatMillisConverter = beatMillisConverter;
         setDisabledCondition(songContext.activeTrackIsNullProperty());
@@ -52,7 +47,7 @@ public class SelectPreviousAction extends NewKarediAction {
                     .filter(this::isInVisibleBeatRange);
         }
         if (!prevNote.isPresent()) {
-            prevNote = songContext.getActiveTrack().noteAtOrEarlier(visibleArea.getUpperXBound() - 1);
+            prevNote = songContext.getActiveTrack().noteAtOrEarlier(songContext.getVisibleAreaBounds().getUpperXBound() - 1);
         }
         if (songContext.getActiveLine() != null) {
             prevNote = prevNote.filter(note -> note.getLine().equals(songContext.getActiveLine()));
@@ -61,7 +56,7 @@ public class SelectPreviousAction extends NewKarediAction {
     }
 
     private boolean isInVisibleBeatRange(Note note) {
-        return visibleArea.inRangeX(note.getStart());
+        return songContext.getVisibleAreaBounds().inRangeX(note.getStart());
     }
 
     @Override

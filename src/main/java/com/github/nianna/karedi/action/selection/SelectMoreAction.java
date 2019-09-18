@@ -4,10 +4,10 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.SongContext;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
+import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import org.springframework.stereotype.Component;
 
@@ -25,13 +25,10 @@ public class SelectMoreAction extends NewKarediAction {
 
     private final SongPlayer songPlayer;
 
-    private final VisibleArea visibleArea;
-
-    private SelectMoreAction(SongContext songContext, NoteSelection selection, SongPlayer songPlayer, VisibleArea visibleArea) {
+    private SelectMoreAction(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
         this.songContext = songContext;
         this.selection = selection;
         this.songPlayer = songPlayer;
-        this.visibleArea = visibleArea;
         setDisabledCondition(this.songContext.activeTrackIsNullProperty());
     }
 
@@ -50,24 +47,17 @@ public class SelectMoreAction extends NewKarediAction {
     }
 
     private void correctVisibleArea(Note lastNote, Note nextNote) {
-        int lowerXBound = visibleArea.getLowerXBound();
-        int upperXBound = visibleArea.getUpperXBound();
+        IntBounded visibleAreaBounds = songContext.getVisibleAreaBounds();
+        int lowerXBound = visibleAreaBounds.getLowerXBound();
         if (lastNote.getLine() != nextNote.getLine()) {
             int nextLineUpperBound = nextNote.getLine().getLast().getStart() + 1;
-            if (!visibleArea.inBoundsX(nextLineUpperBound)) {
-                upperXBound = nextLineUpperBound;
-                setVisibleAreaXBounds(lowerXBound, upperXBound);
-                List<Note> visibleNotes = songContext.getActiveTrack().getNotes(lowerXBound, upperXBound);
+            if (!visibleAreaBounds.inBoundsX(nextLineUpperBound)) {
+                songContext.setVisibleAreaXBounds(lowerXBound, nextLineUpperBound);
+                List<Note> visibleNotes = songContext.getActiveTrack().getNotes(lowerXBound, nextLineUpperBound);
                 if (visibleNotes.size() > 0) {
-                    visibleArea.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
+                    songContext.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
                 }
             }
-            songContext.setActiveLine(null);
-        }
-    }
-
-    private void setVisibleAreaXBounds(int lowerXBound, int upperXBound) {
-        if (visibleArea.setXBounds(lowerXBound, upperXBound)) {
             songContext.setActiveLine(null);
         }
     }

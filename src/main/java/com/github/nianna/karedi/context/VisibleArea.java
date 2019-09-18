@@ -26,11 +26,11 @@ public class VisibleArea implements IntBounded {
 		area = new Area(0, 20, -8, 8);
 	}
 
-	public boolean assertBorderlessBoundsVisible(IntBounded bounds) {
+	boolean assertBorderlessBoundsVisible(IntBounded bounds) {
 		return assertBoundsVisible(addMargins(bounds));
 	}
 
-	public void assertBoundsYVisible(IntBounded bounds) {
+	void assertBoundsYVisible(IntBounded bounds) {
 		if (bounds.isValid() && !area.inBoundsY(bounds)) {
 			int lowerYBound = Math.min(bounds.getLowerYBound(), area.getLowerYBound());
 			int upperYBound = Math.max(bounds.getUpperYBound(), area.getUpperYBound());
@@ -38,7 +38,7 @@ public class VisibleArea implements IntBounded {
 		}
 	}
 
-	boolean assertBoundsVisible(IntBounded bounds) {
+	private boolean assertBoundsVisible(IntBounded bounds) {
 		assert (bounds.isValid());
 
 		if (area.inBounds(bounds)) {

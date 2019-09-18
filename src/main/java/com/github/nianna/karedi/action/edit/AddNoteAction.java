@@ -11,7 +11,6 @@ import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.stereotype.Component;
@@ -25,14 +24,12 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
     private final SongContext songContext;
     private final SongPlayer songPlayer; //TODO
-    private final VisibleArea visibleArea;
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
 
-    AddNoteAction(SongContext songContext, SongPlayer songPlayer, VisibleArea visibleArea, NoteSelection selection, CommandExecutor commandExecutor) {
+    AddNoteAction(SongContext songContext, SongPlayer songPlayer, NoteSelection selection, CommandExecutor commandExecutor) {
         this.songContext = songContext;
         this.songPlayer = songPlayer;
-        this.visibleArea = visibleArea;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
         setDisabledCondition(Bindings.createBooleanBinding(() -> {
@@ -96,7 +93,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
 
     private Optional<SongLine> getLastVisibleLineBeforeMarker() {
         return songContext.getActiveTrack().lineAtOrEarlier(songPlayer.getMarkerBeat())
-                .filter(prevLine -> prevLine.getUpperXBound() > visibleArea.getLowerXBound());
+                .filter(prevLine -> prevLine.getUpperXBound() > songContext.getVisibleAreaBounds().getLowerXBound());
     }
 
     @Override

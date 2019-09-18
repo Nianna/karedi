@@ -4,9 +4,8 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.SongContext;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
@@ -21,14 +20,11 @@ public class SelectNextAction extends NewKarediAction {
 
     private final NoteSelection noteSelection;
 
-    private final VisibleArea visibleArea;
-
     private final SongPlayer songPlayer;
 
-    private SelectNextAction(SongContext songContext, NoteSelection noteSelection, VisibleArea visibleArea, SongPlayer songPlayer) {
+    private SelectNextAction(SongContext songContext, NoteSelection noteSelection, SongPlayer songPlayer) {
         this.songContext = songContext;
         this.noteSelection = noteSelection;
-        this.visibleArea = visibleArea;
         this.songPlayer = songPlayer;
         setDisabledCondition(this.songContext.activeTrackIsNullProperty());
     }
@@ -46,7 +42,7 @@ public class SelectNextAction extends NewKarediAction {
                     .filter(this::isInVisibleBeatRange);
         }
         if (!nextNote.isPresent()) {
-            nextNote = activeTrack.noteAtOrLater(visibleArea.getLowerXBound());
+            nextNote = activeTrack.noteAtOrLater(songContext.getVisibleAreaBounds().getLowerXBound());
         }
         if (activeLine != null) {
             nextNote = nextNote.filter(note -> note.getLine().equals(activeLine));
@@ -55,7 +51,7 @@ public class SelectNextAction extends NewKarediAction {
     }
 
     private boolean isInVisibleBeatRange(Note note) {
-        return visibleArea.inRangeX(note.getStart());
+        return songContext.getVisibleAreaBounds().inRangeX(note.getStart());
     }
 
     @Override

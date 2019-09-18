@@ -30,7 +30,7 @@ public class NotesVisibleOnTrackChangedGuard implements Guard {
 
 	private void onTrackChanged(ObservableValue<? extends SongTrack> observableValue, SongTrack oldTrack, SongTrack newTrack) {
 		if (newTrack != oldTrack && newTrack != null) {
-			appContext.assertAllNeededTonesVisible();
+            songContext.assertAllNeededTonesVisible();
 		}
 	}
 }

@@ -8,7 +8,6 @@ import main.java.com.github.nianna.karedi.command.RollLyricsLeftCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsRightCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongContext;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -61,13 +60,13 @@ class EditActionsConfiguration {
     }
 
     @Bean
-    public DeleteSelectionAction deleteSelectionAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongContext songContext) {
-        return new DeleteSelectionAction(DELETE_SELECTION, true, noteSelection, commandExecutor, visibleArea, songContext);
+    public DeleteSelectionAction deleteSelectionAction(NoteSelection noteSelection, CommandExecutor commandExecutor, SongContext songContext) {
+        return new DeleteSelectionAction(DELETE_SELECTION, true, noteSelection, commandExecutor, songContext);
     }
 
     @Bean
-    public DeleteSelectionAction deleteSelectionHardAction(NoteSelection noteSelection, CommandExecutor commandExecutor, VisibleArea visibleArea, SongContext songContext) {
-        return new DeleteSelectionAction(DELETE_SELECTION_HARD, false, noteSelection, commandExecutor, visibleArea, songContext);
+    public DeleteSelectionAction deleteSelectionHardAction(NoteSelection noteSelection, CommandExecutor commandExecutor, SongContext songContext) {
+        return new DeleteSelectionAction(DELETE_SELECTION_HARD, false, noteSelection, commandExecutor, songContext);
     }
 
     @Bean

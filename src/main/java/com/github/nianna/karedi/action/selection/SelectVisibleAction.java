@@ -6,7 +6,6 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongContext;
-import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.song.Note;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +18,10 @@ public class SelectVisibleAction extends NewKarediAction {
 
     private final SongContext songContext;
 
-    private final VisibleArea visibleArea;
-
     private final NoteSelection noteSelection;
 
-    private SelectVisibleAction(SongContext songContext, VisibleArea visibleArea, NoteSelection noteSelection) {
+    private SelectVisibleAction(SongContext songContext, NoteSelection noteSelection) {
         this.songContext = songContext;
-        this.visibleArea = visibleArea;
         this.noteSelection = noteSelection;
         setDisabledCondition(this.songContext.activeTrackIsNullProperty());
     }
@@ -36,7 +32,7 @@ public class SelectVisibleAction extends NewKarediAction {
         if (songContext.getActiveLine() != null) {
             notes = songContext.getActiveLine().getNotes();
         } else {
-            notes = songContext.getActiveTrack().getNotes(visibleArea.getLowerXBound(), visibleArea.getUpperXBound());
+            notes = songContext.getActiveTrack().getNotes(songContext.getVisibleAreaBounds().getLowerXBound(), songContext.getVisibleAreaBounds().getUpperXBound());
         }
         noteSelection.set(notes);
     }

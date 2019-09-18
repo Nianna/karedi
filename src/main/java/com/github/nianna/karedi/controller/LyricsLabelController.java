@@ -1,14 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -21,14 +12,18 @@ import javafx.scene.text.TextFlow;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Component
 public class LyricsLabelController implements Controller {
@@ -75,9 +70,9 @@ public class LyricsLabelController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		visibleArea = appContext.getVisibleAreaBounds();
+        visibleArea = songContext.getVisibleAreaBounds();
 
-		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaInvalidated);
+        visibleArea.addListener(this::onVisibleAreaInvalidated);
 		songContext.activeTrackProperty().addListener(this::onTrackChanged);
 		songContext.activeLineProperty().addListener(this::onLineChanged);
 		noteSelection.get().addListener(

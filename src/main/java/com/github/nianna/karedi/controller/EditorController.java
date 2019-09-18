@@ -123,7 +123,7 @@ public class EditorController implements Controller {
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
 		songContext.activeSongProperty().addListener(this::onSongChanged);
-		appContext.getVisibleAreaBounds().addListener(this::onVisibleAreaChanged);
+        songContext.getVisibleAreaBounds().addListener(this::onVisibleAreaChanged);
 		selection.get().addListener(
 				ListenersUtils.createListContentChangeListener(this::select, this::deselect));
 		songContext.activeTrackProperty().addListener(this::onTrackChanged);
@@ -142,7 +142,7 @@ public class EditorController implements Controller {
 		configureMarkerLine();
 
 		addActions();
-		onVisibleAreaChanged(appContext.getVisibleAreaBounds());
+        onVisibleAreaChanged(songContext.getVisibleAreaBounds());
 	}
 
 	private void configureMarkerLine() {
@@ -287,7 +287,7 @@ public class EditorController implements Controller {
 			chart.requestFocus();
 			Point2D upperLeft = selectionHelper.getUpperLeftCorner();
 			Point2D bottomRight = selectionHelper.getBottomRightCorner();
-			Bounded<Integer> visibleArea = appContext.getVisibleAreaBounds();
+            Bounded<Integer> visibleArea = songContext.getVisibleAreaBounds();
 			int lowestBeat = Math.max(sceneXtoBeat(upperLeft.getX()), visibleArea.getLowerXBound());
 			int highestBeat = Math.min(sceneXtoBeat(bottomRight.getX()),
 					visibleArea.getUpperXBound());
@@ -349,7 +349,7 @@ public class EditorController implements Controller {
 	}
 
 	private void onVisibleAreaChanged(Observable obs) {
-		Bounded<Integer> area = appContext.getVisibleAreaBounds();
+        Bounded<Integer> area = songContext.getVisibleAreaBounds();
 		chart.getXAxis().setLowerBound(area.getLowerXBound());
 		chart.getXAxis().setUpperBound(area.getUpperXBound());
 		chart.getYAxis().setLowerBound(area.getLowerYBound());
@@ -391,10 +391,10 @@ public class EditorController implements Controller {
 		if (event.isControlDown()) {
 			int increaseBy = wheelDown ? 1 : -1;
 			if (event.isShiftDown() || !event.isAltDown()) {
-				appContext.increaseVisibleAreaXBounds(increaseBy);
+                songContext.increaseVisibleAreaXBounds(increaseBy);
 			}
 			if (event.isAltDown() || !event.isShiftDown()) {
-				appContext.increaseVisibleAreaYBounds(increaseBy);
+                songContext.increaseVisibleAreaYBounds(increaseBy);
 			}
 			event.consume();
 			return;
@@ -508,7 +508,7 @@ public class EditorController implements Controller {
 			selection.clear();
 			onKeyPressed = hBox.getOnKeyPressed();
 			onKeyReleased = hBox.getOnKeyReleased();
-			appContext.assertAllNeededTonesVisible();
+            songContext.assertAllNeededTonesVisible();
 			tone = getToneForTappedNote();
 			updateInterval = getBeatDuration() / 2;
 			tapping = true;
@@ -604,7 +604,7 @@ public class EditorController implements Controller {
 		}
 
 		private int getToneForTappedNote() {
-			int lowerTone = appContext.getVisibleAreaBounds().getLowerYBound();
+            int lowerTone = songContext.getVisibleAreaBounds().getLowerYBound();
 			return lowerTone + VisibleArea.BOTTOM_MARGIN;
 		}
 	}
@@ -886,11 +886,11 @@ public class EditorController implements Controller {
 		}
 
 		private boolean isPreviousVisible(SongLine line) {
-			return appContext.getVisibleAreaBounds().inRangeX(line.getUpperXBound());
+            return songContext.getVisibleAreaBounds().inRangeX(line.getUpperXBound());
 		}
 
 		private boolean isNextVisible(SongLine line) {
-			return appContext.getVisibleAreaBounds().inRangeX(line.getLowerXBound());
+            return songContext.getVisibleAreaBounds().inRangeX(line.getLowerXBound());
 		}
 
 		private void onMouseDragged(MouseEvent event) {
@@ -941,7 +941,7 @@ public class EditorController implements Controller {
 						// User moved notes that were not selected - it's
 						// necessary to invalidate visibleArea to let others
 						// know that some notes may no longer be visible
-						appContext.invalidateVisibleArea();
+                        songContext.invalidateVisibleArea();
 					}
 				} else {
 					helper.deactivate();

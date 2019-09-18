@@ -16,10 +16,7 @@ import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
-import main.java.com.github.nianna.karedi.region.BoundingBox;
-import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.region.IntBounded;
-import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
@@ -134,61 +131,6 @@ public class AppContext {
             }
         }, markerBeatProperty(), visibleArea);
     }
-
-	// Visible area
-	public void invalidateVisibleArea() {
-		visibleArea.invalidate();
-	}
-
-	public void assertAllNeededTonesVisible() {
-		assertAllNeededTonesVisible(visibleArea.getLowerXBound(), visibleArea.getUpperXBound());
-	}
-
-	public void assertAllNeededTonesVisible(int fromBeat, int toBeat) {
-		List<Note> notes = getSong().getVisibleNotes(fromBeat, toBeat);
-		visibleArea.assertBoundsYVisible(addMargins(new BoundingBox<>(notes)));
-	}
-
-	public void setVisibleAreaXBounds(int lowerXBound, int upperXBound) {
-		setVisibleAreaXBounds(lowerXBound, upperXBound, true);
-	}
-
-	private void setVisibleAreaXBounds(int lowerXBound, int upperXBound, boolean setLineToNull) {
-		if (visibleArea.setXBounds(lowerXBound, upperXBound) && setLineToNull) {
-			songContext.setActiveLine(null);
-		}
-	}
-
-	public void setVisibleAreaYBounds(int lowerBound, int upperBound) {
-		if (visibleArea.setYBounds(lowerBound, upperBound)) {
-			songContext.setActiveLine(null);
-		}
-	}
-
-	public void increaseVisibleAreaXBounds(int by) {
-		if (visibleArea.increaseXBounds(by)) {
-			songContext.setActiveLine(null);
-		}
-	}
-
-	public void increaseVisibleAreaYBounds(int by) {
-		if (visibleArea.increaseYBounds(by)) {
-			songContext.setActiveLine(null);
-		}
-	}
-
-	public IntBounded addMargins(IntBounded bounds) {
-		return visibleArea.addMargins(bounds);
-	}
-
-	public IntBounded getVisibleAreaBounds() {
-		return visibleArea;
-	}
-
-	public void moveVisibleArea(Direction direction, int by) {
-		visibleArea.move(direction, by);
-		songContext.setActiveLine(null);
-	}
 
 	// Audio
 	public CachedAudioFile getActiveAudioFile() {
@@ -336,7 +278,7 @@ public class AppContext {
 			setMarkerBeat(selectionBounds.getLowerXBound());
 			if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
 				songContext.setActiveLine(null);
-				assertAllNeededTonesVisible();
+				songContext.assertAllNeededTonesVisible();
 			}
 		}
 	}

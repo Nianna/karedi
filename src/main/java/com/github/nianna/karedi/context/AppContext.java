@@ -1,9 +1,10 @@
 package main.java.com.github.nianna.karedi.context;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.IntegerBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
@@ -17,8 +18,6 @@ import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
-import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
-import main.java.com.github.nianna.karedi.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,9 +51,6 @@ public class AppContext {
 
     @Autowired
     private NoteSelection selection;
-
-    @Autowired
-    private BeatMillisConverter beatMillisConverter;
 
     @Autowired
     private SongPlayer player;
@@ -114,16 +110,6 @@ public class AppContext {
         return actionHelper.canExecute(action);
     }
 
-    public IntegerBinding playToTheEndStartBeatProperty() {
-        return Bindings.createIntegerBinding(() -> {
-            if (isMarkerVisible()) {
-                return getMarkerBeat();
-            } else {
-                return visibleArea.getLowerXBound();
-            }
-        }, markerBeatProperty(), visibleArea);
-    }
-
     public void loadAudioFile(File file) {
         AudioFileLoader.loadMp3File(file, (newAudio -> {
             if (newAudio.isPresent()) {
@@ -134,36 +120,6 @@ public class AppContext {
                 LOGGER.severe(I18N.get("import.audio.fail"));
             }
         }));
-    }
-
-    // Marker
-    private ReadOnlyIntegerProperty markerBeatProperty() {
-        return player.markerBeatProperty();
-    }
-
-    private int getMarkerBeat() {
-        return player.getMarkerBeat();
-    }
-
-    private void setMarkerBeat(int beat) {
-        player.setMarkerBeat(beat);
-    }
-
-    private ReadOnlyLongProperty markerTimeProperty() {
-        return player.markerTimeProperty();
-    }
-
-    private Long getMarkerTime() {
-        return player.getMarkerTime();
-    }
-
-    private void setMarkerTime(long time) {
-        player.setMarkerTime(time);
-    }
-
-    private boolean isMarkerVisible() {
-        return MathUtils.inRange(getMarkerTime(), beatMillisConverter.beatToMillis(visibleArea.getLowerXBound()),
-                beatMillisConverter.beatToMillis(visibleArea.getUpperXBound()));
     }
 
     // Files
@@ -229,7 +185,7 @@ public class AppContext {
     private void onSelectionBoundsInvalidated() {
         IntBounded selectionBounds = selection.getSelectionBounds();
         if (selection.size() > 0 && selectionBounds.isValid()) {
-            setMarkerBeat(selectionBounds.getLowerXBound());
+            player.setMarkerBeat(selectionBounds.getLowerXBound());
             if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
                 displayContext.setActiveLine(null);
                 displayContext.assertAllNeededTonesVisible();

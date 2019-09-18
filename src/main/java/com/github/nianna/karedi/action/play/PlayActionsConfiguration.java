@@ -1,8 +1,13 @@
 package main.java.com.github.nianna.karedi.action.play;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.*;
+import main.java.com.github.nianna.karedi.context.BeatRange;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +17,22 @@ import static main.java.com.github.nianna.karedi.audio.Player.Mode.*;
 
 @Configuration
 class PlayActionsConfiguration {
+
+    private final IntegerBinding playToTheEndStartBeatProperty;
+
+    PlayActionsConfiguration(SongPlayer songPlayer, DisplayContext displayContext) {
+        this.playToTheEndStartBeatProperty = Bindings.createIntegerBinding(() -> {
+            if (isMarkerVisible(songPlayer, displayContext)) {
+                return songPlayer.getMarkerBeat();
+            } else {
+                return displayContext.getVisibleAreaBounds().getLowerXBound();
+            }
+        }, songPlayer.markerBeatProperty(), displayContext.getVisibleAreaBounds());
+    }
+
+    private boolean isMarkerVisible(SongPlayer songPlayer, DisplayContext displayContext) {
+        return displayContext.getVisibleAreaBounds().inBoundsX(songPlayer.getMarkerBeat());
+    }
 
     @Bean
     NewKarediAction playSelectionAudio(NoteSelection selection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
@@ -82,17 +103,17 @@ class PlayActionsConfiguration {
     }
 
     @Bean
-    NewKarediAction playToTheEndAudioAction(DisplayContext displayContext, SongPlayer songPlayer, AppContext appContext, BeatRange beatRange) {
-        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO, AUDIO_ONLY, appContext.playToTheEndStartBeatProperty(), beatRange.maxBeatProperty(), displayContext, songPlayer);
+    NewKarediAction playToTheEndAudioAction(DisplayContext displayContext, SongPlayer songPlayer, BeatRange beatRange) {
+        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO, AUDIO_ONLY, playToTheEndStartBeatProperty, beatRange.maxBeatProperty(), displayContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playToTheEndMidiAction(DisplayContext displayContext, SongPlayer songPlayer, AppContext appContext, BeatRange beatRange) {
-        return new PlayRangeAction(PLAY_TO_THE_END_MIDI, MIDI_ONLY, appContext.playToTheEndStartBeatProperty(), beatRange.maxBeatProperty(), displayContext, songPlayer);
+    NewKarediAction playToTheEndMidiAction(DisplayContext displayContext, SongPlayer songPlayer, BeatRange beatRange) {
+        return new PlayRangeAction(PLAY_TO_THE_END_MIDI, MIDI_ONLY, playToTheEndStartBeatProperty, beatRange.maxBeatProperty(), displayContext, songPlayer);
     }
 
     @Bean
-    NewKarediAction playToTheEndAudioMidiAction(DisplayContext displayContext, SongPlayer songPlayer, AppContext appContext, BeatRange beatRange) {
-        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO_MIDI, AUDIO_MIDI, appContext.playToTheEndStartBeatProperty(), beatRange.maxBeatProperty(), displayContext, songPlayer);
+    NewKarediAction playToTheEndAudioMidiAction(DisplayContext displayContext, SongPlayer songPlayer, BeatRange beatRange) {
+        return new PlayRangeAction(PLAY_TO_THE_END_AUDIO_MIDI, AUDIO_MIDI, playToTheEndStartBeatProperty, beatRange.maxBeatProperty(), displayContext, songPlayer);
     }
 }

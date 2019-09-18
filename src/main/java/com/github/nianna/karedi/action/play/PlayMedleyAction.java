@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.Song;
 
@@ -18,18 +18,18 @@ class PlayMedleyAction extends NewKarediAction {
     private BooleanBinding basicCondition;
     private Song.Medley medley;
 
-    PlayMedleyAction(KarediActions handledAction, Player.Mode mode, SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
+    PlayMedleyAction(KarediActions handledAction, Player.Mode mode, DisplayContext displayContext, NoteSelection selection, SongPlayer songPlayer) {
         this.handledAction = handledAction;
         this.mode = mode;
         this.selection = selection;
         this.songPlayer = songPlayer;
 
-        basicCondition = songContext.activeSongIsNullProperty();
+        basicCondition = displayContext.activeSongIsNullProperty();
         if (mode != Player.Mode.MIDI_ONLY) {
             basicCondition = basicCondition.or(songPlayer.activeAudioIsNullProperty());
         }
         setDisabledCondition(basicCondition);
-        songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
+        displayContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
             if (newVal == null) {
                 setDisabledCondition(basicCondition);
             } else {

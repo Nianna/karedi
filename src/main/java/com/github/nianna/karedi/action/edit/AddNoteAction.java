@@ -9,7 +9,7 @@ import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorato
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -22,24 +22,24 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
 @Component
  class AddNoteAction extends NewKarediAction { //TODO refactor this class
     private static final int NEW_NOTE_DEFAULT_LENGTH = 3;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final SongPlayer songPlayer; //TODO
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
 
-    AddNoteAction(SongContext songContext, SongPlayer songPlayer, NoteSelection selection, CommandExecutor commandExecutor) {
-        this.songContext = songContext;
+    AddNoteAction(DisplayContext displayContext, SongPlayer songPlayer, NoteSelection selection, CommandExecutor commandExecutor) {
+        this.displayContext = displayContext;
         this.songPlayer = songPlayer;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
         setDisabledCondition(Bindings.createBooleanBinding(() -> {
-            if (this.songContext.getActiveTrack() == null) {
+            if (this.displayContext.getActiveTrack() == null) {
                 return true;
             } else {
                 int newNotePosition = computePosition();
-                return songContext.getActiveTrack().noteAt(newNotePosition).isPresent();
+                return displayContext.getActiveTrack().noteAt(newNotePosition).isPresent();
             }
-        }, this.selection.getSelectionBounds(), this.songPlayer.markerTimeProperty(), songContext.activeTrackProperty()));
+        }, this.selection.getSelectionBounds(), this.songPlayer.markerTimeProperty(), displayContext.activeTrackProperty()));
     }
 
     @Override
@@ -54,7 +54,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
         Command cmd;
         cmd = optLine
                 .map(songLine -> new AddNoteCommand(note, songLine))
-                .orElseGet(() -> new AddNoteCommand(note, songContext.getActiveTrack()));
+                .orElseGet(() -> new AddNoteCommand(note, displayContext.getActiveTrack()));
         commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
             selection.selectOnly(note);
         }));
@@ -73,7 +73,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private int computeLength(int startBeat) {
-        Optional<Integer> nextNoteStartBeat = songContext.getActiveTrack().noteAtOrLater(startBeat)
+        Optional<Integer> nextNoteStartBeat = displayContext.getActiveTrack().noteAtOrLater(startBeat)
                 .map(Note::getStart);
         return nextNoteStartBeat.
                 map(integer -> Math.min(NEW_NOTE_DEFAULT_LENGTH, Math.max(integer - startBeat - 1, 1)))
@@ -81,8 +81,8 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private Optional<SongLine> computeLine() {
-        if (songContext.getActiveLine() != null) {
-            return Optional.of(songContext.getActiveLine());
+        if (displayContext.getActiveLine() != null) {
+            return Optional.of(displayContext.getActiveLine());
         }
         Optional<SongLine> line = selection.getLast().map(Note::getLine);
         if (!line.isPresent()) {
@@ -92,8 +92,8 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private Optional<SongLine> getLastVisibleLineBeforeMarker() {
-        return songContext.getActiveTrack().lineAtOrEarlier(songPlayer.getMarkerBeat())
-                .filter(prevLine -> prevLine.getUpperXBound() > songContext.getVisibleAreaBounds().getLowerXBound());
+        return displayContext.getActiveTrack().lineAtOrEarlier(songPlayer.getMarkerBeat())
+                .filter(prevLine -> prevLine.getUpperXBound() > displayContext.getVisibleAreaBounds().getLowerXBound());
     }
 
     @Override

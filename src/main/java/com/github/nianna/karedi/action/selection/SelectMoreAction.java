@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.IntBounded;
@@ -19,17 +19,17 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.INCREASE_S
 @Component
 public class SelectMoreAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
     private final NoteSelection selection;
 
     private final SongPlayer songPlayer;
 
-    private SelectMoreAction(SongContext songContext, NoteSelection selection, SongPlayer songPlayer) {
-        this.songContext = songContext;
+    private SelectMoreAction(DisplayContext displayContext, NoteSelection selection, SongPlayer songPlayer) {
+        this.displayContext = displayContext;
         this.selection = selection;
         this.songPlayer = songPlayer;
-        setDisabledCondition(this.songContext.activeTrackIsNullProperty());
+        setDisabledCondition(this.displayContext.activeTrackIsNullProperty());
     }
 
     @Override
@@ -42,23 +42,23 @@ public class SelectMoreAction extends NewKarediAction {
                 correctVisibleArea(lastNote.get(), nextNote);
             });
         } else {
-            songContext.getActiveTrack().noteAtOrLater(songPlayer.getMarkerBeat()).ifPresent(selection::select);
+            displayContext.getActiveTrack().noteAtOrLater(songPlayer.getMarkerBeat()).ifPresent(selection::select);
         }
     }
 
     private void correctVisibleArea(Note lastNote, Note nextNote) {
-        IntBounded visibleAreaBounds = songContext.getVisibleAreaBounds();
+        IntBounded visibleAreaBounds = displayContext.getVisibleAreaBounds();
         int lowerXBound = visibleAreaBounds.getLowerXBound();
         if (lastNote.getLine() != nextNote.getLine()) {
             int nextLineUpperBound = nextNote.getLine().getLast().getStart() + 1;
             if (!visibleAreaBounds.inBoundsX(nextLineUpperBound)) {
-                songContext.setVisibleAreaXBounds(lowerXBound, nextLineUpperBound);
-                List<Note> visibleNotes = songContext.getActiveTrack().getNotes(lowerXBound, nextLineUpperBound);
+                displayContext.setVisibleAreaXBounds(lowerXBound, nextLineUpperBound);
+                List<Note> visibleNotes = displayContext.getActiveTrack().getNotes(lowerXBound, nextLineUpperBound);
                 if (visibleNotes.size() > 0) {
-                    songContext.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
+                    displayContext.assertBorderlessBoundsVisible(new BoundingBox<>(visibleNotes));
                 }
             }
-            songContext.setActiveLine(null);
+            displayContext.setActiveLine(null);
         }
     }
 

@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.guard;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ObservableValue;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -11,22 +11,22 @@ import org.springframework.stereotype.Component;
 @Order(5)
 public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
 	private final InvalidationListener boundsListener = obs -> onBoundsInvalidated();
 
-	public VisibleAreaLockedOnLineChangedGuard(SongContext songContext) {
-		this.songContext = songContext;
+	public VisibleAreaLockedOnLineChangedGuard(DisplayContext displayContext) {
+		this.displayContext = displayContext;
 	}
 
 	@Override
 	public void enable() {
-		songContext.activeLineProperty().addListener(this::onLineChanged);
+		displayContext.activeLineProperty().addListener(this::onLineChanged);
 	}
 
 	@Override
 	public void disable() {
-		songContext.activeLineProperty().removeListener(this::onLineChanged);
+		displayContext.activeLineProperty().removeListener(this::onLineChanged);
 	}
 
 	private void onLineChanged(ObservableValue<? extends SongLine> observableValue, SongLine oldLine, SongLine newLine) {
@@ -36,15 +36,15 @@ public class VisibleAreaLockedOnLineChangedGuard implements Guard {
 			}
 			if (newLine != null) {
 				newLine.addListener(boundsListener);
-				songContext.adjustToBounds(newLine);
+				displayContext.adjustToBounds(newLine);
 			}
 		}
 	}
 
 	private void onBoundsInvalidated() {
-		SongLine activeLine = songContext.getActiveLine();
+		SongLine activeLine = displayContext.getActiveLine();
 		if (activeLine != null && activeLine.isValid()) {
-			songContext.adjustToBounds(activeLine);
+			displayContext.adjustToBounds(activeLine);
 		}
 	}
 }

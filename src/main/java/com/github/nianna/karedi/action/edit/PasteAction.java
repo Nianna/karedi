@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.parser.Parser;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -20,18 +20,18 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.PASTE;
 @Component
 class PasteAction extends ClipboardAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
     private final SongPlayer songPlayer;
 
-    PasteAction(Parser parser, SongContext songContext, NoteSelection selection, CommandExecutor commandExecutor, SongPlayer songPlayer) {
+    PasteAction(Parser parser, DisplayContext displayContext, NoteSelection selection, CommandExecutor commandExecutor, SongPlayer songPlayer) {
         super(parser);
-        this.songContext = songContext;
+        this.displayContext = displayContext;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
         this.songPlayer = songPlayer;
-        setDisabledCondition(this.songContext.activeTrackIsNullProperty());
+        setDisabledCondition(this.displayContext.activeTrackIsNullProperty());
     }
 
     @Override
@@ -45,7 +45,7 @@ class PasteAction extends ClipboardAction {
             @Override
             protected void buildSubCommands() {
                 addSubCommand(new DeleteNotesCommand(selection.get(), false));
-                addSubCommand(new PasteCommand(songContext.getActiveTrack(), pastedSong, songPlayer.getMarkerBeat()));
+                addSubCommand(new PasteCommand(displayContext.getActiveTrack(), pastedSong, songPlayer.getMarkerBeat()));
             }
         };
         commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {

@@ -20,7 +20,7 @@ import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorComm
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackNameCommand;
 import main.java.com.github.nianna.karedi.command.track.ReorderTracksCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.control.CheckBoxTableCell;
 import main.java.com.github.nianna.karedi.control.ColorPickerTableCell;
 import main.java.com.github.nianna.karedi.control.TitledKeyValueGrid;
@@ -57,11 +57,11 @@ public class TracksController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 	private final CommandExecutor commandExecutor;
 
-	public TracksController(SongContext songContext, CommandExecutor commandExecutor) {
-		this.songContext = songContext;
+	public TracksController(DisplayContext displayContext, CommandExecutor commandExecutor) {
+		this.displayContext = displayContext;
 		this.commandExecutor = commandExecutor;
 	}
 
@@ -81,11 +81,11 @@ public class TracksController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		song = songContext.getActiveSong();
+		song = displayContext.getActiveSong();
 
-		songContext.activeSongProperty().addListener(obs -> display(songContext.getActiveSong()));
-		songContext.activeTrackProperty().addListener(obs -> {
-			table.getSelectionModel().select(songContext.getActiveTrack());
+		displayContext.activeSongProperty().addListener(obs -> display(displayContext.getActiveSong()));
+		displayContext.activeTrackProperty().addListener(obs -> {
+			table.getSelectionModel().select(displayContext.getActiveTrack());
 		});
 
 		table.setRowFactory(getRowFactory());
@@ -216,9 +216,9 @@ public class TracksController implements Controller {
 	}
 
 	private void onSelectedItemChanged(Observable obs, SongTrack oldTrack, SongTrack newTrack) {
-		SongTrack activeTrack = songContext.getActiveTrack();
+		SongTrack activeTrack = displayContext.getActiveTrack();
 		if (newTrack != null && newTrack != activeTrack) {
-			songContext.setActiveTrack(newTrack);
+			displayContext.setActiveTrack(newTrack);
 		} else {
 			table.getSelectionModel().select(activeTrack);
 		}
@@ -242,7 +242,7 @@ public class TracksController implements Controller {
 			commandExecutor.execute(new ReorderTracksCommand(song, index,
 					dropIndex == -1 ? table.getItems().size() - 1 : dropIndex));
 		});
-		songContext.setActiveTrack(song.get(dropIndex));
+		displayContext.setActiveTrack(song.get(dropIndex));
 	}
 
 	private class TrackTooltip extends Tooltip {
@@ -279,7 +279,7 @@ public class TracksController implements Controller {
 			super.updateItem(item, empty);
 			SongTrack track = getTrack();
 			if (track != null) {
-				disableProperty().bind(songContext.activeTrackProperty().isEqualTo(track));
+				disableProperty().bind(displayContext.activeTrackProperty().isEqualTo(track));
 			}
 		}
 

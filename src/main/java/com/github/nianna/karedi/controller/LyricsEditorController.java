@@ -21,7 +21,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Note.Type;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -71,13 +71,13 @@ public class LyricsEditorController implements Controller {
 
 	private Timer lyricsUpdateTimer = new Timer(true);
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
     private final CommandExecutor commandExecutor;
 
-    public LyricsEditorController(NoteSelection noteSelection, SongContext songContext, CommandExecutor commandExecutor) {
+    public LyricsEditorController(NoteSelection noteSelection, DisplayContext displayContext, CommandExecutor commandExecutor) {
 		this.noteSelection = noteSelection;
-		this.songContext = songContext;
+		this.displayContext = displayContext;
         this.commandExecutor = commandExecutor;
     }
 
@@ -128,8 +128,8 @@ public class LyricsEditorController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		songContext.activeTrackProperty().addListener(this::onTrackChanged);
-		scrollPane.disableProperty().bind(songContext.activeTrackProperty().isNull());
+		displayContext.activeTrackProperty().addListener(this::onTrackChanged);
+		scrollPane.disableProperty().bind(displayContext.activeTrackProperty().isNull());
 
 		appContext.addAction(KarediActions.INSERT_MINUS, new InsertTextAction(NoteTextArea.MINUS));
 		appContext.addAction(KarediActions.INSERT_SPACE, new InsertTextAction(NoteTextArea.SPACE));
@@ -147,7 +147,7 @@ public class LyricsEditorController implements Controller {
 
 	private void preNoteSelectionChangeHandler(Note first, Note last) {
 		if (first.getLine().equals(last.getLine())) {
-			songContext.setActiveLine(first.getLine());
+			displayContext.setActiveLine(first.getLine());
 		}
 	}
 
@@ -455,7 +455,7 @@ public class LyricsEditorController implements Controller {
 			public void run() {
 				Platform.runLater(() -> {
 					synchronizer.freeze();
-					boolean changed = textArea.setTrack(songContext.getActiveTrack());
+					boolean changed = textArea.setTrack(displayContext.getActiveTrack());
 					if (changed) {
 						if (!textArea.isFocused()) {
 							synchronizer.updateTextSelection();

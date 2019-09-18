@@ -4,7 +4,7 @@ import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,47 +16,47 @@ import static main.java.com.github.nianna.karedi.song.tag.TagKey.*;
 class TagActionsConfiguration {
 
     @Bean
-    public NewKarediAction doubleBpmAction(SongContext songContext, AppContext appContext, CommandExecutor commandExecutor) {
-        return new EditBpmAction(MULTIPLY_BPM_BY_TWO, 2, songContext, commandExecutor);
+    public NewKarediAction doubleBpmAction(DisplayContext displayContext, AppContext appContext, CommandExecutor commandExecutor) {
+        return new EditBpmAction(MULTIPLY_BPM_BY_TWO, 2, displayContext, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction divideBpmByTwoAction(SongContext songContext, AppContext appContext, CommandExecutor commandExecutor) {
-        return new EditBpmAction(DIVIDE_BPM_BY_TWO, 0.5, songContext, commandExecutor);
+    public NewKarediAction divideBpmByTwoAction(DisplayContext displayContext, AppContext appContext, CommandExecutor commandExecutor) {
+        return new EditBpmAction(DIVIDE_BPM_BY_TWO, 0.5, displayContext, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction editBpmAction(SongContext songContext, CommandExecutor commandExecutor) {
-        return new EditBpmAction(EDIT_BPM, songContext, commandExecutor);
+    public NewKarediAction editBpmAction(DisplayContext displayContext, CommandExecutor commandExecutor) {
+        return new EditBpmAction(EDIT_BPM, displayContext, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction setStartTagAction(SongContext songContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
-        return new SetTagValueFromMarkerPositionAction(SET_START_TAG, START, songContext, songPlayer, commandExecutor);
+    public NewKarediAction setStartTagAction(DisplayContext displayContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
+        return new SetTagValueFromMarkerPositionAction(SET_START_TAG, START, displayContext, songPlayer, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction setEndTagAction(SongContext songContext, SongPlayer songPlayer,  CommandExecutor commandExecutor) {
-        return new SetTagValueFromMarkerPositionAction(SET_END_TAG, END, songContext, songPlayer, commandExecutor);
+    public NewKarediAction setEndTagAction(DisplayContext displayContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
+        return new SetTagValueFromMarkerPositionAction(SET_END_TAG, END, displayContext, songPlayer, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction setGapTagAction(SongContext songContext, SongPlayer songPlayer,  CommandExecutor commandExecutor) {
-        return new SetTagValueFromMarkerPositionAction(SET_GAP_TAG, GAP, songContext, songPlayer, commandExecutor);
+    public NewKarediAction setGapTagAction(DisplayContext displayContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
+        return new SetTagValueFromMarkerPositionAction(SET_GAP_TAG, GAP, displayContext, songPlayer, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction setMedleyFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
-        return new SetMedleyFromSelectionAction(MEDLEY_FROM_SELECTION, true, true, noteSelection, commandExecutor, songContext, selection);
+    public NewKarediAction setMedleyFromSelectionAction(NoteSelection noteSelection, DisplayContext displayContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_FROM_SELECTION, true, true, noteSelection, commandExecutor, displayContext, selection);
     }
 
     @Bean
-    public NewKarediAction setMedleyStartFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
-        return new SetMedleyFromSelectionAction(MEDLEY_SET_START, true, false, noteSelection, commandExecutor, songContext, selection);
+    public NewKarediAction setMedleyStartFromSelectionAction(NoteSelection noteSelection, DisplayContext displayContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_SET_START, true, false, noteSelection, commandExecutor, displayContext, selection);
     }
 
     @Bean
-    public NewKarediAction setMedleyEndFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
-        return new SetMedleyFromSelectionAction(MEDLEY_SET_END, false, true, noteSelection, commandExecutor, songContext, selection);
+    public NewKarediAction setMedleyEndFromSelectionAction(NoteSelection noteSelection, DisplayContext displayContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_SET_END, false, true, noteSelection, commandExecutor, displayContext, selection);
     }
 }

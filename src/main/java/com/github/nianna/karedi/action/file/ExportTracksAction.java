@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongSaver;
 import main.java.com.github.nianna.karedi.dialog.ChooseTracksDialog;
 import main.java.com.github.nianna.karedi.dialog.ExportWithErrorsAlert;
@@ -21,16 +21,16 @@ class ExportTracksAction extends NewKarediAction {
     private final KarediActions handledAction;
     private final int trackCount;
     private final AppContext appContext;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final SongSaver songSaver;
 
-    ExportTracksAction(KarediActions handledAction, int trackCount, AppContext appContext, SongContext songContext, SongSaver songSaver) {
+    ExportTracksAction(KarediActions handledAction, int trackCount, AppContext appContext, DisplayContext displayContext, SongSaver songSaver) {
         this.handledAction = handledAction;
         this.trackCount = trackCount;
         this.appContext = appContext;
-        this.songContext = songContext;
+        this.displayContext = displayContext;
         this.songSaver = songSaver;
-        this.songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
+        this.displayContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
             if (newVal != null) {
                 setDisabledCondition(newVal.trackCount().lessThan(trackCount));
             } else {
@@ -42,7 +42,7 @@ class ExportTracksAction extends NewKarediAction {
 
     @Override
     protected void onAction(ActionEvent event) {
-        if (songContext.getActiveSong().getProblems().size() > 0) {
+        if (displayContext.getActiveSong().getProblems().size() > 0) {
             new ExportWithErrorsAlert().showAndWait().filter(result -> result == ButtonType.OK)
                     .ifPresent(ok -> export());
         } else {
@@ -51,11 +51,11 @@ class ExportTracksAction extends NewKarediAction {
     }
 
     private void export() {
-        Song activeSong = songContext.getActiveSong();
+        Song activeSong = displayContext.getActiveSong();
         List<SongTrack> tracks = activeSong.getTracks();
         if (tracks.size() != trackCount) {
             ChooseTracksDialog dialog = new ChooseTracksDialog(tracks, trackCount);
-            dialog.select(songContext.getActiveTrack());
+            dialog.select(displayContext.getActiveTrack());
             Optional<List<SongTrack>> result = dialog.showAndWait();
             if (result.isPresent()) {
                 tracks = result.get();

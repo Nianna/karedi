@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandComposite;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.dialog.EditFilenamesDialog;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
@@ -21,18 +21,18 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.RENAME;
 @Component
  class RenameAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final CommandExecutor commandExecutor;
 
-    RenameAction(SongContext songContext, CommandExecutor commandExecutor) {
-        this.songContext = songContext;
+    RenameAction(DisplayContext displayContext, CommandExecutor commandExecutor) {
+        this.displayContext = displayContext;
         this.commandExecutor = commandExecutor;
-        setDisabledCondition(this.songContext.activeSongIsNullProperty());
+        setDisabledCondition(this.displayContext.activeSongIsNullProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        Song song = songContext.getActiveSong();
+        Song song = displayContext.getActiveSong();
         EditFilenamesDialog dialog = new EditFilenamesDialog();
 
         song.getTagValue(TagKey.ARTIST).ifPresent(dialog::setSongArtist);
@@ -63,7 +63,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.RENAME;
 
             @Override
             protected void buildSubCommands() {
-                Song song = songContext.getActiveSong();
+                Song song = displayContext.getActiveSong();
                 addSubCommand(new ChangeTagValueCommand(song, TagKey.ARTIST, result.getArtist()));
                 addSubCommand(new ChangeTagValueCommand(song, TagKey.TITLE, result.getTitle()));
                 addSubCommand(new ChangeTagValueCommand(song, TagKey.MP3, result.getAudioFilename()));

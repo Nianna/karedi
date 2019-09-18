@@ -5,7 +5,7 @@ import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -17,9 +17,9 @@ class SaveSongAsAction extends NewKarediAction {
 
     private AppContext appContext;
 
-    SaveSongAsAction(SongContext songContext, AppContext appContext) {
+    SaveSongAsAction(DisplayContext displayContext, AppContext appContext) {
         this.appContext = appContext;
-        setDisabledCondition(songContext.activeSongIsNullProperty());
+        setDisabledCondition(displayContext.activeSongIsNullProperty());
     }
 
     @Override

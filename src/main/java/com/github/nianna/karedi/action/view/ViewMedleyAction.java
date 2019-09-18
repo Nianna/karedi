@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.action.view;
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.Song;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +12,12 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.VIEW_MEDLE
 @Component
 class ViewMedleyAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
-    ViewMedleyAction(SongContext songContext) {
-        this.songContext = songContext;
+    ViewMedleyAction(DisplayContext displayContext) {
+        this.displayContext = displayContext;
         setDisabledCondition(true);
-        this.songContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
+        this.displayContext.activeSongProperty().addListener((obsVal, oldVal, newVal) -> {
             if (newVal == null) {
                 setDisabledCondition(true);
             } else {
@@ -28,9 +28,9 @@ class ViewMedleyAction extends NewKarediAction {
 
     @Override
     protected void onAction(ActionEvent event) {
-        Song.Medley medley = songContext.getActiveSong().getMedley();
-        songContext.setVisibleAreaXBounds(medley.getStartBeat(), medley.getEndBeat());
-        songContext.assertAllNeededTonesVisible();
+        Song.Medley medley = displayContext.getActiveSong().getMedley();
+        displayContext.setVisibleAreaXBounds(medley.getStartBeat(), medley.getEndBeat());
+        displayContext.assertAllNeededTonesVisible();
     }
 
     @Override

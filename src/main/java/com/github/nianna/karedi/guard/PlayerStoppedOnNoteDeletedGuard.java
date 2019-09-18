@@ -3,7 +3,7 @@ package main.java.com.github.nianna.karedi.guard;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
@@ -14,24 +14,24 @@ public class PlayerStoppedOnNoteDeletedGuard implements Guard {
 
 	private final SongPlayer songPlayer;
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
 	private final ListChangeListener<? super Note> noteListChangeListener = ListenersUtils
 			.createListContentChangeListener(ListenersUtils::pass, this::onNoteRemoved);
 
-	public PlayerStoppedOnNoteDeletedGuard(SongPlayer songPlayer, SongContext songContext) {
+	public PlayerStoppedOnNoteDeletedGuard(SongPlayer songPlayer, DisplayContext displayContext) {
 		this.songPlayer = songPlayer;
-		this.songContext = songContext;
+		this.displayContext = displayContext;
 	}
 
 	@Override
 	public void enable() {
-		songContext.activeTrackProperty().addListener(this::onTrackChanged);
+		displayContext.activeTrackProperty().addListener(this::onTrackChanged);
 	}
 
 	@Override
 	public void disable() {
-		songContext.activeTrackProperty().removeListener(this::onTrackChanged);
+		displayContext.activeTrackProperty().removeListener(this::onTrackChanged);
 	}
 
 	private void onTrackChanged(ObservableValue<? extends SongTrack> observableValue, SongTrack oldTrack, SongTrack newTrack) {

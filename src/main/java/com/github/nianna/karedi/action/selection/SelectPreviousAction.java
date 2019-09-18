@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
@@ -17,7 +17,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.SELECT_PRE
 @Component
 public class SelectPreviousAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
     private final NoteSelection noteSelection;
 
@@ -25,12 +25,12 @@ public class SelectPreviousAction extends NewKarediAction {
 
     private final BeatMillisConverter beatMillisConverter;
 
-    private SelectPreviousAction(SongContext songContext, NoteSelection noteSelection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
-        this.songContext = songContext;
+    private SelectPreviousAction(DisplayContext displayContext, NoteSelection noteSelection, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        this.displayContext = displayContext;
         this.noteSelection = noteSelection;
         this.songPlayer = songPlayer;
         this.beatMillisConverter = beatMillisConverter;
-        setDisabledCondition(songContext.activeTrackIsNullProperty());
+        setDisabledCondition(displayContext.activeTrackIsNullProperty());
     }
 
     @Override
@@ -43,20 +43,20 @@ public class SelectPreviousAction extends NewKarediAction {
             if (beatMillisConverter.beatToMillis(markerBeat) > songPlayer.getMarkerTime()) {
                 markerBeat -= 1;
             }
-            prevNote = songContext.getActiveTrack().noteAtOrEarlier(markerBeat)
+            prevNote = displayContext.getActiveTrack().noteAtOrEarlier(markerBeat)
                     .filter(this::isInVisibleBeatRange);
         }
         if (!prevNote.isPresent()) {
-            prevNote = songContext.getActiveTrack().noteAtOrEarlier(songContext.getVisibleAreaBounds().getUpperXBound() - 1);
+            prevNote = displayContext.getActiveTrack().noteAtOrEarlier(displayContext.getVisibleAreaBounds().getUpperXBound() - 1);
         }
-        if (songContext.getActiveLine() != null) {
-            prevNote = prevNote.filter(note -> note.getLine().equals(songContext.getActiveLine()));
+        if (displayContext.getActiveLine() != null) {
+            prevNote = prevNote.filter(note -> note.getLine().equals(displayContext.getActiveLine()));
         }
         prevNote.ifPresent(noteSelection::selectOnly);
     }
 
     private boolean isInVisibleBeatRange(Note note) {
-        return songContext.getVisibleAreaBounds().inRangeX(note.getStart());
+        return displayContext.getVisibleAreaBounds().inRangeX(note.getStart());
     }
 
     @Override

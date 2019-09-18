@@ -2,7 +2,7 @@ package main.java.com.github.nianna.karedi.guard;
 
 import javafx.beans.value.ObservableValue;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -13,21 +13,21 @@ public class FirstNoteSelectedOnLineChangedGuard implements Guard {
 
 	private final NoteSelection noteSelection;
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
-	public FirstNoteSelectedOnLineChangedGuard(NoteSelection noteSelection, SongContext songContext) {
+	public FirstNoteSelectedOnLineChangedGuard(NoteSelection noteSelection, DisplayContext displayContext) {
 		this.noteSelection = noteSelection;
-		this.songContext = songContext;
+		this.displayContext = displayContext;
 	}
 
 	@Override
 	public void enable() {
-		songContext.activeLineProperty().addListener(this::onLineChanged);
+		displayContext.activeLineProperty().addListener(this::onLineChanged);
 	}
 
 	@Override
 	public void disable() {
-		songContext.activeLineProperty().removeListener(this::onLineChanged);
+		displayContext.activeLineProperty().removeListener(this::onLineChanged);
 	}
 
 	private void onLineChanged(ObservableValue<? extends SongLine> observableValue, SongLine oldLine, SongLine newLine) {

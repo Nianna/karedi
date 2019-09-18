@@ -35,7 +35,7 @@ public class AppContext {
 	public static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName()); //TODO refactor
 
 	@Autowired
-	private SongContext songContext;
+	private DisplayContext displayContext;
 
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 	private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
@@ -237,7 +237,7 @@ public class AppContext {
 	}
 
 	public Song getSong() {
-		return songContext.activeSongProperty().get();
+		return displayContext.activeSongProperty().get();
 	}
 
 	public final void setSong(Song song) {
@@ -245,7 +245,7 @@ public class AppContext {
 		new SongNormalizer(song).normalize();
 		// The song has at least one track now
 		if (song != oldSong) {
-			songContext.setActiveSong(song);
+			displayContext.setActiveSong(song);
 			player.setSong(song);
 			onBeatMillisConverterInvalidated();
 			if (oldSong != null) {
@@ -277,8 +277,8 @@ public class AppContext {
 		if (selection.size() > 0 && selectionBounds.isValid()) {
 			setMarkerBeat(selectionBounds.getLowerXBound());
 			if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
-				songContext.setActiveLine(null);
-				songContext.assertAllNeededTonesVisible();
+				displayContext.setActiveLine(null);
+				displayContext.assertAllNeededTonesVisible();
 			}
 		}
 	}

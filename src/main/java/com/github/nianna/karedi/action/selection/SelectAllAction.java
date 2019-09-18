@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.SELECT_ALL;
@@ -12,19 +12,19 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.SELECT_ALL
 @Component
 public class SelectAllAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
     private final NoteSelection noteSelection;
 
-    private SelectAllAction(SongContext songContext, NoteSelection noteSelection) {
-        this.songContext = songContext;
+    private SelectAllAction(DisplayContext displayContext, NoteSelection noteSelection) {
+        this.displayContext = displayContext;
         this.noteSelection = noteSelection;
-        setDisabledCondition(this.songContext.activeTrackIsNullProperty());
+        setDisabledCondition(this.displayContext.activeTrackIsNullProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        noteSelection.set(songContext.getActiveTrack().getNotes());
+        noteSelection.set(displayContext.getActiveTrack().getNotes());
     }
 
     @Override

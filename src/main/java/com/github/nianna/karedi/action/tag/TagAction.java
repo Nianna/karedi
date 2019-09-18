@@ -1,14 +1,14 @@
 package main.java.com.github.nianna.karedi.action.tag;
 
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 
 abstract class TagAction extends NewKarediAction {
 
-    protected final SongContext songContext;
+    protected final DisplayContext displayContext;
 
-    TagAction(SongContext songContext) {
-        this.songContext = songContext;
-        setDisabledCondition(this.songContext.activeSongIsNullProperty());
+    TagAction(DisplayContext displayContext) {
+        this.displayContext = displayContext;
+        setDisabledCondition(this.displayContext.activeSongIsNullProperty());
     }
 }

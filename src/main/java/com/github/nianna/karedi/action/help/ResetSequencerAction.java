@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.audio.MidiPlayer;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.RESET_SEQUENCER;
@@ -12,8 +12,8 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.RESET_SEQU
 @Component
 public class ResetSequencerAction extends NewKarediAction {
 
-    private ResetSequencerAction(SongContext songContext) {
-        setDisabledCondition(songContext.activeSongProperty().isNull());
+    private ResetSequencerAction(DisplayContext displayContext) {
+        setDisabledCondition(displayContext.activeSongProperty().isNull());
     }
 
     @Override

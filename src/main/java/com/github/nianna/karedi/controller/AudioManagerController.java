@@ -25,7 +25,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.control.SliderTableCell;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class AudioManagerController implements Controller {
 	private SongPlayer songPlayer;
 
 	@Autowired
-	private SongContext songContext;
+	private DisplayContext displayContext;
 
 	@FXML
 	public void initialize() {
@@ -88,7 +88,7 @@ public class AudioManagerController implements Controller {
 				(obsValue, oldValue, newValue) -> table.getSelectionModel().select(newValue));
 
 		table.setItems(songPlayer.getAudioFiles());
-		table.disableProperty().bind(songContext.activeSongProperty().isNull());
+		table.disableProperty().bind(displayContext.activeSongProperty().isNull());
 
 		table.getSelectionModel().selectedItemProperty().addListener((obsVal, oldVal, newVal) -> {
 			if (newVal != null && newVal != songPlayer.getActiveAudioFile()) {

@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import main.java.com.github.nianna.karedi.util.Converter;
@@ -20,8 +20,8 @@ class SetTagValueFromMarkerPositionAction extends TagAction {
 
     private final CommandExecutor commandExecutor;
 
-    SetTagValueFromMarkerPositionAction(KarediActions handledAction, TagKey key, SongContext songContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
-        super(songContext);
+    SetTagValueFromMarkerPositionAction(KarediActions handledAction, TagKey key, DisplayContext displayContext, SongPlayer songPlayer, CommandExecutor commandExecutor) {
+        super(displayContext);
         this.key = key;
         this.handledAction = handledAction;
         this.songPlayer = songPlayer;
@@ -39,7 +39,7 @@ class SetTagValueFromMarkerPositionAction extends TagAction {
             }
         }
         if (value != null) {
-            commandExecutor.execute(new ChangeTagValueCommand(songContext.getActiveSong(), key, value));
+            commandExecutor.execute(new ChangeTagValueCommand(displayContext.getActiveSong(), key, value));
         }
     }
 

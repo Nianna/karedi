@@ -1,7 +1,7 @@
 package main.java.com.github.nianna.karedi.action.view;
 
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.region.Direction;
 import org.springframework.context.annotation.Bean;
@@ -13,37 +13,37 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.*;
 class ViewActionsConfiguration {
 
     @Bean
-    public NewKarediAction fitToVisibleAction(SongContext songContext) {
-        return new FitToVisibleAction(FIT_TO_VISIBLE, true, true, songContext);
+    public NewKarediAction fitToVisibleAction(DisplayContext displayContext) {
+        return new FitToVisibleAction(FIT_TO_VISIBLE, true, true, displayContext);
     }
 
     @Bean
-    public NewKarediAction fitVerticallyToVisibleAction(SongContext songContext) {
-        return new FitToVisibleAction(FIT_VERTICALLY, true, false, songContext);
+    public NewKarediAction fitVerticallyToVisibleAction(DisplayContext displayContext) {
+        return new FitToVisibleAction(FIT_VERTICALLY, true, false, displayContext);
     }
 
     @Bean
-    public NewKarediAction fitHorizontallyToVisibleAction(SongContext songContext) {
-        return new FitToVisibleAction(FIT_HORIZONTALLY, false, true, songContext);
+    public NewKarediAction fitHorizontallyToVisibleAction(DisplayContext displayContext) {
+        return new FitToVisibleAction(FIT_HORIZONTALLY, false, true, displayContext);
     }
 
     @Bean
-    public NewKarediAction moveVisibleAreaLeftAction(VisibleArea visibleArea, SongContext songContext) {
-        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_LEFT, Direction.LEFT, 1, songContext);
+    public NewKarediAction moveVisibleAreaLeftAction(VisibleArea visibleArea, DisplayContext displayContext) {
+        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_LEFT, Direction.LEFT, 1, displayContext);
     }
 
     @Bean
-    public NewKarediAction moveVisibleAreaRightAction(VisibleArea visibleArea, SongContext songContext) {
-        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_RIGHT, Direction.RIGHT, 1, songContext);
+    public NewKarediAction moveVisibleAreaRightAction(VisibleArea visibleArea, DisplayContext displayContext) {
+        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_RIGHT, Direction.RIGHT, 1, displayContext);
     }
 
     @Bean
-    public NewKarediAction moveVisibleAreaUpAction(VisibleArea visibleArea, SongContext songContext) {
-        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_UP, Direction.UP, 1, songContext);
+    public NewKarediAction moveVisibleAreaUpAction(VisibleArea visibleArea, DisplayContext displayContext) {
+        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_UP, Direction.UP, 1, displayContext);
     }
 
     @Bean
-    public NewKarediAction moveVisibleAreaDownAction(VisibleArea visibleArea, SongContext songContext) {
-        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_DOWN, Direction.DOWN, 1, songContext);
+    public NewKarediAction moveVisibleAreaDownAction(VisibleArea visibleArea, DisplayContext displayContext) {
+        return new MoveVisibleAreaAction(MOVE_VISIBLE_AREA_DOWN, Direction.DOWN, 1, displayContext);
     }
 }

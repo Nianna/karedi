@@ -19,7 +19,7 @@ import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
 import main.java.com.github.nianna.karedi.command.tag.DeleteTagCommand;
 import main.java.com.github.nianna.karedi.command.tag.ReorderTagsCommand;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.control.RestrictedTextField;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.Tag;
@@ -53,12 +53,12 @@ public class TagsTableController implements Controller {
 	private AppContext appContext;
 	private Song song;
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
 	private final CommandExecutor commandExecutor;
 
-	public TagsTableController(SongContext songContext, CommandExecutor commandExecutor) {
-		this.songContext = songContext;
+	public TagsTableController(DisplayContext displayContext, CommandExecutor commandExecutor) {
+		this.displayContext = displayContext;
 		this.commandExecutor = commandExecutor;
 	}
 
@@ -73,7 +73,7 @@ public class TagsTableController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		songContext.activeSongProperty().addListener((obs, oldVal, newVal) -> display(newVal));
+		displayContext.activeSongProperty().addListener((obs, oldVal, newVal) -> display(newVal));
 
 		table.setRowFactory(getRowFactory());
 		TableViewUtils.makeRowsDraggable(table, TransferMode.MOVE, mode -> {
@@ -203,12 +203,12 @@ public class TagsTableController implements Controller {
 
 	private void changeTagValueIfValid(TagKey key, String value) {
 		if (!TagValidators.hasValidationErrors(key, value)) {
-			commandExecutor.execute(new ChangeTagValueCommand(songContext.getActiveSong(), key, value));
+			commandExecutor.execute(new ChangeTagValueCommand(displayContext.getActiveSong(), key, value));
 		}
 	}
 
 	private void changeTagValue(String key, String value) {
-		commandExecutor.execute(new ChangeTagValueCommand(songContext.getActiveSong(), key, value));
+		commandExecutor.execute(new ChangeTagValueCommand(displayContext.getActiveSong(), key, value));
 	}
 
 	private void display(Song song) {

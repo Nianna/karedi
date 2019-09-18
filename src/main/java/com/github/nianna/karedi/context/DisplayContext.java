@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SongContext {
+public class DisplayContext {
 
     private final VisibleArea visibleArea;
 
@@ -35,7 +35,7 @@ public class SongContext {
     private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
             .createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
 
-    public SongContext(VisibleArea visibleArea) {
+    public DisplayContext(VisibleArea visibleArea) {
         this.visibleArea = visibleArea;
     }
 

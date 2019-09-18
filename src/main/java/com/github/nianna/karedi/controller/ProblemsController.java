@@ -13,7 +13,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import main.java.com.github.nianna.karedi.problem.Problem;
@@ -54,13 +54,13 @@ public class ProblemsController implements Controller {
 	
 	private final NoteSelection noteSelection;
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
 	private final CommandExecutor commandExecutor;
 
-	public ProblemsController(NoteSelection noteSelection, SongContext songContext, CommandExecutor commandExecutor) {
+	public ProblemsController(NoteSelection noteSelection, DisplayContext displayContext, CommandExecutor commandExecutor) {
 		this.noteSelection = noteSelection;
-		this.songContext = songContext;
+		this.displayContext = displayContext;
 		this.commandExecutor = commandExecutor;
 	}
 
@@ -98,7 +98,7 @@ public class ProblemsController implements Controller {
 	@Override
 	public void setAppContext(AppContext appContext) {
 		this.appContext = appContext;
-		songContext.activeSongProperty().addListener(this::onSongChanged);
+		displayContext.activeSongProperty().addListener(this::onSongChanged);
 
 		tree.getSelectionModel().selectedItemProperty().addListener(this::onSelectionInvalidated);
 	}
@@ -116,16 +116,16 @@ public class ProblemsController implements Controller {
 	}
 
 	private void selectAffectedBounds(Problem problem) {
-		problem.getTrack().ifPresent(songContext::setActiveTrack);
+		problem.getTrack().ifPresent(displayContext::setActiveTrack);
 		problem.getAffectedBounds().ifPresent(bounds -> {
 			if (bounds.isValid()) {
-				List<Note> affectedNotes = songContext.getActiveTrack()
+				List<Note> affectedNotes = displayContext.getActiveTrack()
 						.getNotes(bounds.getLowerXBound(), bounds.getUpperXBound());
 				if (affectedNotes.size() > 0) {
 					SongLine line = affectedNotes.get(0).getLine();
 					if (line != null
 							&& line == affectedNotes.get(affectedNotes.size() - 1).getLine()) {
-						songContext.setActiveLine(line);
+						displayContext.setActiveLine(line);
 					}
 				}
 				noteSelection.set(affectedNotes);

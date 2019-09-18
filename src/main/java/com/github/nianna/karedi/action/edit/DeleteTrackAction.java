@@ -5,7 +5,7 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.track.DeleteTrackCommand;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.DELETE_TRACK;
@@ -14,17 +14,17 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.DELETE_TRA
 class DeleteTrackAction extends NewKarediAction {
 
     private final CommandExecutor commandExecutor;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
-    private DeleteTrackAction(CommandExecutor commandExecutor, SongContext songContext) {
+    private DeleteTrackAction(CommandExecutor commandExecutor, DisplayContext displayContext) {
         this.commandExecutor = commandExecutor;
-        this.songContext = songContext;
-        setDisabledCondition(songContext.activeSongHasOneOrZeroTracksProperty());
+        this.displayContext = displayContext;
+        setDisabledCondition(displayContext.activeSongHasOneOrZeroTracksProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        commandExecutor.execute(new DeleteTrackCommand(songContext.getActiveSong(), songContext.getActiveTrack()));
+        commandExecutor.execute(new DeleteTrackCommand(displayContext.getActiveSong(), displayContext.getActiveTrack()));
     }
 
     @Override

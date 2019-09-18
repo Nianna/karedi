@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import org.springframework.stereotype.Component;
 
@@ -13,12 +13,12 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.FIT_TO_SEL
 @Component
 class FitToSelectionAction extends NewKarediAction {
 
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final SongPlayer songPlayer;
     private final NoteSelection noteSelection;
 
-    FitToSelectionAction(NoteSelection noteSelection, SongContext songContext, SongPlayer songPlayer) {
-        this.songContext = songContext;
+    FitToSelectionAction(NoteSelection noteSelection, DisplayContext displayContext, SongPlayer songPlayer) {
+        this.displayContext = displayContext;
         this.songPlayer = songPlayer;
         this.noteSelection = noteSelection;
         setDisabledCondition(noteSelection.isEmptyProperty());
@@ -27,8 +27,8 @@ class FitToSelectionAction extends NewKarediAction {
     @Override
     protected void onAction(ActionEvent event) {
         songPlayer.stop(); //TODO can it be done differently?
-        songContext.setActiveLine(null);
-        songContext.setBoundsWithMargin(noteSelection.getSelectionBounds());
+        displayContext.setActiveLine(null);
+        displayContext.setBoundsWithMargin(noteSelection.getSelectionBounds());
     }
 
     @Override

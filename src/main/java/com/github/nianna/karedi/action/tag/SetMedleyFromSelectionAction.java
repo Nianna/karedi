@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeMedleyCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 
 class SetMedleyFromSelectionAction extends NewKarediAction {
     private boolean setStartBeat;
@@ -14,13 +14,13 @@ class SetMedleyFromSelectionAction extends NewKarediAction {
     private KarediActions handledAction;
 
     private final CommandExecutor commandExecutor;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private final NoteSelection selection;
 
-    SetMedleyFromSelectionAction(KarediActions handledAction, boolean setStartBeat, boolean setEndBeat, NoteSelection noteSelection, CommandExecutor commandExecutor, SongContext songContext, NoteSelection selection) {
+    SetMedleyFromSelectionAction(KarediActions handledAction, boolean setStartBeat, boolean setEndBeat, NoteSelection noteSelection, CommandExecutor commandExecutor, DisplayContext displayContext, NoteSelection selection) {
         this.handledAction = handledAction;
         this.commandExecutor = commandExecutor;
-        this.songContext = songContext;
+        this.displayContext = displayContext;
         this.selection = selection;
         setDisabledCondition(noteSelection.isEmptyProperty());
         this.setEndBeat = setEndBeat;
@@ -31,7 +31,7 @@ class SetMedleyFromSelectionAction extends NewKarediAction {
     protected void onAction(ActionEvent event) {
         Integer startBeat = setStartBeat ? selection.getSelectionBounds().getLowerXBound() : null;
         Integer endBeat = setEndBeat ? selection.getSelectionBounds().getUpperXBound() : null;
-        commandExecutor.execute(new ChangeMedleyCommand(songContext.getActiveSong(), startBeat, endBeat));
+        commandExecutor.execute(new ChangeMedleyCommand(displayContext.getActiveSong(), startBeat, endBeat));
     }
 
     @Override

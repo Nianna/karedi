@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.audio.Player;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 
 class PlayRangeAction extends NewKarediAction {
@@ -16,14 +16,14 @@ class PlayRangeAction extends NewKarediAction {
     private final ObservableValue<? extends Number> to;
     private final SongPlayer songPlayer;
 
-    PlayRangeAction(KarediActions handledAction, Player.Mode mode, ObservableValue<? extends Number> from, ObservableValue<? extends Number> to, SongContext songContext, SongPlayer songPlayer) {
+    PlayRangeAction(KarediActions handledAction, Player.Mode mode, ObservableValue<? extends Number> from, ObservableValue<? extends Number> to, DisplayContext displayContext, SongPlayer songPlayer) {
         this.handledAction = handledAction;
         this.mode = mode;
             this.from = from;
             this.to = to;
         this.songPlayer = songPlayer;
 
-        BooleanBinding condition = songContext.activeSongIsNullProperty();
+        BooleanBinding condition = displayContext.activeSongIsNullProperty();
             if (mode != Player.Mode.MIDI_ONLY) {
                 condition = condition.or(songPlayer.activeAudioIsNullProperty());
             }

@@ -8,7 +8,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.ToggleLineBreakCommand;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +19,12 @@ class ToggleLineBreakAction extends NewKarediAction {
 
     private final NoteSelection noteSelection;
     private final CommandExecutor commandExecutor;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
-    ToggleLineBreakAction(NoteSelection noteSelection, CommandExecutor commandExecutor, SongContext songContext) {
+    ToggleLineBreakAction(NoteSelection noteSelection, CommandExecutor commandExecutor, DisplayContext displayContext) {
         this.noteSelection = noteSelection;
         this.commandExecutor = commandExecutor;
-        this.songContext = songContext;
+        this.displayContext = displayContext;
         setDisabledCondition(this.noteSelection.isEmptyProperty());
     }
 
@@ -33,7 +33,7 @@ class ToggleLineBreakAction extends NewKarediAction {
         Note splittingNote = noteSelection.getFirst().get();
         Command cmd = new ToggleLineBreakCommand(splittingNote);
         commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, (command) -> {
-            songContext.setActiveLine(splittingNote.getLine());
+            displayContext.setActiveLine(splittingNote.getLine());
             noteSelection.selectOnly(splittingNote);
         }));
     }

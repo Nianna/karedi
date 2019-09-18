@@ -6,7 +6,7 @@ import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import org.springframework.stereotype.Component;
 
@@ -18,15 +18,15 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.RELOAD;
 @Component
 class ReloadSongAction extends NewKarediAction {
     private final AppContext appContext;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
     private Integer trackNumber;
     private Integer lineNumber;
     private List<Color> colors;
 
-    ReloadSongAction(AppContext appContext, SongContext songContext) {
+    ReloadSongAction(AppContext appContext, DisplayContext displayContext) {
         this.appContext = appContext;
-        this.songContext = songContext;
-        setDisabledCondition(appContext.activeFileIsNullProperty().or(this.songContext.activeSongIsNullProperty()));
+        this.displayContext = displayContext;
+        setDisabledCondition(appContext.activeFileIsNullProperty().or(this.displayContext.activeSongIsNullProperty()));
     }
 
     @Override
@@ -36,7 +36,7 @@ class ReloadSongAction extends NewKarediAction {
             backupColors();
             appContext.loadSongFile(appContext.getActiveFile(), false);
 
-            if (songContext.getActiveSong() != null) {
+            if (displayContext.getActiveSong() != null) {
                 restoreTrackAndLine();
                 restoreColors();
             }
@@ -46,31 +46,31 @@ class ReloadSongAction extends NewKarediAction {
     private void backupTrackAndLine() {
         trackNumber = null;
         lineNumber = null;
-        if (songContext.getActiveTrack() != null) {
-            trackNumber = songContext.getActiveSong().indexOf(songContext.getActiveTrack());
-            if (songContext.getActiveLine() != null) {
-                lineNumber = songContext.getActiveTrack().indexOf(songContext.getActiveLine());
+        if (displayContext.getActiveTrack() != null) {
+            trackNumber = displayContext.getActiveSong().indexOf(displayContext.getActiveTrack());
+            if (displayContext.getActiveLine() != null) {
+                lineNumber = displayContext.getActiveTrack().indexOf(displayContext.getActiveLine());
             }
         }
     }
 
     private void backupColors() {
-        colors = songContext.getActiveSong().getTracks().stream().map(SongTrack::getColor)
+        colors = displayContext.getActiveSong().getTracks().stream().map(SongTrack::getColor)
                 .collect(Collectors.toList());
     }
 
     private void restoreTrackAndLine() {
-        if (trackNumber != null && songContext.getActiveSong().size() > trackNumber) {
-            songContext.setActiveTrack(songContext.getActiveSong().get(trackNumber));
-            if (lineNumber != null && songContext.getActiveTrack().size() > lineNumber) {
-                songContext.setActiveLine(songContext.getActiveTrack().get(lineNumber));
+        if (trackNumber != null && displayContext.getActiveSong().size() > trackNumber) {
+            displayContext.setActiveTrack(displayContext.getActiveSong().get(trackNumber));
+            if (lineNumber != null && displayContext.getActiveTrack().size() > lineNumber) {
+                displayContext.setActiveLine(displayContext.getActiveTrack().get(lineNumber));
             }
         }
     }
 
     private void restoreColors() {
-        for (int i = 0; i < songContext.getActiveSong().size() && i < colors.size(); ++i) {
-            songContext.getActiveSong().getTrack(i).setColor(colors.get(i));
+        for (int i = 0; i < displayContext.getActiveSong().size() && i < colors.size(); ++i) {
+            displayContext.getActiveSong().getTrack(i).setColor(colors.get(i));
         }
     }
 

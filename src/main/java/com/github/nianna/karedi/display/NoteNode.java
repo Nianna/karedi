@@ -10,7 +10,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.controller.EditorController;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -25,7 +25,7 @@ public class NoteNode {
 	private static final int BASIC_RESIZE_MARGIN = 3;
 	private NoteNodeDisplayer noteDisplayer;
 	private final NoteSelection selection;
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 	private final CommandExecutor commandExecutor;
 
 	private EditorController editorController;
@@ -36,8 +36,8 @@ public class NoteNode {
 
 	private int dragBeatOffset;
 
-	public NoteNode(SongContext songContext, NoteSelection selection, CommandExecutor commandExecutor, EditorController editorController, Note note) {
-		this.songContext = songContext;
+	public NoteNode(DisplayContext displayContext, NoteSelection selection, CommandExecutor commandExecutor, EditorController editorController, Note note) {
+		this.displayContext = displayContext;
 		this.selection = selection;
 		this.commandExecutor = commandExecutor;
 		this.editorController = editorController;
@@ -74,7 +74,7 @@ public class NoteNode {
 		noteDisplayer.fontColorProperty().bind(track.fontColorProperty());
 		noteDisplayer.visibleProperty().bind(track.visibleProperty());
 		noteDisplayer.disableProperty()
-				.bind(Bindings.notEqual(songContext.activeTrackProperty(), track));
+				.bind(Bindings.notEqual(displayContext.activeTrackProperty(), track));
 
 		noteDisplayer.lyricsProperty().bind(Bindings.createStringBinding(() -> {
 			return note.getLyrics().trim();
@@ -130,8 +130,8 @@ public class NoteNode {
 				return;
 			}
 			if (!event.isConsumed()) {
-				if (event.getClickCount() > 1 && songContext.getActiveLine() == null) {
-					songContext.setActiveLine(note.getLine());
+				if (event.getClickCount() > 1 && displayContext.getActiveLine() == null) {
+					displayContext.setActiveLine(note.getLine());
 				}
 				selection.selectOnly(note);
 			}

@@ -7,8 +7,7 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeBpmCommand;
 import main.java.com.github.nianna.karedi.command.tag.RescaleSongToBpmCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.dialog.EditBpmDialog;
 import main.java.com.github.nianna.karedi.dialog.ModifyBpmDialog;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -21,18 +20,18 @@ class EditBpmAction extends NewKarediAction {
     private final CommandExecutor commandExecutor;
     private double scale;
     private boolean promptUser;
-    private final SongContext songContext;
+    private final DisplayContext displayContext;
 
-    EditBpmAction(KarediActions handledAction, SongContext songContext, CommandExecutor commandExecutor) {
+    EditBpmAction(KarediActions handledAction, DisplayContext displayContext, CommandExecutor commandExecutor) {
         this.handledAction = handledAction;
-        this.songContext = songContext;
+        this.displayContext = displayContext;
         this.commandExecutor = commandExecutor;
-        setDisabledCondition(songContext.activeSongIsNullProperty());
+        setDisabledCondition(displayContext.activeSongIsNullProperty());
         promptUser = true;
     }
 
-    EditBpmAction(KarediActions handledAction, double scale, SongContext songContext, CommandExecutor commandExecutor) {
-        this(handledAction, songContext, commandExecutor);
+    EditBpmAction(KarediActions handledAction, double scale, DisplayContext displayContext, CommandExecutor commandExecutor) {
+        this(handledAction, displayContext, commandExecutor);
         this.scale = scale;
         promptUser = false;
     }
@@ -63,7 +62,7 @@ class EditBpmAction extends NewKarediAction {
     }
 
     private Song getSong() {
-        return songContext.getActiveSong();
+        return displayContext.getActiveSong();
     }
 
     @Override

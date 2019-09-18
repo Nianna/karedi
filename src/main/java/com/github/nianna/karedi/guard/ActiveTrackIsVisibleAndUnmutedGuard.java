@@ -1,27 +1,27 @@
 package main.java.com.github.nianna.karedi.guard;
 
 import javafx.beans.value.ObservableValue;
-import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongTrack;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ActiveTrackIsVisibleAndUnmutedGuard implements Guard {
 
-	private final SongContext songContext;
+	private final DisplayContext displayContext;
 
-	public ActiveTrackIsVisibleAndUnmutedGuard(SongContext songContext) {
-		this.songContext = songContext;
+	public ActiveTrackIsVisibleAndUnmutedGuard(DisplayContext displayContext) {
+		this.displayContext = displayContext;
 	}
 
 	@Override
 	public void enable() {
-		songContext.activeTrackProperty().addListener(this::onTrackChanged);
+		displayContext.activeTrackProperty().addListener(this::onTrackChanged);
 	}
 
 	@Override
 	public void disable() {
-		songContext.activeTrackProperty().removeListener(this::onTrackChanged);
+		displayContext.activeTrackProperty().removeListener(this::onTrackChanged);
 	}
 
 	private void onTrackChanged(ObservableValue<? extends SongTrack> observableValue, SongTrack oldTrack, SongTrack newTrack) {

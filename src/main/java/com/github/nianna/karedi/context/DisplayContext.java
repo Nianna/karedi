@@ -206,8 +206,8 @@ public class DisplayContext {
         visibleArea.setBounds(visibleArea.addMargins(bounds));
     }
 
-    public void assertBorderlessBoundsVisible(BoundingBox<Note> boundingBox) {
-        visibleArea.assertBorderlessBoundsVisible(boundingBox);
+    public boolean assertBorderlessBoundsVisible(IntBounded bounded) {
+        return visibleArea.assertBorderlessBoundsVisible(bounded);
     }
 
     public IntBounded addMargins(BoundingBox<Note> boundingBox) {

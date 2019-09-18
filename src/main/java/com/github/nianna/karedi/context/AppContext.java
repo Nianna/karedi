@@ -15,7 +15,6 @@ import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
-import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +47,6 @@ public class AppContext {
 
     @Autowired
     private CommandHistory history;
-
-    @Autowired
-    private NoteSelection selection;
 
     @Autowired
     private SongPlayer player;
@@ -86,9 +82,6 @@ public class AppContext {
         activeFileIsNull = activeFileProperty().isNull();
 
         LOGGER.setUseParentHandlers(false);
-
-        //TODO
-        selection.getSelectionBounds().addListener(obs -> onSelectionBoundsInvalidated());
 
         guards.forEach(Guard::enable);
     }
@@ -181,18 +174,6 @@ public class AppContext {
             player.setSong(song);
         }
     }
-
-    private void onSelectionBoundsInvalidated() {
-        IntBounded selectionBounds = selection.getSelectionBounds();
-        if (selection.size() > 0 && selectionBounds.isValid()) {
-            player.setMarkerBeat(selectionBounds.getLowerXBound());
-            if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
-                displayContext.setActiveLine(null);
-                displayContext.assertAllNeededTonesVisible();
-            }
-        }
-    }
-
 
     // Other
     public boolean needsSaving() {

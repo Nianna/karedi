@@ -1,5 +1,6 @@
 package main.java.com.github.nianna.karedi.context;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -13,6 +14,7 @@ import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
+import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +23,9 @@ import java.util.List;
 @Component
 public class DisplayContext {
 
+    private final BeatRange beatRange;
     private final VisibleArea visibleArea;
+    private final BeatMillisConverter beatMillisConverter;
 
     private final ReadOnlyObjectWrapper<Song> activeSong = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<SongTrack> activeTrack = new ReadOnlyObjectWrapper<>();
@@ -35,8 +39,12 @@ public class DisplayContext {
     private final ListChangeListener<? super SongLine> lineListChangeListener = ListenersUtils
             .createListContentChangeListener(ListenersUtils::pass, this::onLineRemoved);
 
-    public DisplayContext(VisibleArea visibleArea) {
+    private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
+
+    public DisplayContext(BeatRange beatRange, VisibleArea visibleArea, BeatMillisConverter beatMillisConverter) {
+        this.beatRange = beatRange;
         this.visibleArea = visibleArea;
+        this.beatMillisConverter = beatMillisConverter;
     }
 
     public Song getActiveSong() {
@@ -75,21 +83,25 @@ public class DisplayContext {
         return activeSongHasOneOrZeroTracks;
     }
 
-    public void setActiveSong(Song newSong) {
+    void setActiveSong(Song newSong) {
         Song oldSong = getActiveSong();
         activeSong.set(newSong);
 
+        onBeatMillisConverterInvalidated();
         if (oldSong != null) {
             activeSongTrackCount.unbind();
+            oldSong.getBeatMillisConverter().removeListener(beatMillisConverterInvalidationListener);
         }
 
         if (newSong == null) {
             setActiveTrack(null);
             activeSongTrackCount.set(0);
         } else {
-            setActiveTrack(newSong.getDefaultTrack().orElse(null));
+            newSong.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
             activeSongTrackCount.bind(newSong.trackCount());
+            setActiveTrack(newSong.getDefaultTrack().orElse(null));
         }
+        beatRange.setBounds(newSong);
     }
 
     public final void setActiveTrack(SongTrack newTrack) {
@@ -120,6 +132,17 @@ public class DisplayContext {
         }
     }
 
+    private void onBeatMillisConverterInvalidated() {
+//        player.stop(); // TODO
+        if (getActiveSong() == null) {
+            beatMillisConverter.setBpm(Song.DEFAULT_BPM);
+            beatMillisConverter.setGap(Song.DEFAULT_GAP);
+        } else {
+            beatMillisConverter.setBpm(getActiveSong().getBpm());
+            beatMillisConverter.setGap(getActiveSong().getGap());
+        }
+    }
+
     public void invalidateVisibleArea() {
         visibleArea.invalidate();
     }
@@ -128,7 +151,7 @@ public class DisplayContext {
         assertAllNeededTonesVisible(visibleArea.getLowerXBound(), visibleArea.getUpperXBound());
     }
 
-    public void assertAllNeededTonesVisible(int fromBeat, int toBeat) {
+    private void assertAllNeededTonesVisible(int fromBeat, int toBeat) {
         List<Note> notes = getActiveSong().getVisibleNotes(fromBeat, toBeat);
         visibleArea.assertBoundsYVisible(visibleArea.addMargins(new BoundingBox<>(notes)));
     }

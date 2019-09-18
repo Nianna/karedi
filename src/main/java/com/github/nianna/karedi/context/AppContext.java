@@ -1,6 +1,5 @@
 package main.java.com.github.nianna.karedi.context;
 
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
@@ -32,58 +31,54 @@ import java.util.logging.Logger;
 
 @Component
 public class AppContext {
-	public static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName()); //TODO refactor
+    public static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName()); //TODO refactor
 
-	@Autowired
-	private DisplayContext displayContext;
+    private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 
-	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
-	private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
+    private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
 
-	@Autowired
-	private SongLoader songLoader;
+    private final ActionHelper actionHelper = new ActionHelper();
 
-	@Autowired
-	private SongSaver songSaver;
+    @Autowired
+    private DisplayContext displayContext;
 
-	private final ActionHelper actionHelper = new ActionHelper();
+    @Autowired
+    private SongLoader songLoader;
 
-	@Autowired
-	private CommandHistory history;
+    @Autowired
+    private SongSaver songSaver;
 
-	@Autowired
-	private NoteSelection selection;
+    @Autowired
+    private CommandHistory history;
 
-	@Autowired
-	private BeatMillisConverter beatMillisConverter;
+    @Autowired
+    private NoteSelection selection;
 
-	@Autowired
-	private SongPlayer player;
+    @Autowired
+    private BeatMillisConverter beatMillisConverter;
 
-	@Autowired
-	private  BeatRange beatRange;
+    @Autowired
+    private SongPlayer player;
 
-	@Autowired
-	private  VisibleArea visibleArea;
+    @Autowired
+    private VisibleArea visibleArea;
 
-	@Autowired
-	private List<Guard> guards;
+    @Autowired
+    private List<Guard> guards;
 
-	@Autowired
+    @Autowired
     private ActionManager actionManager;
 
-	private File directory;
+    private File directory;
 
-	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
-
-	// Convenience bindings for actions
-	private BooleanBinding activeFileIsNull;
+    // Convenience bindings for actions
+    private BooleanBinding activeFileIsNull;
 
     public AppContext() {
-		LOGGER.setUseParentHandlers(false);
-	}
+        LOGGER.setUseParentHandlers(false);
+    }
 
-	public BooleanBinding hasNoChangesProperty() {
+    public BooleanBinding hasNoChangesProperty() {
         return lastSavedCommand.isEqualTo(history.activeCommandProperty());
     }
 
@@ -91,38 +86,36 @@ public class AppContext {
         return activeFileIsNull;
     }
 
-	@PostConstruct
-	public void initAppContext() {
-		activeFileIsNull = activeFileProperty().isNull();
+    @PostConstruct
+    public void initAppContext() {
+        activeFileIsNull = activeFileProperty().isNull();
 
-		LOGGER.setUseParentHandlers(false);
+        LOGGER.setUseParentHandlers(false);
 
-		 //TODO
-		selection.getSelectionBounds().addListener(obs -> onSelectionBoundsInvalidated());
+        //TODO
+        selection.getSelectionBounds().addListener(obs -> onSelectionBoundsInvalidated());
 
-		guards.forEach(Guard::enable);
-	}
+        guards.forEach(Guard::enable);
+    }
 
-	// Actions
-	public void addAction(KarediActions key, KarediAction action) {
-		actionHelper.add(key, action);
-	}
+    // Actions
+    public void addAction(KarediActions key, KarediAction action) {
+        actionHelper.add(key, action);
+    }
 
-	public KarediAction getAction(KarediActions key) {
-		return Optional.ofNullable(actionHelper.get(key)).orElse(actionManager.get(key));
-	}
+    public KarediAction getAction(KarediActions key) {
+        return Optional.ofNullable(actionHelper.get(key)).orElse(actionManager.get(key));
+    }
 
-	public void execute(KarediActions action) {
-		actionHelper.execute(action);
-	}
+    public void execute(KarediActions action) {
+        actionHelper.execute(action);
+    }
 
-	public boolean canExecute(KarediActions action) {
-		return actionHelper.canExecute(action);
-	}
+    public boolean canExecute(KarediActions action) {
+        return actionHelper.canExecute(action);
+    }
 
-	// Beat range
-
-	public IntegerBinding playToTheEndStartBeatProperty() {
+    public IntegerBinding playToTheEndStartBeatProperty() {
         return Bindings.createIntegerBinding(() -> {
             if (isMarkerVisible()) {
                 return getMarkerBeat();
@@ -132,181 +125,159 @@ public class AppContext {
         }, markerBeatProperty(), visibleArea);
     }
 
-	// Audio
-	public CachedAudioFile getActiveAudioFile() {
-		return player.getActiveAudioFile();
-	}
+    // Audio
+    public CachedAudioFile getActiveAudioFile() {
+        return player.getActiveAudioFile();
+    }
 
-	public void removeAudioFile(CachedAudioFile file) {
-		player.removeAudioFile(file);
-	}
+    public void setActiveAudioFile(CachedAudioFile file) {
+        if (file != getActiveAudioFile()) {
+            execute(KarediActions.STOP_PLAYBACK);
+            player.setActiveAudioFile(file);
+        }
+    }
 
-	public void loadAudioFile(File file) {
-		AudioFileLoader.loadMp3File(file, (newAudio -> {
-			if (newAudio.isPresent()) {
-				player.addAudioFile(newAudio.get());
-				setActiveAudioFile(newAudio.get());
-				LOGGER.info(I18N.get("import.audio.success"));
-			} else {
-				LOGGER.severe(I18N.get("import.audio.fail"));
-			}
-		}));
-	}
+    public void removeAudioFile(CachedAudioFile file) {
+        player.removeAudioFile(file);
+    }
 
-	public void setActiveAudioFile(CachedAudioFile file) {
-		if (file != getActiveAudioFile()) {
-			execute(KarediActions.STOP_PLAYBACK);
-			player.setActiveAudioFile(file);
-		}
-	}
+    public void loadAudioFile(File file) {
+        AudioFileLoader.loadMp3File(file, (newAudio -> {
+            if (newAudio.isPresent()) {
+                player.addAudioFile(newAudio.get());
+                setActiveAudioFile(newAudio.get());
+                LOGGER.info(I18N.get("import.audio.success"));
+            } else {
+                LOGGER.severe(I18N.get("import.audio.fail"));
+            }
+        }));
+    }
 
-	// Marker
-	private ReadOnlyIntegerProperty markerBeatProperty() {
-		return player.markerBeatProperty();
-	}
+    // Marker
+    private ReadOnlyIntegerProperty markerBeatProperty() {
+        return player.markerBeatProperty();
+    }
 
-	private int getMarkerBeat() {
-		return player.getMarkerBeat();
-	}
+    private int getMarkerBeat() {
+        return player.getMarkerBeat();
+    }
 
-	private void setMarkerBeat(int beat) {
-		player.setMarkerBeat(beat);
-	}
+    private void setMarkerBeat(int beat) {
+        player.setMarkerBeat(beat);
+    }
 
-	private ReadOnlyLongProperty markerTimeProperty() {
-		return player.markerTimeProperty();
-	}
+    private ReadOnlyLongProperty markerTimeProperty() {
+        return player.markerTimeProperty();
+    }
 
-	private Long getMarkerTime() {
-		return player.getMarkerTime();
-	}
+    private Long getMarkerTime() {
+        return player.getMarkerTime();
+    }
 
-	private void setMarkerTime(long time) {
-		player.setMarkerTime(time);
-	}
+    private void setMarkerTime(long time) {
+        player.setMarkerTime(time);
+    }
 
-	private boolean isMarkerVisible() {
-		return MathUtils.inRange(getMarkerTime(), beatMillisConverter.beatToMillis(visibleArea.getLowerXBound()),
-				beatMillisConverter.beatToMillis(visibleArea.getUpperXBound()));
-	}
+    private boolean isMarkerVisible() {
+        return MathUtils.inRange(getMarkerTime(), beatMillisConverter.beatToMillis(visibleArea.getLowerXBound()),
+                beatMillisConverter.beatToMillis(visibleArea.getUpperXBound()));
+    }
 
-	// Files
-	public ReadOnlyObjectProperty<File> activeFileProperty() {
-		return activeFile.getReadOnlyProperty();
-	}
+    // Files
+    public ReadOnlyObjectProperty<File> activeFileProperty() {
+        return activeFile.getReadOnlyProperty();
+    }
 
-	public File getActiveFile() {
-		return activeFileProperty().get();
-	}
+    public File getActiveFile() {
+        return activeFileProperty().get();
+    }
 
-	public void setActiveFile(File file) {
-		this.activeFile.set(file);
-		KarediApp.getInstance().updatePrimaryStageTitle(file);
-		directory = file == null ? null : file.getParentFile();
-	}
+    public void setActiveFile(File file) {
+        this.activeFile.set(file);
+        KarediApp.getInstance().updatePrimaryStageTitle(file);
+        directory = file == null ? null : file.getParentFile();
+    }
 
-	public File getDirectory() {
-		return directory;
-	}
+    public File getDirectory() {
+        return directory;
+    }
 
-	public void loadSongFile(File file) {
-		loadSongFile(file, true);
-	}
+    public void loadSongFile(File file) {
+        loadSongFile(file, true);
+    }
 
-	public void loadSongFile(File file, boolean resetPlayer) {
-		if (file != null) {
-			reset(resetPlayer);
-			setActiveFile(file);
-			Song song = songLoader.load(file);
-			song.getTagValue(TagKey.MP3).ifPresent(audioFileName -> {
-				loadAudioFile(new File(file.getParent(), audioFileName));
-			});
-			setSong(song);
-			LOGGER.info(I18N.get("load.success"));
-		}
-	}
+    public void loadSongFile(File file, boolean resetPlayer) {
+        if (file != null) {
+            reset(resetPlayer);
+            setActiveFile(file);
+            Song song = songLoader.load(file);
+            song.getTagValue(TagKey.MP3).ifPresent(audioFileName -> {
+                loadAudioFile(new File(file.getParent(), audioFileName));
+            });
+            setSong(song);
+            LOGGER.info(I18N.get("load.success"));
+        }
+    }
 
-	public boolean saveSongToFile(File file) {
-		if (file != null) {
-			if (songSaver.saveSongToFile(file, getSong())) {
-				lastSavedCommand.set(history.getActiveCommand());
-				return true;
-			}
-		}
-		return false;
-	}
+    public boolean saveSongToFile(File file) {
+        if (file != null) {
+            if (songSaver.saveSongToFile(file, getSong())) {
+                lastSavedCommand.set(history.getActiveCommand());
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public Song getSong() {
-		return displayContext.activeSongProperty().get();
-	}
+    public Song getSong() {
+        return displayContext.activeSongProperty().get();
+    }
 
-	public final void setSong(Song song) {
-		Song oldSong = getSong();
-		new SongNormalizer(song).normalize();
-		// The song has at least one track now
-		if (song != oldSong) {
-			displayContext.setActiveSong(song);
-			player.setSong(song);
-			onBeatMillisConverterInvalidated();
-			if (oldSong != null) {
-				oldSong.getBeatMillisConverter()
-						.removeListener(beatMillisConverterInvalidationListener);
-			}
-			if (song != null) {
-				song.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
-			}
-			beatRange.setBounds(song);
-		}
-	}
+    public final void setSong(Song song) {
+        Song oldSong = getSong();
+        new SongNormalizer(song).normalize();
+        // The song has at least one track now
+        if (song != oldSong) {
+            displayContext.setActiveSong(song);
+            player.setSong(song);
+        }
+    }
 
-	// Listeners that are necessary to assure consistency
-
-	private void onBeatMillisConverterInvalidated() {
-		player.stop();
-		if (getSong() == null) {
-			beatMillisConverter.setBpm(Song.DEFAULT_BPM);
-			beatMillisConverter.setGap(Song.DEFAULT_GAP);
-		} else {
-			beatMillisConverter.setBpm(getSong().getBpm());
-			beatMillisConverter.setGap(getSong().getGap());
-		}
-	}
-
-	private void onSelectionBoundsInvalidated() {
-		IntBounded selectionBounds = selection.getSelectionBounds();
-		if (selection.size() > 0 && selectionBounds.isValid()) {
-			setMarkerBeat(selectionBounds.getLowerXBound());
-			if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
-				displayContext.setActiveLine(null);
-				displayContext.assertAllNeededTonesVisible();
-			}
-		}
-	}
+    private void onSelectionBoundsInvalidated() {
+        IntBounded selectionBounds = selection.getSelectionBounds();
+        if (selection.size() > 0 && selectionBounds.isValid()) {
+            setMarkerBeat(selectionBounds.getLowerXBound());
+            if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
+                displayContext.setActiveLine(null);
+                displayContext.assertAllNeededTonesVisible();
+            }
+        }
+    }
 
 
-	// Other
-	public boolean needsSaving() {
-		return getSong() != null && lastSavedCommand.get() != history.getActiveCommand();
-	}
+    // Other
+    public boolean needsSaving() {
+        return getSong() != null && lastSavedCommand.get() != history.getActiveCommand();
+    }
 
-	public Logger getMainLogger() {
-		return LOGGER;
-	}
+    public Logger getMainLogger() {
+        return LOGGER;
+    }
 
-	public void reset(boolean resetPlayer) {
-		setSong(null);
-		lastSavedCommand.set(null);
-		history.clear();
-		player.stop();
-		visibleArea.setDefault();
-		if (resetPlayer) {
-			player.reset();
-		}
-	}
+    public void reset(boolean resetPlayer) {
+        setSong(null);
+        lastSavedCommand.set(null);
+        history.clear();
+        player.stop();
+        visibleArea.setDefault();
+        if (resetPlayer) {
+            player.reset();
+        }
+    }
 
-	// *************************** ACTIONS ***************************
+    // *************************** ACTIONS ***************************
 
-	private class ActionHelper {
+    private class ActionHelper {
         private ActionMap actionMap = new ActionMap();
 
         public void add(KarediActions key, KarediAction action) {

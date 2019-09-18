@@ -183,7 +183,7 @@ public class TrackFillBarsController implements Controller {
 	private void moveVisibleAreaToBeat(int beat) {
 		Optional<SongLine> clickedLine = songContext.getActiveTrack().lineAt(beat);
 		if (clickedLine.isPresent()) {
-			appContext.setActiveLine(clickedLine.get());
+			songContext.setActiveLine(clickedLine.get());
 		} else {
 			int halfRangeLength = (area.getUpperXBound() - area.getLowerXBound()) / 2;
 			appContext.setVisibleAreaXBounds(beat - halfRangeLength, beat + halfRangeLength);

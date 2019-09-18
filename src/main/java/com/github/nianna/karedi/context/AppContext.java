@@ -21,15 +21,11 @@ import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
-import main.java.com.github.nianna.karedi.parser.Parser;
-import main.java.com.github.nianna.karedi.parser.Unparser;
 import main.java.com.github.nianna.karedi.region.BoundingBox;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Song;
-import main.java.com.github.nianna.karedi.song.SongLine;
-import main.java.com.github.nianna.karedi.song.SongTrack;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
 import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import main.java.com.github.nianna.karedi.util.MathUtils;
@@ -48,24 +44,12 @@ public class AppContext {
 
 	@Autowired
 	private SongContext songContext;
-//	private ReadOnlyObjectWrapper<Song> activeSong;
-	private ReadOnlyObjectProperty<SongTrack> activeTrack;
-	private ReadOnlyObjectProperty<SongLine> activeLine;
 
 	private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 	private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
 
 	@Autowired
-	private Parser parser;
-
-	@Autowired
-	private Unparser unparser;
-
-	@Autowired
 	private SongLoader songLoader;
-
-	@Autowired
-	private SongDisassembler songDisassembler;
 
 	@Autowired
 	private SongSaver songSaver;
@@ -115,7 +99,6 @@ public class AppContext {
 	// Convenience bindings for actions
 	private BooleanBinding activeFileIsNull;
 	private BooleanBinding activeAudioIsNull;
-//	private IntegerProperty activeSongTrackCount;
 
 	@Autowired
     private CommandExecutor commandExecutor;
@@ -138,15 +121,12 @@ public class AppContext {
 
 	@PostConstruct
 	public void initAppContext() {
-		activeTrack = songContext.activeTrackProperty();
-		activeLine = songContext.activeLineProperty();
-
 		activeFileIsNull = activeFileProperty().isNull();
 		activeAudioIsNull = player.activeAudioFileProperty().isNull();
 
 		LOGGER.setUseParentHandlers(false);
 
-		Bindings.bindContent(observableSelection, getSelected());
+		Bindings.bindContent(observableSelection, selection.get()); //TODO
 		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
 
 		guards.forEach(Guard::enable);
@@ -208,25 +188,25 @@ public class AppContext {
 
 	private void setVisibleAreaXBounds(int lowerXBound, int upperXBound, boolean setLineToNull) {
 		if (visibleArea.setXBounds(lowerXBound, upperXBound) && setLineToNull) {
-			setActiveLine(null);
+			songContext.setActiveLine(null);
 		}
 	}
 
 	public void setVisibleAreaYBounds(int lowerBound, int upperBound) {
 		if (visibleArea.setYBounds(lowerBound, upperBound)) {
-			setActiveLine(null);
+			songContext.setActiveLine(null);
 		}
 	}
 
 	public void increaseVisibleAreaXBounds(int by) {
 		if (visibleArea.increaseXBounds(by)) {
-			setActiveLine(null);
+			songContext.setActiveLine(null);
 		}
 	}
 
 	public void increaseVisibleAreaYBounds(int by) {
 		if (visibleArea.increaseYBounds(by)) {
-			setActiveLine(null);
+			songContext.setActiveLine(null);
 		}
 	}
 
@@ -240,21 +220,7 @@ public class AppContext {
 
 	public void moveVisibleArea(Direction direction, int by) {
 		visibleArea.move(direction, by);
-		setActiveLine(null);
-	}
-
-	// History
-	public boolean execute(Command command) {
-		return commandExecutor.execute(command);
-	}
-
-	// Selection
-	public NoteSelection getSelection() {
-		return selection;
-	}
-
-	public ObservableList<Note> getSelected() {
-		return selection.get();
+		songContext.setActiveLine(null);
 	}
 
 	// Audio
@@ -408,26 +374,6 @@ public class AppContext {
 		}
 	}
 
-	public ReadOnlyObjectProperty<SongTrack> activeTrackProperty() {
-		return activeTrack;
-	}
-
-	public final SongTrack getActiveTrack() {
-		return activeTrack.get();
-	}
-
-	public final void setActiveTrack(SongTrack track) {
-		songContext.setActiveTrack(track);
-	}
-
-	public final SongLine getActiveLine() {
-		return activeLine.get();
-	}
-
-	public final void setActiveLine(SongLine line) {
-        songContext.setActiveLine(line);
-	}
-
 	// Listeners that are necessary to assure consistency
 
 	private void onBeatMillisConverterInvalidated() {
@@ -445,7 +391,7 @@ public class AppContext {
 		if (selection.size() > 0 && selectionBounds.isValid()) {
 			setMarkerBeat(selectionBounds.getLowerXBound());
 			if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {
-				setActiveLine(null);
+				songContext.setActiveLine(null);
 				assertAllNeededTonesVisible();
 			}
 		}

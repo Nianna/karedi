@@ -1,28 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import static org.fxmisc.wellbehaved.event.InputMap.consume;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.function.BiConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import main.java.com.github.nianna.karedi.command.*;
-import main.java.com.github.nianna.karedi.context.SongContext;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.model.StyleSpans;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.fxmisc.wellbehaved.event.Nodes;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -41,8 +18,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
+import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.Note.Type;
 import main.java.com.github.nianna.karedi.song.SongLine;
@@ -51,7 +30,21 @@ import main.java.com.github.nianna.karedi.util.KeyCodeCombinations;
 import main.java.com.github.nianna.karedi.util.KeyEventUtils;
 import main.java.com.github.nianna.karedi.util.ListenersUtils;
 import main.java.com.github.nianna.karedi.util.LyricsHelper;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.wellbehaved.event.Nodes;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 @Component
 public class LyricsEditorController implements Controller {
@@ -154,7 +147,7 @@ public class LyricsEditorController implements Controller {
 
 	private void preNoteSelectionChangeHandler(Note first, Note last) {
 		if (first.getLine().equals(last.getLine())) {
-			appContext.setActiveLine(first.getLine());
+			songContext.setActiveLine(first.getLine());
 		}
 	}
 

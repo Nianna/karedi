@@ -218,7 +218,7 @@ public class TracksController implements Controller {
 	private void onSelectedItemChanged(Observable obs, SongTrack oldTrack, SongTrack newTrack) {
 		SongTrack activeTrack = songContext.getActiveTrack();
 		if (newTrack != null && newTrack != activeTrack) {
-			appContext.setActiveTrack(newTrack);
+			songContext.setActiveTrack(newTrack);
 		} else {
 			table.getSelectionModel().select(activeTrack);
 		}
@@ -242,7 +242,7 @@ public class TracksController implements Controller {
 			commandExecutor.execute(new ReorderTracksCommand(song, index,
 					dropIndex == -1 ? table.getItems().size() - 1 : dropIndex));
 		});
-		appContext.setActiveTrack(song.get(dropIndex));
+		songContext.setActiveTrack(song.get(dropIndex));
 	}
 
 	private class TrackTooltip extends Tooltip {

@@ -116,7 +116,7 @@ public class ProblemsController implements Controller {
 	}
 
 	private void selectAffectedBounds(Problem problem) {
-		problem.getTrack().ifPresent(appContext::setActiveTrack);
+		problem.getTrack().ifPresent(songContext::setActiveTrack);
 		problem.getAffectedBounds().ifPresent(bounds -> {
 			if (bounds.isValid()) {
 				List<Note> affectedNotes = songContext.getActiveTrack()

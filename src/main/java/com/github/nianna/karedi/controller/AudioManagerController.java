@@ -1,7 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.Optional;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -9,13 +7,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -24,12 +17,14 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.control.SliderTableCell;
 import main.java.com.github.nianna.karedi.util.ContextMenuBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class AudioManagerController implements Controller {
@@ -92,7 +87,7 @@ public class AudioManagerController implements Controller {
 
 		table.getSelectionModel().selectedItemProperty().addListener((obsVal, oldVal, newVal) -> {
 			if (newVal != null && newVal != songPlayer.getActiveAudioFile()) {
-				appContext.setActiveAudioFile(newVal);
+                songPlayer.setActiveAudioFile(newVal);
 			}
 		});
 	}
@@ -103,7 +98,7 @@ public class AudioManagerController implements Controller {
 	}
 
 	private void handleRemove(CachedAudioFile file) {
-		appContext.removeAudioFile(file);
+        songPlayer.removeAudioFile(file);
 	}
 
 	@Override

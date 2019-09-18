@@ -127,6 +127,7 @@ public class SongPlayer {
 	}
 
 	public void setActiveAudioFile(CachedAudioFile file) {
+        player.stop();
 		playlist.setActiveAudioFile(file);
 	}
 

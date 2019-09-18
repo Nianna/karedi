@@ -11,7 +11,6 @@ import main.java.com.github.nianna.karedi.action.ActionMap;
 import main.java.com.github.nianna.karedi.action.KarediAction;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
-import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
@@ -125,27 +124,11 @@ public class AppContext {
         }, markerBeatProperty(), visibleArea);
     }
 
-    // Audio
-    public CachedAudioFile getActiveAudioFile() {
-        return player.getActiveAudioFile();
-    }
-
-    public void setActiveAudioFile(CachedAudioFile file) {
-        if (file != getActiveAudioFile()) {
-            execute(KarediActions.STOP_PLAYBACK);
-            player.setActiveAudioFile(file);
-        }
-    }
-
-    public void removeAudioFile(CachedAudioFile file) {
-        player.removeAudioFile(file);
-    }
-
     public void loadAudioFile(File file) {
         AudioFileLoader.loadMp3File(file, (newAudio -> {
             if (newAudio.isPresent()) {
                 player.addAudioFile(newAudio.get());
-                setActiveAudioFile(newAudio.get());
+                player.setActiveAudioFile(newAudio.get());
                 LOGGER.info(I18N.get("import.audio.success"));
             } else {
                 LOGGER.severe(I18N.get("import.audio.fail"));

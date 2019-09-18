@@ -6,7 +6,6 @@ import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.MergeNotesCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsLeftCommand;
 import main.java.com.github.nianna.karedi.command.RollLyricsRightCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.context.VisibleArea;
@@ -42,23 +41,23 @@ class EditActionsConfiguration {
     }
 
     @Bean
-    public NewKarediAction shortenSelectionLeftAction(NoteSelection noteSelection, CommandExecutor commandExecutor, AppContext appContext) {
-        return new ResizeAction(SHORTEN_LEFT_SIDE, Direction.LEFT, -1, noteSelection, commandExecutor, appContext);
+    public NewKarediAction shortenSelectionLeftAction(NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new ResizeAction(SHORTEN_LEFT_SIDE, Direction.LEFT, -1, noteSelection, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction shortenSelectionRightAction(NoteSelection noteSelection, CommandExecutor commandExecutor, AppContext appContext) {
-        return new ResizeAction(SHORTEN_RIGHT_SIDE, Direction.RIGHT, -1, noteSelection, commandExecutor, appContext);
+    public NewKarediAction shortenSelectionRightAction(NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new ResizeAction(SHORTEN_RIGHT_SIDE, Direction.RIGHT, -1, noteSelection, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction lengthenSelectionLeftAction(NoteSelection noteSelection, CommandExecutor commandExecutor, AppContext appContext) {
-        return new ResizeAction(LENGTHEN_LEFT_SIDE, Direction.LEFT, 1, noteSelection, commandExecutor, appContext);
+    public NewKarediAction lengthenSelectionLeftAction(NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new ResizeAction(LENGTHEN_LEFT_SIDE, Direction.LEFT, 1, noteSelection, commandExecutor);
     }
 
     @Bean
-    public NewKarediAction lengthenSelectionRightAction(NoteSelection noteSelection, CommandExecutor commandExecutor, AppContext appContext) {
-        return new ResizeAction(LENGTHEN_RIGHT_SIDE, Direction.RIGHT, 1, noteSelection, commandExecutor, appContext);
+    public NewKarediAction lengthenSelectionRightAction(NoteSelection noteSelection, CommandExecutor commandExecutor) {
+        return new ResizeAction(LENGTHEN_RIGHT_SIDE, Direction.RIGHT, 1, noteSelection, commandExecutor);
     }
 
     @Bean

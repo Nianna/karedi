@@ -39,7 +39,7 @@ class PlaySelectionAction extends NewKarediAction {
     }
 
     private void playSelection(Player.Mode mode) {
-        IntBounded selectionBounds = appContext.getSelectionBounds();
+        IntBounded selectionBounds = selection.getSelectionBounds();
         if (selection.size() > 0 && selectionBounds.isValid()) {
             long startMillis = beatMillisConverter.beatToMillis(selectionBounds.getLowerXBound());
             long endMillis = beatMillisConverter.beatToMillis(selectionBounds.getUpperXBound());

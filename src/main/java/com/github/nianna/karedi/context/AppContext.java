@@ -1,13 +1,10 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
@@ -80,18 +77,6 @@ public class AppContext {
 	@Autowired
     private ActionManager actionManager;
 
-	public ObservableList<Note> getObservableSelection() {
-		return observableSelection;
-	}
-
-	private final ObservableList<Note> observableSelection = FXCollections
-			.observableArrayList(note -> new Observable[] { note });
-
-	public IntBounded getSelectionBounds() {
-		return selectionBounds;
-	}
-
-	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
 	private File directory;
 
 	private final InvalidationListener beatMillisConverterInvalidationListener = obs -> onBeatMillisConverterInvalidated();
@@ -126,8 +111,8 @@ public class AppContext {
 
 		LOGGER.setUseParentHandlers(false);
 
-		Bindings.bindContent(observableSelection, selection.get()); //TODO
-		selectionBounds.addListener(obs -> onSelectionBoundsInvalidated());
+		 //TODO
+		selection.getSelectionBounds().addListener(obs -> onSelectionBoundsInvalidated());
 
 		guards.forEach(Guard::enable);
 	}
@@ -388,6 +373,7 @@ public class AppContext {
 	}
 
 	private void onSelectionBoundsInvalidated() {
+		IntBounded selectionBounds = selection.getSelectionBounds();
 		if (selection.size() > 0 && selectionBounds.isValid()) {
 			setMarkerBeat(selectionBounds.getLowerXBound());
 			if (visibleArea.assertBorderlessBoundsVisible(selectionBounds)) {

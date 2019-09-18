@@ -1,12 +1,16 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
+import main.java.com.github.nianna.karedi.region.BoundingBox;
+import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +31,16 @@ public class NoteSelection implements Selection<Note> {
 
 	private BooleanBinding isEmptyProperty = sizeProperty.isEqualTo(0);
 
+	private final ObservableList<Note> observableSelection = FXCollections
+			.observableArrayList(note -> new Observable[] { note });
+
+	private final IntBounded selectionBounds = new BoundingBox<>(observableSelection);
+
 	public NoteSelection() {
 		sortedSelection.addListener((InvalidationListener) (inv) -> {
 			sizeProperty.set(selection.size());
 		});
+		Bindings.bindContent(observableSelection, sortedSelection);
 	}
 
 	@Override
@@ -168,5 +178,13 @@ public class NoteSelection implements Selection<Note> {
 
 	public BooleanBinding isEmptyProperty() {
 		return isEmptyProperty;
+	}
+
+	public ObservableList<Note> getObservableSelection() {
+		return observableSelection;
+	}
+
+	public IntBounded getSelectionBounds() {
+		return selectionBounds;
 	}
 }

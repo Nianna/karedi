@@ -8,7 +8,6 @@ import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.region.Direction;
 
@@ -20,7 +19,7 @@ class ResizeAction extends NewKarediAction {
     private final CommandExecutor commandExecutor;
     private BooleanProperty disabled;
 
-    ResizeAction(KarediActions handledAction, Direction direction, int by, NoteSelection noteSelection, CommandExecutor commandExecutor, AppContext appContext) {
+    ResizeAction(KarediActions handledAction, Direction direction, int by, NoteSelection noteSelection, CommandExecutor commandExecutor) {
         this.handledAction = handledAction;
         this.direction = direction;
         this.by = by;
@@ -29,7 +28,7 @@ class ResizeAction extends NewKarediAction {
 
         if (by < 0) {
             disabled = new SimpleBooleanProperty(true);
-            appContext.getObservableSelection().addListener((InvalidationListener) inv -> refreshDisabled());
+            noteSelection.getObservableSelection().addListener((InvalidationListener) inv -> refreshDisabled());
             setDisabledCondition(disabled);
         } else {
             setDisabledCondition(noteSelection.isEmptyProperty());

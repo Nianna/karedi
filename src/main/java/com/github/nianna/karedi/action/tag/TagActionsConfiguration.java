@@ -4,8 +4,8 @@ import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
-import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,17 +46,17 @@ class TagActionsConfiguration {
     }
 
     @Bean
-    public NewKarediAction setMedleyFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor) {
-        return new SetMedleyFromSelectionAction(MEDLEY_FROM_SELECTION, true, true, noteSelection, commandExecutor, songContext, appContext);
+    public NewKarediAction setMedleyFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_FROM_SELECTION, true, true, noteSelection, commandExecutor, songContext, selection);
     }
 
     @Bean
-    public NewKarediAction setMedleyStartFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor) {
-        return new SetMedleyFromSelectionAction(MEDLEY_SET_START, true, false, noteSelection, commandExecutor, songContext, appContext);
+    public NewKarediAction setMedleyStartFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_SET_START, true, false, noteSelection, commandExecutor, songContext, selection);
     }
 
     @Bean
-    public NewKarediAction setMedleyEndFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor) {
-        return new SetMedleyFromSelectionAction(MEDLEY_SET_END, false, true, noteSelection, commandExecutor, songContext, appContext);
+    public NewKarediAction setMedleyEndFromSelectionAction(NoteSelection noteSelection, SongContext songContext, AppContext appContext, CommandExecutor commandExecutor, NoteSelection selection) {
+        return new SetMedleyFromSelectionAction(MEDLEY_SET_END, false, true, noteSelection, commandExecutor, songContext, selection);
     }
 }

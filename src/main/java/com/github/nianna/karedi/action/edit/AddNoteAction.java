@@ -8,7 +8,10 @@ import main.java.com.github.nianna.karedi.command.AddNoteCommand;
 import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
-import main.java.com.github.nianna.karedi.context.*;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongContext;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
+import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import org.springframework.stereotype.Component;
@@ -25,15 +28,13 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     private final VisibleArea visibleArea;
     private final NoteSelection selection;
     private final CommandExecutor commandExecutor;
-    private final AppContext appContext; //TODO remove
 
-    AddNoteAction(SongContext songContext, SongPlayer songPlayer, VisibleArea visibleArea, NoteSelection selection, CommandExecutor commandExecutor, AppContext appContext) {
+    AddNoteAction(SongContext songContext, SongPlayer songPlayer, VisibleArea visibleArea, NoteSelection selection, CommandExecutor commandExecutor) {
         this.songContext = songContext;
         this.songPlayer = songPlayer;
         this.visibleArea = visibleArea;
         this.selection = selection;
         this.commandExecutor = commandExecutor;
-        this.appContext = appContext;
         setDisabledCondition(Bindings.createBooleanBinding(() -> {
             if (this.songContext.getActiveTrack() == null) {
                 return true;
@@ -41,7 +42,7 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
                 int newNotePosition = computePosition();
                 return songContext.getActiveTrack().noteAt(newNotePosition).isPresent();
             }
-        }, this.appContext.getSelectionBounds(), this.songPlayer.markerTimeProperty(), songContext.activeTrackProperty()));
+        }, this.selection.getSelectionBounds(), this.songPlayer.markerTimeProperty(), songContext.activeTrackProperty()));
     }
 
     @Override
@@ -63,8 +64,8 @@ import static main.java.com.github.nianna.karedi.action.KarediActions.ADD_NOTE;
     }
 
     private int computePosition() {
-        if (selection.size() > 0 && appContext.getSelectionBounds().isValid()) {
-            return appContext.getSelectionBounds().getUpperXBound();
+        if (selection.size() > 0 && selection.getSelectionBounds().isValid()) {
+            return selection.getSelectionBounds().getUpperXBound();
         } else {
             return songPlayer.getMarkerBeat();
         }

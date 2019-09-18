@@ -329,21 +329,8 @@ public class AppContext {
 	}
 
 	private boolean isMarkerVisible() {
-		return MathUtils.inRange(getMarkerTime(), beatToMillis(visibleArea.getLowerXBound()),
-				beatToMillis(visibleArea.getUpperXBound()));
-	}
-
-	// Beat <-> millis convertion
-	public long beatToMillis(int beat) {
-		return beatMillisConverter.beatToMillis(beat);
-	}
-
-	public int millisToBeat(long millis) {
-		return beatMillisConverter.millisToBeat(millis);
-	}
-
-	public BeatMillisConverter getBeatMillisConverter() {
-		return beatMillisConverter;
+		return MathUtils.inRange(getMarkerTime(), beatMillisConverter.beatToMillis(visibleArea.getLowerXBound()),
+				beatMillisConverter.beatToMillis(visibleArea.getUpperXBound()));
 	}
 
 	// Files

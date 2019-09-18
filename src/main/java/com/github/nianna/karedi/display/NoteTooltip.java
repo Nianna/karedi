@@ -3,18 +3,15 @@ package main.java.com.github.nianna.karedi.display;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Tooltip;
 import javafx.stage.WindowEvent;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.song.Note;
 import main.java.com.github.nianna.karedi.util.MathUtils;
 import main.java.com.github.nianna.karedi.util.MusicalScale;
 
 class NoteTooltip extends Tooltip {
-	private AppContext appContext;
-	private Note note;
+	private final Note note;
 	private NoteTooltipDisplayer displayer = new NoteTooltipDisplayer();
 
-	public NoteTooltip(AppContext appContext, Note note) {
-		this.appContext = appContext;
+	public NoteTooltip(Note note) {
 		this.note = note;
 		setOnShowing(this::onShowing);
 		setOnHidden(this::onHidden);
@@ -29,7 +26,7 @@ class NoteTooltip extends Tooltip {
 		displayer.lengthProperty().bind(note.lengthProperty().asString());
 		displayer.startBeatProperty().bind(note.startProperty().asString());
 		displayer.startTimeProperty().bind(Bindings.createStringBinding(() -> {
-			double startTime = MathUtils.msToSeconds(appContext.beatToMillis(note.getStart()));
+			double startTime = MathUtils.msToSeconds(note.getLine().getSong().beatToMillis(note.getStart()));
 			if (startTime >= 0)
 				return startTime + " s";
 			return "?";

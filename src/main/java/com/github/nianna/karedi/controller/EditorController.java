@@ -1,15 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -53,14 +43,13 @@ import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.Song.Medley;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
-import main.java.com.github.nianna.karedi.util.KeyEventUtils;
-import main.java.com.github.nianna.karedi.util.ListenersUtils;
-import main.java.com.github.nianna.karedi.util.MathUtils;
-import main.java.com.github.nianna.karedi.util.MusicalScale;
-import main.java.com.github.nianna.karedi.util.NodeUtils;
+import main.java.com.github.nianna.karedi.util.*;
 import main.java.com.github.nianna.karedi.util.NodeUtils.DragSelectionHelper;
 import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class EditorController implements Controller {
@@ -104,14 +93,16 @@ public class EditorController implements Controller {
 	private final SongContext songContext;
     private final CommandHistory history;
     private final CommandExecutor commandExecutor;
+    private final BeatMillisConverter beatMillisConverter;
 
-    public EditorController(NoteSelection selection, SongPlayer songPlayer, SongContext songContext, CommandHistory history, CommandExecutor commandExecutor) {
+    public EditorController(NoteSelection selection, SongPlayer songPlayer, SongContext songContext, CommandHistory history, CommandExecutor commandExecutor, BeatMillisConverter beatMillisConverter) {
         this.selection = selection;
         this.songPlayer = songPlayer;
         this.songContext = songContext;
         this.history = history;
         this.commandExecutor = commandExecutor;
-    }
+		this.beatMillisConverter = beatMillisConverter;
+	}
 
     @FXML
 	public void initialize() {
@@ -164,13 +155,15 @@ public class EditorController implements Controller {
 		chart.getTAxis().tickLabelsVisibleProperty()
 				.bind(songContext.activeSongProperty().isNotNull());
 
-		chart.getTAxis().lowerBoundProperty().bind(Bindings.createDoubleBinding(() -> {
-			return appContext.beatToMillis((int) chart.getXAxis().getLowerBound()) / 1000.0;
-		}, chart.getXAxis().lowerBoundProperty(), appContext.getBeatMillisConverter()));
+		chart.getTAxis().lowerBoundProperty().bind(Bindings.createDoubleBinding(
+				() -> beatMillisConverter.beatToMillis((int) chart.getXAxis().getLowerBound()) / 1000.0,
+				chart.getXAxis().lowerBoundProperty(), beatMillisConverter
+		));
 
-		chart.getTAxis().upperBoundProperty().bind(Bindings.createDoubleBinding(() -> {
-			return appContext.beatToMillis((int) chart.getXAxis().getUpperBound()) / 1000.0;
-		}, chart.getXAxis().upperBoundProperty(), appContext.getBeatMillisConverter()));
+		chart.getTAxis().upperBoundProperty().bind(Bindings.createDoubleBinding(
+				() -> beatMillisConverter.beatToMillis((int) chart.getXAxis().getUpperBound()) / 1000.0,
+				chart.getXAxis().upperBoundProperty(), beatMillisConverter)
+		);
 
 		markerLine.translateXProperty().bind(Bindings.createDoubleBinding(
 				() -> tUnitLengthProperty().get() * MathUtils.msToSeconds(songPlayer.getMarkerTime()),
@@ -190,7 +183,7 @@ public class EditorController implements Controller {
 
 	private void addNote(Note note) {
 		if (!notesMap.containsKey(note)) {
-			NoteNode noteNode = new NoteNode(appContext, this, note);
+			NoteNode noteNode = new NoteNode(songContext, selection, commandExecutor, this, note);
 			notesMap.put(note, noteNode);
 		}
 	}
@@ -606,7 +599,7 @@ public class EditorController implements Controller {
 		}
 
 		private long getBeatDuration() {
-			Double duration = appContext.getBeatMillisConverter().getBeatDuration();
+			Double duration = beatMillisConverter.getBeatDuration();
 			return duration.longValue();
 		}
 

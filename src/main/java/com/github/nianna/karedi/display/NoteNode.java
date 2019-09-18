@@ -8,13 +8,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
-import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.MoveCollectionCommand;
-import main.java.com.github.nianna.karedi.command.ResizeNotesCommand;
-import main.java.com.github.nianna.karedi.command.SplitNoteCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.command.*;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongContext;
 import main.java.com.github.nianna.karedi.controller.EditorController;
 import main.java.com.github.nianna.karedi.region.Direction;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -28,8 +24,9 @@ import main.java.com.github.nianna.karedi.util.NodeUtils.ResizeHelper;
 public class NoteNode {
 	private static final int BASIC_RESIZE_MARGIN = 3;
 	private NoteNodeDisplayer noteDisplayer;
-	private AppContext appContext;
-	private NoteSelection selection;
+	private final NoteSelection selection;
+	private final SongContext songContext;
+	private final CommandExecutor commandExecutor;
 
 	private EditorController editorController;
 	private Note note;
@@ -39,9 +36,10 @@ public class NoteNode {
 
 	private int dragBeatOffset;
 
-	public NoteNode(AppContext appContext, EditorController editorController, Note note) {
-		this.appContext = appContext;
-		this.selection = appContext.getSelection();
+	public NoteNode(SongContext songContext, NoteSelection selection, CommandExecutor commandExecutor, EditorController editorController, Note note) {
+		this.songContext = songContext;
+		this.selection = selection;
+		this.commandExecutor = commandExecutor;
 		this.editorController = editorController;
 		this.note = note;
 
@@ -65,7 +63,7 @@ public class NoteNode {
 
 		bindProperties();
 
-		Tooltip.install(noteDisplayer.getBar(), new NoteTooltip(appContext, note));
+		Tooltip.install(noteDisplayer.getBar(), new NoteTooltip(note));
 
 	}
 
@@ -76,7 +74,7 @@ public class NoteNode {
 		noteDisplayer.fontColorProperty().bind(track.fontColorProperty());
 		noteDisplayer.visibleProperty().bind(track.visibleProperty());
 		noteDisplayer.disableProperty()
-				.bind(Bindings.notEqual(appContext.activeTrackProperty(), track));
+				.bind(Bindings.notEqual(songContext.activeTrackProperty(), track));
 
 		noteDisplayer.lyricsProperty().bind(Bindings.createStringBinding(() -> {
 			return note.getLyrics().trim();
@@ -132,8 +130,8 @@ public class NoteNode {
 				return;
 			}
 			if (!event.isConsumed()) {
-				if (event.getClickCount() > 1 && appContext.getActiveLine() == null) {
-					appContext.setActiveLine(note.getLine());
+				if (event.getClickCount() > 1 && songContext.getActiveLine() == null) {
+					songContext.setActiveLine(note.getLine());
 				}
 				selection.selectOnly(note);
 			}
@@ -141,7 +139,7 @@ public class NoteNode {
 	}
 
 	private void onMouseDragged(MouseEvent event) {
-		if (!appContext.getSelection().isSelected(note)) {
+		if (!selection.isSelected(note)) {
 			selection.selectOnly(note);
 		}
 		if (resizer.isActive()) {
@@ -161,8 +159,8 @@ public class NoteNode {
 		if (resizer.getDirection() == Direction.LEFT) {
 			by = note.getStart() - beat;
 		}
-		Command cmd = new ResizeNotesCommand(appContext.getSelected(), resizer.getDirection(), by);
-		appContext.execute(cmd);
+		Command cmd = new ResizeNotesCommand(selection.get(), resizer.getDirection(), by);
+		commandExecutor.execute(cmd);
 	}
 
 	private void onNoteDragged(MouseEvent event) {
@@ -171,27 +169,27 @@ public class NoteNode {
 		int startChange = newStart - note.getStart();
 
 		if (toneChange < 0) {
-			appContext.execute(new MoveCollectionCommand<Integer, Note>(
-					appContext.getSelection().get(), Direction.DOWN, -toneChange));
+			commandExecutor.execute(new MoveCollectionCommand<Integer, Note>(
+					selection.get(), Direction.DOWN, -toneChange));
 		} else if (toneChange > 0) {
-			appContext.execute(new MoveCollectionCommand<Integer, Note>(
-					appContext.getSelection().get(), Direction.UP, toneChange));
+			commandExecutor.execute(new MoveCollectionCommand<Integer, Note>(
+					selection.get(), Direction.UP, toneChange));
 		}
 
 		if (startChange < 0) {
-			appContext.execute(new MoveCollectionCommand<Integer, Note>(
-					appContext.getSelection().get(), Direction.LEFT, -startChange));
+			commandExecutor.execute(new MoveCollectionCommand<Integer, Note>(
+					selection.get(), Direction.LEFT, -startChange));
 		} else if (startChange > 0) {
-			appContext.execute(new MoveCollectionCommand<Integer, Note>(
-					appContext.getSelection().get(), Direction.RIGHT, startChange));
+			commandExecutor.execute(new MoveCollectionCommand<Integer, Note>(
+					selection.get(), Direction.RIGHT, startChange));
 		}
 	}
 
 	private void onNoteCut(Observable obs) {
 		int splitPoint = editorController.sceneXtoBeat(cutter.getCutSceneX()) - note.getStart();
 		Command cmd = new SplitNoteCommand(note, splitPoint);
-		appContext.execute(new ChangePostStateCommandDecorator(cmd, c -> {
-			appContext.getSelection().selectOnly(note);
+		commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {
+			selection.selectOnly(note);
 		}));
 	}
 

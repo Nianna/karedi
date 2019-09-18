@@ -2,6 +2,7 @@ package main.java.com.github.nianna.karedi.action.play;
 
 import main.java.com.github.nianna.karedi.action.NewKarediAction;
 import main.java.com.github.nianna.karedi.context.*;
+import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,18 +13,18 @@ import static main.java.com.github.nianna.karedi.audio.Player.Mode.*;
 class PlayActionsConfiguration {
 
     @Bean
-    NewKarediAction playSelectionAudio(NoteSelection selection, AppContext appContext, SongPlayer songPlayer) {
-        return new PlaySelectionAction(PLAY_SELECTION_AUDIO, AUDIO_ONLY, selection, appContext, songPlayer);
+    NewKarediAction playSelectionAudio(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_AUDIO, AUDIO_ONLY, selection, appContext, songPlayer, beatMillisConverter);
     }
 
     @Bean
-    NewKarediAction playSelectionMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer) {
-        return new PlaySelectionAction(PLAY_SELECTION_MIDI, MIDI_ONLY, selection, appContext, songPlayer);
+    NewKarediAction playSelectionMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_MIDI, MIDI_ONLY, selection, appContext, songPlayer, beatMillisConverter);
     }
 
     @Bean
-    NewKarediAction playSelectionAudioMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer) {
-        return new PlaySelectionAction(PLAY_SELECTION_AUDIO_MIDI, AUDIO_MIDI, selection, appContext, songPlayer);
+    NewKarediAction playSelectionAudioMidi(NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
+        return new PlaySelectionAction(PLAY_SELECTION_AUDIO_MIDI, AUDIO_MIDI, selection, appContext, songPlayer, beatMillisConverter);
     }
 
     @Bean

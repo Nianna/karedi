@@ -9,6 +9,7 @@ import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.IntBounded;
+import main.java.com.github.nianna.karedi.util.BeatMillisConverter;
 
 class PlaySelectionAction extends NewKarediAction {
     private final KarediActions handledAction;
@@ -16,13 +17,15 @@ class PlaySelectionAction extends NewKarediAction {
     private final NoteSelection selection;
     private final AppContext appContext; //TODO
     private final SongPlayer songPlayer;
+    private final BeatMillisConverter beatMillisConverter;
 
-    PlaySelectionAction(KarediActions handledAction, Player.Mode mode, NoteSelection selection, AppContext appContext, SongPlayer songPlayer) {
+    PlaySelectionAction(KarediActions handledAction, Player.Mode mode, NoteSelection selection, AppContext appContext, SongPlayer songPlayer, BeatMillisConverter beatMillisConverter) {
         this.handledAction = handledAction;
         this.mode = mode;
         this.selection = selection;
         this.appContext = appContext;
         this.songPlayer = songPlayer;
+        this.beatMillisConverter = beatMillisConverter;
         BooleanBinding condition = this.selection.isEmptyProperty();
         if (mode != Player.Mode.MIDI_ONLY) {
             condition = condition.or(this.appContext.activeAudioIsNullProperty());
@@ -38,8 +41,8 @@ class PlaySelectionAction extends NewKarediAction {
     private void playSelection(Player.Mode mode) {
         IntBounded selectionBounds = appContext.getSelectionBounds();
         if (selection.size() > 0 && selectionBounds.isValid()) {
-            long startMillis = appContext.beatToMillis(selectionBounds.getLowerXBound());
-            long endMillis = appContext.beatToMillis(selectionBounds.getUpperXBound());
+            long startMillis = beatMillisConverter.beatToMillis(selectionBounds.getLowerXBound());
+            long endMillis = beatMillisConverter.beatToMillis(selectionBounds.getUpperXBound());
             songPlayer.play(startMillis, endMillis, selection.get(), mode);
         }
     }

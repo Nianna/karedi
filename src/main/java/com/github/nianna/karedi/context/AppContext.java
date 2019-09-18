@@ -311,22 +311,14 @@ public class AppContext {
 		// The song has at least one track now
 		if (song != oldSong) {
 			songContext.setActiveSong(song);
-//			player.setSong(song);
 			onBeatMillisConverterInvalidated();
 			if (oldSong != null) {
 				oldSong.getBeatMillisConverter()
 						.removeListener(beatMillisConverterInvalidationListener);
-//				activeSongTrackCount.unbind();
 			}
-			if (song == null) {
-//				setActiveTrack(null);
-//				activeSongTrackCount.set(0);
-			} else {
+			if (song != null) {
 				song.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
-//				activeSongTrackCount.bind(song.trackCount());
-//				setActiveTrack(song.getDefaultTrack().orElse(null));
 			}
-			beatRange.setBounds(song);
 		}
 	}
 

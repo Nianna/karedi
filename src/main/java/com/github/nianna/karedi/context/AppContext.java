@@ -52,9 +52,6 @@ public class AppContext {
     private SongPlayer player;
 
     @Autowired
-    private VisibleArea visibleArea;
-
-    @Autowired
     private List<Guard> guards;
 
     @Autowired
@@ -185,11 +182,10 @@ public class AppContext {
     }
 
     public void reset(boolean resetPlayer) {
-        setSong(null);
         lastSavedCommand.set(null);
         history.clear();
         player.stop();
-        visibleArea.setDefault();
+        displayContext.reset();
         if (resetPlayer) {
             player.reset();
         }

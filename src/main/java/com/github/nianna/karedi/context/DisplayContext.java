@@ -96,6 +96,7 @@ public class DisplayContext {
         if (newSong == null) {
             setActiveTrack(null);
             activeSongTrackCount.set(0);
+            visibleArea.setDefault();
         } else {
             newSong.getBeatMillisConverter().addListener(beatMillisConverterInvalidationListener);
             activeSongTrackCount.bind(newSong.trackCount());
@@ -220,5 +221,9 @@ public class DisplayContext {
 
     public void setMaxTime(Long maxTime) {
         beatRange.setMaxTime(maxTime);
+    }
+
+    public void reset() {
+        setActiveSong(null);
     }
 }

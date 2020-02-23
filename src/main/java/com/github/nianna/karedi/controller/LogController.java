@@ -12,7 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import main.java.com.github.nianna.karedi.context.AppContext;
+import main.java.com.github.nianna.karedi.context.LoggingContext;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import org.controlsfx.glyphfont.FontAwesome;
@@ -38,10 +38,10 @@ public class LogController implements Controller {
 	@FXML
 	private ListView<LogRecord> list;
 
-    private final AppContext appContext;
+    private final LoggingContext loggingContext;
 
-    public LogController(AppContext appContext) {
-        this.appContext = appContext;
+    public LogController(LoggingContext loggingContext) {
+        this.loggingContext = loggingContext;
     }
 
 	@FXML
@@ -56,28 +56,32 @@ public class LogController implements Controller {
 
 	@Override
     public void onSceneAndContextInitialized() {
-		appContext.getMainLogger().addHandler(new Handler() {
-
-			@Override
-			public void publish(LogRecord record) {
-				list.getItems().add(record);
-				Platform.runLater(() -> list.scrollTo(record));
-				list.fireEvent(new StateEvent(State.NEEDS_ATTENTION));
-			}
-
-			@Override
-			public void flush() {
-				list.getItems().clear();
-			}
-
-			@Override
-			public void close() throws SecurityException {
-				list.setDisable(true);
-			}
-		});
+        loggingContext.getMainLogger().addHandler(newLogRecordChangesHandler());
 
 		list.setDisable(false);
 	}
+
+    private Handler newLogRecordChangesHandler() {
+        return new Handler() {
+
+            @Override
+            public void publish(LogRecord record) {
+                list.getItems().add(record);
+                Platform.runLater(() -> list.scrollTo(record));
+                list.fireEvent(new StateEvent(State.NEEDS_ATTENTION));
+            }
+
+            @Override
+            public void flush() {
+                list.getItems().clear();
+            }
+
+            @Override
+            public void close() throws SecurityException {
+                list.setDisable(true);
+            }
+        };
+    }
 
 	@Override
 	public Node getContent() {

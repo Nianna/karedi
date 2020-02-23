@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 @Component
 public class AppContext {
-    public static final Logger LOGGER = Logger.getLogger(KarediApp.class.getPackage().getName()); //TODO refactor
+    public static final Logger LOGGER = Logger.getLogger(AppContext.class.getName());
 
     private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 
@@ -50,10 +50,6 @@ public class AppContext {
     // Convenience bindings for actions
     private BooleanBinding activeFileIsNull;
 
-    public AppContext() {
-        LOGGER.setUseParentHandlers(false);
-    }
-
     public BooleanBinding hasNoChangesToBeSavedProperty() {
         return displayContext.activeSongIsNullProperty().or(songChangesContext.hasNoChangesProperty());
     }
@@ -65,8 +61,6 @@ public class AppContext {
     @PostConstruct
     public void initAppContext() {
         activeFileIsNull = activeFileProperty().isNull();
-
-        LOGGER.setUseParentHandlers(false);
 
         guards.forEach(Guard::enable);
     }
@@ -146,10 +140,6 @@ public class AppContext {
     // Other
     public boolean needsSaving() {
         return getSong() != null && songChangesContext.hasChanges();
-    }
-
-    public Logger getMainLogger() {
-        return LOGGER;
     }
 
     public void reset(boolean resetPlayer) {

@@ -2,10 +2,9 @@ package main.java.com.github.nianna.karedi.action.file;
 
 import javafx.event.ActionEvent;
 import main.java.com.github.nianna.karedi.action.ActionManager;
-import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
 import static main.java.com.github.nianna.karedi.action.KarediActions.SAVE;
@@ -16,10 +15,10 @@ class SaveSongAction extends KarediAction {
     private final AppContext appContext;
     private final ActionManager actionManager;
 
-    SaveSongAction(AppContext appContext, DisplayContext displayContext, ActionManager actionManager) {
+    SaveSongAction(AppContext appContext, ActionManager actionManager) {
         this.appContext = appContext;
         this.actionManager = actionManager;
-        setDisabledCondition(displayContext.activeSongIsNullProperty().or(appContext.hasNoChangesProperty()));
+        setDisabledCondition(appContext.hasNoChangesToBeSavedProperty());
     }
 
     @Override

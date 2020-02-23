@@ -1,16 +1,12 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
-import main.java.com.github.nianna.karedi.command.Command;
-import main.java.com.github.nianna.karedi.command.CommandHistory;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.song.Song;
 import main.java.com.github.nianna.karedi.song.tag.TagKey;
@@ -28,8 +24,6 @@ public class AppContext {
 
     private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
 
-    private final ObjectProperty<Command> lastSavedCommand = new SimpleObjectProperty<>();
-
     @Autowired
     private DisplayContext displayContext;
 
@@ -37,10 +31,10 @@ public class AppContext {
     private SongLoader songLoader;
 
     @Autowired
-    private SongSaver songSaver;
+    private SongChangesContext songChangesContext;
 
     @Autowired
-    private CommandHistory history;
+    private SongSaver songSaver;
 
     @Autowired
     private SongPlayer player;
@@ -60,8 +54,8 @@ public class AppContext {
         LOGGER.setUseParentHandlers(false);
     }
 
-    public BooleanBinding hasNoChangesProperty() {
-        return lastSavedCommand.isEqualTo(history.activeCommandProperty());
+    public BooleanBinding hasNoChangesToBeSavedProperty() {
+        return displayContext.activeSongIsNullProperty().or(songChangesContext.hasNoChangesProperty());
     }
 
     public BooleanBinding activeFileIsNullProperty() {
@@ -128,7 +122,7 @@ public class AppContext {
     public boolean saveSongToFile(File file) {
         if (file != null) {
             if (songSaver.saveSongToFile(file, getSong())) {
-                lastSavedCommand.set(history.getActiveCommand());
+                songChangesContext.persistChanges();
                 return true;
             }
         }
@@ -151,7 +145,7 @@ public class AppContext {
 
     // Other
     public boolean needsSaving() {
-        return getSong() != null && lastSavedCommand.get() != history.getActiveCommand();
+        return getSong() != null && songChangesContext.hasChanges();
     }
 
     public Logger getMainLogger() {
@@ -159,8 +153,7 @@ public class AppContext {
     }
 
     public void reset(boolean resetPlayer) {
-        lastSavedCommand.set(null);
-        history.clear();
+        songChangesContext.abandonChanges();
         player.stop();
         displayContext.reset();
         if (resetPlayer) {

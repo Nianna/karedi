@@ -8,7 +8,6 @@ import main.java.com.github.nianna.karedi.KarediApp.ViewMode;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.view.SwitchViewModeAction;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
@@ -65,8 +64,6 @@ public class ToolbarController implements Controller {
 	@FXML
 	private Glyph switchModeGlyph;
 
-	private AppContext appContext;
-
 	private final SwitchViewModeAction switchViewModeAction;
 
     private final ActionManager actionManager;
@@ -77,9 +74,7 @@ public class ToolbarController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-
+	public void onSceneAndContextInitialized() {
 		bind(newButton, KarediActions.NEW);
 		bind(openButton, KarediActions.LOAD);
 		bind(saveButton, KarediActions.SAVE);

@@ -11,8 +11,8 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import main.java.com.github.nianna.karedi.KarediApp;
 import main.java.com.github.nianna.karedi.action.ActionManager;
-import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.event.ControllerEvent;
@@ -148,32 +148,30 @@ public class RootController implements Controller {
 		});
 	}
 
-	@Override
-	public void setAppContext(AppContext appContext) {
-//		this.appContext = appContext;
+	public void onSceneAndContextInitialized() {
         actionManager.addAction(new EditLyricsAction());
 
 		// Top tab bar
-		tagsTableController.setAppContext(appContext);
-		scratchpadController.setAppContext(appContext);
-		audioManagerController.setAppContext(appContext);
-		historyController.setAppContext(appContext);
-		tracksController.setAppContext(appContext);
-		lyricsEditorController.setAppContext(appContext);
+		tagsTableController.onSceneAndContextInitialized();
+		scratchpadController.onSceneAndContextInitialized();
+		audioManagerController.onSceneAndContextInitialized();
+		historyController.onSceneAndContextInitialized();
+		tracksController.onSceneAndContextInitialized();
+		lyricsEditorController.onSceneAndContextInitialized();
 
 		// Main editor
-		trackFillBarController.setAppContext(appContext);
-		editorController.setAppContext(appContext);
-		lineNumberController.setAppContext(appContext);
-		lyricsLabelController.setAppContext(appContext);
+		trackFillBarController.onSceneAndContextInitialized();
+		editorController.onSceneAndContextInitialized();
+		lineNumberController.onSceneAndContextInitialized();
+		lyricsLabelController.onSceneAndContextInitialized();
 
 		// Bottom tab bar
-		logController.setAppContext(appContext);
-		problemsController.setAppContext(appContext);
+		logController.onSceneAndContextInitialized();
+		problemsController.onSceneAndContextInitialized();
 
 		// Must be last because other controllers may want to add some actions
-		toolbarController.setAppContext(appContext);
-		menuBarController.setAppContext(appContext);
+		toolbarController.onSceneAndContextInitialized();
+		menuBarController.onSceneAndContextInitialized();
 	}
 
 	private void updateState(Tab tab, State state) {

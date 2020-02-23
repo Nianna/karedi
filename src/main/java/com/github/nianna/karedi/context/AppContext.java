@@ -129,7 +129,7 @@ public class AppContext {
         return false;
     }
 
-    public Song getSong() {
+    private Song getSong() {
         return displayContext.activeSongProperty().get();
     }
 

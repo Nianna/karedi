@@ -11,7 +11,6 @@ import javafx.scene.input.KeyCombination.ModifierValue;
 import javafx.scene.input.KeyEvent;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import org.controlsfx.control.action.Action;
 import org.springframework.stereotype.Component;
 
@@ -237,19 +236,14 @@ public class MenuBarController implements Controller {
 	@FXML
 	private MenuItem resetPianoMenuItem;
 
-	private AppContext appContext;
-
     private final ActionManager actionManager;
 
     public MenuBarController(ActionManager actionManager) {
         this.actionManager = actionManager;
     }
 
-
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-
+    public void onSceneAndContextInitialized() {
 		bindFileMenu();
 		bindEditMenu();
 		bindLyricsMenu();

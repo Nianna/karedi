@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.BeatRange;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.display.FillBar;
@@ -42,7 +41,6 @@ public class TrackFillBarsController implements Controller {
 	@FXML
 	private Rectangle rect;
 
-	private AppContext appContext;
 	private Bounded<Integer> area;
 
 	private Map<SongTrack, FillBar<Integer>> fillBarMap = new HashMap<>();
@@ -79,9 +77,7 @@ public class TrackFillBarsController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-
+	public void onSceneAndContextInitialized() {
 		displayContext.activeSongProperty().addListener(this::onActiveSongChanged);
 		displayContext.activeTrackProperty().addListener(this::onActiveTrackChanged);
 

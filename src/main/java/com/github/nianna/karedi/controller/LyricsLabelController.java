@@ -10,9 +10,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
-import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.region.IntBounded;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -37,7 +36,6 @@ public class LyricsLabelController implements Controller {
 
 	private Map<Note, NoteText> noteTexts = new HashMap<>();
 
-	private AppContext appContext;
 	private IntBounded visibleArea;
 	private Note lastColoredNote;
 
@@ -68,8 +66,7 @@ public class LyricsLabelController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+    public void onSceneAndContextInitialized() {
         visibleArea = displayContext.getVisibleAreaBounds();
 
         visibleArea.addListener(this::onVisibleAreaInvalidated);

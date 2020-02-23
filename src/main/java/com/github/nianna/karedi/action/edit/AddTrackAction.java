@@ -1,13 +1,12 @@
 package main.java.com.github.nianna.karedi.action.edit;
 
 import javafx.event.ActionEvent;
-import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.ChangePostStateCommandDecorator;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.track.AddTrackCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import org.springframework.stereotype.Component;
 
@@ -18,20 +17,18 @@ class AddTrackAction extends KarediAction {
 
     private final DisplayContext displayContext;
     private final CommandExecutor commandExecutor;
-    private final AppContext appContext; //TODO
 
-    private AddTrackAction(DisplayContext displayContext, CommandExecutor commandExecutor, AppContext appContext) {
+    private AddTrackAction(DisplayContext displayContext, CommandExecutor commandExecutor) {
         this.displayContext = displayContext;
         this.commandExecutor = commandExecutor;
-        this.appContext = appContext;
         setDisabledCondition(this.displayContext.activeSongIsNullProperty());
     }
 
     @Override
     protected void onAction(ActionEvent event) {
-        Command cmd = new AddTrackCommand(appContext.getSong());
+        Command cmd = new AddTrackCommand(displayContext.getActiveSong());
         commandExecutor.execute(new ChangePostStateCommandDecorator(cmd, c -> {
-            appContext.getSong().getLastTrack().ifPresent(displayContext::setActiveTrack);
+            displayContext.getActiveSong().getLastTrack().ifPresent(displayContext::setActiveTrack);
         }));
     }
 

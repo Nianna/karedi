@@ -12,7 +12,6 @@ import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandHistory;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.util.BindingsUtils;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,6 @@ public class HistoryController implements Controller {
 	@FXML
 	private MenuItem clearMenuItem;
 
-	private AppContext appContext;
 	private boolean changedByUser = false;
 
     private final CommandHistory history;
@@ -48,8 +46,7 @@ public class HistoryController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+    public void onSceneAndContextInitialized() {
 		list.setDisable(false);
 		list.setItems(history.getList());
 		clearMenuItem.disableProperty().bind(BindingsUtils.isEmpty(list.getItems()));

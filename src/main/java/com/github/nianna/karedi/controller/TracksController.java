@@ -20,7 +20,6 @@ import main.java.com.github.nianna.karedi.command.track.ChangeTrackColorCommand;
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackFontColorCommand;
 import main.java.com.github.nianna.karedi.command.track.ChangeTrackNameCommand;
 import main.java.com.github.nianna.karedi.command.track.ReorderTracksCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.control.CheckBoxTableCell;
 import main.java.com.github.nianna.karedi.control.ColorPickerTableCell;
@@ -55,7 +54,6 @@ public class TracksController implements Controller {
 	@FXML
 	private ContextMenu baseContextMenu;
 
-	private AppContext appContext;
 	private Song song;
 
 	private final DisplayContext displayContext;
@@ -82,8 +80,7 @@ public class TracksController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+    public void onSceneAndContextInitialized() {
 		song = displayContext.getActiveSong();
 
 		displayContext.activeSongProperty().addListener(obs -> display(displayContext.getActiveSong()));

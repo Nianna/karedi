@@ -1,13 +1,5 @@
 package main.java.com.github.nianna.karedi.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
@@ -23,7 +15,14 @@ import javafx.scene.paint.Color;
 import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 @Component
 public class LogController implements Controller {
@@ -39,6 +38,12 @@ public class LogController implements Controller {
 	@FXML
 	private ListView<LogRecord> list;
 
+    private final AppContext appContext;
+
+    public LogController(AppContext appContext) {
+        this.appContext = appContext;
+    }
+
 	@FXML
 	public void initialize() {
 		list.setCellFactory(param -> new LogListCell());
@@ -50,7 +55,7 @@ public class LogController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
+    public void onSceneAndContextInitialized() {
 		appContext.getMainLogger().addHandler(new Handler() {
 
 			@Override

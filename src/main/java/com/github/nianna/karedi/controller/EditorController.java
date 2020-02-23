@@ -28,11 +28,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.ActionManager;
-import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.Player.Status;
 import main.java.com.github.nianna.karedi.command.*;
-import main.java.com.github.nianna.karedi.context.*;
+import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
+import main.java.com.github.nianna.karedi.context.SongPlayer;
+import main.java.com.github.nianna.karedi.context.VisibleArea;
 import main.java.com.github.nianna.karedi.display.MainChart;
 import main.java.com.github.nianna.karedi.display.NoteNode;
 import main.java.com.github.nianna.karedi.display.Piano;
@@ -72,7 +75,6 @@ public class EditorController implements Controller {
 	@FXML
 	private Piano piano;
 
-	private AppContext appContext;
 	private ObservableMap<Note, NoteNode> notesMap = FXCollections.observableMap(new HashMap<>());
 
 	private ListChangeListener<? super Note> noteListChangeListener;
@@ -123,8 +125,7 @@ public class EditorController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+    public void onSceneAndContextInitialized() {
 		displayContext.activeSongProperty().addListener(this::onSongChanged);
         displayContext.getVisibleAreaBounds().addListener(this::onVisibleAreaChanged);
 		selection.get().addListener(

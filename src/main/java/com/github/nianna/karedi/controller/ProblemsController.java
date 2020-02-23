@@ -12,8 +12,8 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.command.Command;
 import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.context.AppContext;
-import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
+import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.event.StateEvent;
 import main.java.com.github.nianna.karedi.event.StateEvent.State;
 import main.java.com.github.nianna.karedi.problem.Problem;
@@ -96,8 +96,7 @@ public class ProblemsController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+	public void onSceneAndContextInitialized() {
 		displayContext.activeSongProperty().addListener(this::onSongChanged);
 
 		tree.getSelectionModel().selectedItemProperty().addListener(this::onSelectionInvalidated);

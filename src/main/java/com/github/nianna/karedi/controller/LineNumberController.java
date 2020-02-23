@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.song.SongLine;
 import main.java.com.github.nianna.karedi.song.SongTrack;
@@ -20,7 +19,6 @@ public class LineNumberController implements Controller {
 	@FXML
 	private Text label;
 
-	private AppContext appContext;
 	private ListChangeListener<? super SongLine> lineListChangeListener;
 	private final DisplayContext displayContext;
 
@@ -29,9 +27,7 @@ public class LineNumberController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-
+    public void onSceneAndContextInitialized() {
 		lineListChangeListener = ListenersUtils.createListChangeListener(line -> updateLabel(),
 				ListenersUtils::pass, ListenersUtils::pass, ListenersUtils::pass);
 

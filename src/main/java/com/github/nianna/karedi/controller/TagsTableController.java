@@ -19,7 +19,6 @@ import main.java.com.github.nianna.karedi.command.CommandExecutor;
 import main.java.com.github.nianna.karedi.command.tag.ChangeTagValueCommand;
 import main.java.com.github.nianna.karedi.command.tag.DeleteTagCommand;
 import main.java.com.github.nianna.karedi.command.tag.ReorderTagsCommand;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.control.RestrictedTextField;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -51,7 +50,6 @@ public class TagsTableController implements Controller {
 	@FXML
 	private ContextMenu baseContextMenu;
 
-	private AppContext appContext;
 	private Song song;
 
 	private final DisplayContext displayContext;
@@ -75,8 +73,7 @@ public class TagsTableController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+	public void onSceneAndContextInitialized() {
 		displayContext.activeSongProperty().addListener((obs, oldVal, newVal) -> display(newVal));
 
 		table.setRowFactory(getRowFactory());

@@ -17,10 +17,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import main.java.com.github.nianna.karedi.action.ActionManager;
-import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.action.KarediAction;
+import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.command.*;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.NoteSelection;
 import main.java.com.github.nianna.karedi.song.Note;
@@ -57,8 +56,6 @@ public class LyricsEditorController implements Controller {
 	private VirtualizedScrollPane<CodeArea> scrollPane;
 	private NoteTextArea textArea;
 
-	private AppContext appContext;
-	
 	private final NoteSelection noteSelection;
 
 	private TextAndNoteSelectionSynchronizer synchronizer;
@@ -130,8 +127,7 @@ public class LyricsEditorController implements Controller {
 	};
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
+    public void onSceneAndContextInitialized() {
 		displayContext.activeTrackProperty().addListener(this::onTrackChanged);
 		scrollPane.disableProperty().bind(displayContext.activeTrackProperty().isNull());
 

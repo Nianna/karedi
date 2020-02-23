@@ -17,7 +17,6 @@ import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.action.KarediActions;
 import main.java.com.github.nianna.karedi.audio.CachedAudioFile;
-import main.java.com.github.nianna.karedi.context.AppContext;
 import main.java.com.github.nianna.karedi.context.DisplayContext;
 import main.java.com.github.nianna.karedi.context.SongPlayer;
 import main.java.com.github.nianna.karedi.control.SliderTableCell;
@@ -38,8 +37,6 @@ public class AudioManagerController implements Controller {
 	private TableColumn<CachedAudioFile, DoubleProperty> volumeColumn;
 	@FXML
 	private ContextMenu baseContextMenu;
-
-	private AppContext appContext;
 
     private final SongPlayer songPlayer;
 
@@ -80,9 +77,7 @@ public class AudioManagerController implements Controller {
 	}
 
 	@Override
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
-
+    public void onSceneAndContextInitialized() {
 		table.setRowFactory(getRowFactory());
 
 		songPlayer.activeAudioFileProperty().addListener(

@@ -1,11 +1,9 @@
 package main.java.com.github.nianna.karedi.context;
 
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import main.java.com.github.nianna.karedi.I18N;
 import main.java.com.github.nianna.karedi.KarediApp;
-import main.java.com.github.nianna.karedi.action.ActionManager;
 import main.java.com.github.nianna.karedi.audio.AudioFileLoader;
 import main.java.com.github.nianna.karedi.guard.Guard;
 import main.java.com.github.nianna.karedi.song.Song;
@@ -23,6 +21,8 @@ public class AppContext {
     public static final Logger LOGGER = Logger.getLogger(AppContext.class.getName());
 
     private final ReadOnlyObjectWrapper<File> activeFile = new ReadOnlyObjectWrapper<>();
+
+    private final BooleanBinding activeFileIsNull = activeFile.isNull();
 
     @Autowired
     private DisplayContext displayContext;
@@ -42,13 +42,10 @@ public class AppContext {
     @Autowired
     private List<Guard> guards;
 
-    @Autowired
-    private ActionManager actionManager;
-
-    private File directory;
-
-    // Convenience bindings for actions
-    private BooleanBinding activeFileIsNull;
+    @PostConstruct
+    public void initAppContext() {
+        guards.forEach(Guard::enable);
+    }
 
     public BooleanBinding hasNoChangesToBeSavedProperty() {
         return displayContext.activeSongIsNullProperty().or(songChangesContext.hasNoChangesProperty());
@@ -56,13 +53,6 @@ public class AppContext {
 
     public BooleanBinding activeFileIsNullProperty() {
         return activeFileIsNull;
-    }
-
-    @PostConstruct
-    public void initAppContext() {
-        activeFileIsNull = activeFileProperty().isNull();
-
-        guards.forEach(Guard::enable);
     }
 
     public void loadAudioFile(File file) {
@@ -77,23 +67,13 @@ public class AppContext {
         }));
     }
 
-    // Files
-    public ReadOnlyObjectProperty<File> activeFileProperty() {
-        return activeFile.getReadOnlyProperty();
-    }
-
     public File getActiveFile() {
-        return activeFileProperty().get();
+        return activeFile.get();
     }
 
     public void setActiveFile(File file) {
         this.activeFile.set(file);
         KarediApp.getInstance().updatePrimaryStageTitle(file);
-        directory = file == null ? null : file.getParentFile();
-    }
-
-    public File getDirectory() {
-        return directory;
     }
 
     public void loadSongFile(File file) {
@@ -137,7 +117,6 @@ public class AppContext {
         }
     }
 
-    // Other
     public boolean needsSaving() {
         return getSong() != null && songChangesContext.hasChanges();
     }
